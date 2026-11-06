@@ -8,8 +8,7 @@
 ## SavedVariables: NameScoreDB
 ## OptionalDeps: ElvUI
 ## X-License: MIT
-# After creating the CurseForge project, uncomment the line below (remove one #) and enter the ID:
-# ## X-Curse-Project-ID: 000000
+## X-Curse-Project-ID: 1788050
 
 Locale.lua
 NameScore.lua
