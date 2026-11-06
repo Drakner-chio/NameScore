@@ -1,12 +1,13 @@
--- NameScore UI: Abzeichen im Tooltip, Bewertungsfenster mit Sternen & Tags, ElvUI-Skin
+-- NameScore UI: tooltip badge, rating window with stars & tags, ElvUI skin
 local ADDON_NAME, ns = ...
+local L = ns.L
 
 local BACKDROP_TEMPLATE = BackdropTemplateMixin and "BackdropTemplate" or nil
 local WHITE = "Interface\\Buttons\\WHITE8x8"
 local STAR_TEX = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1"
 
 -- ---------------------------------------------------------------
--- ElvUI erkennen (optional)
+-- ElvUI detection (optional)
 -- ---------------------------------------------------------------
 local function GetElvUI()
     if not ElvUI then return nil end
@@ -23,7 +24,7 @@ local function ElvFont(fs, E, size)
 end
 
 -- ---------------------------------------------------------------
--- Tooltip-Abzeichen (Variante B)
+-- Tooltip badge
 -- ---------------------------------------------------------------
 local badge
 
@@ -33,7 +34,7 @@ local function CreateBadge()
     badge = CreateFrame("Frame", nil, GameTooltip)
     badge:SetHeight(40)
 
-    -- Quadrat mit Score, Rahmen in Rangfarbe
+    -- Square with the score, border in rank color
     badge.box = CreateFrame("Frame", nil, badge, BACKDROP_TEMPLATE)
     badge.box:SetSize(38, 38)
     badge.box:SetPoint("LEFT")
@@ -87,7 +88,7 @@ local function AddToTooltip(tt, unit)
 
     local avg, n, tags = ns.GetScore(target)
     if not avg then
-        tt:AddLine("|cffff8000NameScore|r |cff777777– noch nicht bewertet|r")
+        tt:AddLine("|cffff8000NameScore|r |cff777777– " .. L.NOT_RATED .. "|r")
         tt:Show()
         return
     end
@@ -101,23 +102,23 @@ local function AddToTooltip(tt, unit)
     badge.box:SetBackdropBorderColor(cr, cg, cb, 1)
     badge.rank:SetText(r.label:upper())
     badge.rank:SetTextColor(cr, cg, cb)
-    badge.votes:SetText(n .. (n == 1 and " Stimme" or " Stimmen"))
+    badge.votes:SetText(n .. " " .. ns.Plural(n, L.VOTE, L.VOTES))
     badge.bar:SetValue(avg)
     badge.bar:SetStatusBarColor(cr, cg, cb)
 
     local parts = {}
     for i = 1, math.min(#tags, 3) do
-        local label = ns.TAG_LABEL[tags[i].tag]
+        local label = ns.TagLabel(tags[i].tag)
         parts[#parts + 1] = (i == 1) and ("|cffffd100" .. label .. "|r") or label
     end
     if #parts > 0 then
         badge.tags:SetText(table.concat(parts, "  ·  "))
     else
-        badge.tags:SetText("|cff777777noch keine Tags|r")
+        badge.tags:SetText("|cff777777" .. L.NO_TAGS .. "|r")
     end
 
-    -- Platz im Tooltip reservieren (4 Zeilen = Luft nach unten für andere Addons)
-    -- und das Abzeichen darüberlegen
+    -- Reserve space in the tooltip (4 lines leave room below for other addons)
+    -- and place the badge on top of it
     for _ = 1, 4 do tt:AddLine(" ") end
     local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 3)]
     badge:SetParent(tt)
@@ -146,7 +147,7 @@ GameTooltip:HookScript("OnTooltipCleared", HideBadge)
 GameTooltip:HookScript("OnHide", HideBadge)
 
 -- ---------------------------------------------------------------
--- Bewertungsfenster (Variante B: Sterne & Tags)
+-- Rating window (stars & tags)
 -- ---------------------------------------------------------------
 local frame
 local state = { stars = 0, tags = {} }
@@ -207,7 +208,7 @@ local function BuildFrame()
     frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
     frame:SetFrameStrata("DIALOG")
     frame:Hide()
-    tinsert(UISpecialFrames, "NameScoreFrame") -- ESC schließt
+    tinsert(UISpecialFrames, "NameScoreFrame") -- ESC closes the window
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.title:SetPoint("TOP", 0, -5)
@@ -215,7 +216,7 @@ local function BuildFrame()
     frame.current = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.current:SetPoint("TOP", 0, -32)
 
-    -- 5 Sterne
+    -- 5 stars
     frame.stars = {}
     for i = 1, 5 do
         local b = CreateFrame("Button", nil, frame)
@@ -230,20 +231,20 @@ local function BuildFrame()
         end)
         b:SetScript("OnEnter", function()
             GameTooltip:SetOwner(b, "ANCHOR_TOP")
-            GameTooltip:SetText(i .. (i == 1 and " Stern" or " Sterne"))
+            GameTooltip:SetText(i .. " " .. ns.Plural(i, L.STAR, L.STARS))
             GameTooltip:Show()
         end)
         b:SetScript("OnLeave", function() GameTooltip:Hide() end)
         frame.stars[i] = b
     end
 
-    -- Tags (mehrere möglich)
+    -- Tags (multiple allowed)
     frame.tagButtons = {}
     for i, tag in ipairs(ns.TAGS) do
         local b = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
         b:SetSize(64, 22)
         b:SetPoint("TOPLEFT", frame, "TOPLEFT", 14 + (i - 1) * 68, -100)
-        b:SetText(ns.TAG_LABEL[tag])
+        b:SetText(ns.TagLabel(tag))
         b:SetScript("OnClick", function()
             state.tags[tag] = not state.tags[tag] or nil
             UpdateTags()
@@ -254,7 +255,7 @@ local function BuildFrame()
     frame.send = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     frame.send:SetSize(270, 28)
     frame.send:SetPoint("BOTTOM", 0, 16)
-    frame.send:SetText("Senden")
+    frame.send:SetText(L.SUBMIT)
     frame.send:SetScript("OnClick", function()
         ns.Rate(frame.target, state.stars, state.tags)
         frame:Hide()
@@ -264,8 +265,8 @@ local function BuildFrame()
 end
 
 function ns.OpenRating(target)
-    if not target then ns.Print("Ziele zuerst einen Spieler an.") return end
-    if target == ns.me then ns.Print("Den eigenen Namen bewerten zählt nicht. ;)") return end
+    if not target then ns.Print(L.NO_TARGET) return end
+    if target == ns.me then ns.Print(L.NO_SELF) return end
     if not frame then BuildFrame() end
 
     frame.target = target
@@ -277,7 +278,7 @@ function ns.OpenRating(target)
     end
 
     frame.title:SetText(ns.ShortName(target))
-    frame.current:SetText("Aktuell: " .. ns.ScoreLine(target))
+    frame.current:SetText(string.format(L.CURRENT, ns.ScoreLine(target)))
     UpdateStars()
     UpdateTags()
     frame:Show()

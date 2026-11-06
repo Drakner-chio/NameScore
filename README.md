@@ -1,54 +1,57 @@
 # NameScore
 
-Community-Addon für **World of Warcraft: Forever**: Bewerte die Namen anderer Spieler mit 1–5 Sternen und Tags – der Score erscheint wie bei Raider.io im Tooltip.
+Community addon for **World of Warcraft: Forever**: rate other players' names with 1–5 stars and tags – the score shows up in their tooltip, Raider.io style.
 
-## Funktionen
+## Features
 
-- **Tooltip-Abzeichen:** Score (1–10), Rang von *Schrott* bis *Legendär* in Item-Qualitätsfarben, Balken, Anzahl Stimmen und die häufigsten Tags
-- **Bewertungsfenster:** 1–5 Sterne plus beliebig viele Tags (Lustig, Episch, Kreativ, Cringe)
-- **In-Game-Sync:** Stimmen werden über Gilde und Gruppe/Raid geteilt – ganz ohne externe Server
-- **ElvUI-Skin:** Ist ElvUI installiert, übernimmt NameScore automatisch dessen Rahmen, Schrift und Farben
+- **Tooltip badge:** score (1–10), rank from *Poor* to *Legendary* in item quality colors, score bar, number of votes and the most popular tags
+- **Rating window:** 1–5 stars plus any number of tags (Funny, Epic, Creative, Cringe)
+- **In-game sync:** votes are shared with your guild and party/raid – no external servers
+- **ElvUI skin:** if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
+- **Languages:** English and German
 
-## Befehle
+## Commands
 
-| Befehl | Wirkung |
+| Command | What it does |
 |---|---|
-| `/ns` | Bewertungsfenster für dein Ziel öffnen |
-| `/ns 4 lustig kreativ` | Ziel direkt mit 4 Sternen und Tags bewerten |
-| `/ns check Name` | Score eines Spielers nachschlagen |
-| `/ns sync` | Stimmen von Gilde und Gruppe anfragen |
+| `/ns` | Open the rating window for your target |
+| `/ns 4 funny creative` | Rate your target with 4 stars and tags directly |
+| `/ns check Name` | Look up a player's score |
+| `/ns sync` | Request votes from your guild and group |
 
-## Wie der Sync funktioniert
+Tags can be typed in English (`funny epic creative cringe`) or German (`lustig episch kreativ cringe`).
 
-Jeder Spieler verschickt nur seine **eigenen** Stimmen. Der Absender einer Addon-Nachricht wird vom Spiel gesetzt, deshalb kann niemand Stimmen im Namen anderer fälschen. Beim Login und beim Gruppenbeitritt fragt NameScore die anderen nach ihren Stimmen. Man sieht also Stimmen von allen Gilden- und Gruppenmitgliedern, die gleichzeitig online sind oder waren.
+## How sync works
 
-WoW Forever erlaubt keine Addon-Nachrichten in eigenen Chat-Kanälen, deshalb gibt es keinen gildenübergreifenden Sync-Kanal.
+Each player only sends their **own** votes. The game sets the sender of every addon message, so nobody can fake votes on behalf of others. When you log in or join a group, NameScore asks the others for their votes. You see votes from guild and group members who are (or were) online at the same time as you.
 
-**Stimmen sind nicht anonym:** Jede Stimme wird mit dem Namen des Absenders gespeichert, damit niemand Stimmen fälschen kann. Im Spiel zeigt NameScore nur Durchschnitt und Anzahl, aber wer das Addon hat, kann in der gespeicherten Datei sehen, wer wen wie bewertet hat.
+WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
+
+**Votes are not anonymous:** each vote is stored with the voter's name to prevent fake votes. In-game NameScore only shows the average and the number of votes, but anyone with the addon could look up who rated whom in the saved variables.
 
 ## Installation
 
-Über CurseForge, oder manuell: Release-Zip herunterladen und den Ordner `NameScore` nach `World of Warcraft\<Forever-Ordner>\Interface\AddOns\` entpacken.
+Via CurseForge, or manually: download the release zip and extract the `NameScore` folder to `World of Warcraft\<Forever folder>\Interface\AddOns\`.
 
-## Release erstellen
+## Releasing
 
 ```bash
 git tag v0.2.0
 git push origin v0.2.0
 ```
 
-Die GitHub Action baut das Zip mit dem [BigWigs Packager](https://github.com/BigWigsMods/packager) und hängt es an ein GitHub Release. Für den automatischen Upload zu CurseForge:
+The GitHub Action builds the zip with the [BigWigs Packager](https://github.com/BigWigsMods/packager) and attaches it to a GitHub release. For automatic uploads to CurseForge:
 
-1. Projekt auf CurseForge anlegen und die Projekt-ID in `NameScore.toc` eintragen (`## X-Curse-Project-ID:`)
-2. API-Token unter [CurseForge → API Tokens](https://authors.curseforge.com/account/api-tokens) erzeugen
-3. Im GitHub-Repo unter *Settings → Secrets and variables → Actions* als `CF_API_KEY` speichern
+1. Create the project on CurseForge and enter its project ID in `NameScore.toc` (`## X-Curse-Project-ID:`)
+2. Create an API token at [CurseForge → API Tokens](https://authors.curseforge.com/account/api-tokens)
+3. Save it in the GitHub repo under *Settings → Secrets and variables → Actions* as `CF_API_KEY`
 
-Die englische Projektbeschreibung für CurseForge liegt in [`docs/curseforge.md`](docs/curseforge.md), das Projekt-Logo (400×400) in [`media/icon-400.png`](media/icon-400.png).
+The CurseForge project description is in [`docs/curseforge.md`](docs/curseforge.md), the project logo (400×400) in [`media/icon-400.png`](media/icon-400.png).
 
-## Fair bleiben
+## Keep it fun
 
-NameScore ist als Spaß gedacht. Es gibt bewusst keine Freitext-Kommentare, und niedrige Scores heißen „Cringe“ statt beleidigend.
+NameScore is meant as a bit of fun. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
 
-## Lizenz
+## License
 
 MIT

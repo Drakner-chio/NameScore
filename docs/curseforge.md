@@ -21,7 +21,7 @@ Target a player and type `/ns` to open the rating window.
 | Command | What it does |
 |---|---|
 | `/ns` | Open the rating window for your target |
-| `/ns 4 lustig kreativ` | Rate your target with 4 stars and tags directly |
+| `/ns 4 funny creative` | Rate your target with 4 stars and tags directly |
 | `/ns check Name` | Look up a player's score |
 | `/ns sync` | Request votes from your guild and group |
 
@@ -35,7 +35,7 @@ WoW: Forever does not allow addon messages in custom chat channels, so there is 
 
 ## Language
 
-The in-game interface is currently in **German**. English localization is planned – contributions are welcome!
+NameScore is available in **English** and **German** and follows your game client's language. More translations are welcome!
 
 ## Keep it fun
 

@@ -1,7 +1,7 @@
 name: Release
 
-# Ein Tag wie v0.2.0 pushen -> Zip bauen und zu GitHub Releases
-# (und, sobald die Secrets gesetzt sind, zu CurseForge/Wago) hochladen.
+# Push a tag like v0.2.0 -> build the zip and upload it to GitHub Releases
+# (and to CurseForge/Wago once the secrets are set).
 on:
   push:
     tags:

@@ -1,31 +1,45 @@
--- NameScore: Spielernamen bewerten, Community-Score im Tooltip
--- Kern: Datenhaltung, Score-Berechnung, In-Game-Sync, Slash-Befehle
+-- NameScore: rate player names, community score in the tooltip
+-- Core: data storage, score calculation, in-game sync, slash commands
 local ADDON_NAME, ns = ...
+local L = ns.L
 
 local PREFIX = "NAMESCORE"
 local OLD_SYNC_CHANNEL = "NameScoreSync"
-local MAX_SYNC_VOTES = 300      -- max. eigene Stimmen pro Sync-Antwort
-local SEND_INTERVAL = 0.25      -- Sekunden zwischen Addon-Nachrichten (Drosselung)
+local MAX_SYNC_VOTES = 300      -- max. own votes sent per sync reply
+local SEND_INTERVAL = 0.25      -- seconds between addon messages (throttling)
 
+-- Internal tag ids. They are part of the sync protocol and saved data,
+-- so they stay as they are; display names come from the locale.
 ns.TAGS = { "lustig", "episch", "kreativ", "cringe" }
-ns.TAG_LABEL = { lustig = "Lustig", episch = "Episch", kreativ = "Kreativ", cringe = "Cringe" }
 local VALID_TAG = {}
 for _, t in ipairs(ns.TAGS) do VALID_TAG[t] = true end
 
--- Rang-Skala im Stil der Item-Qualitäten
+-- Words accepted for tags in slash commands (English and German)
+local TAG_ALIAS = {
+    funny = "lustig", lustig = "lustig",
+    epic = "episch", episch = "episch",
+    creative = "kreativ", kreativ = "kreativ",
+    cringe = "cringe",
+}
+
+function ns.TagLabel(tag)
+    return L["TAG_" .. tag] or tag
+end
+
+-- Rank scale styled after item quality colors
 ns.RANKS = {
-    { min = 9.5, label = "Legendär",     hex = "ff8000" },
-    { min = 8.5, label = "Episch",       hex = "a335ee" },
-    { min = 7.0, label = "Selten",       hex = "0070dd" },
-    { min = 5.0, label = "Ungewöhnlich", hex = "1eff00" },
-    { min = 3.0, label = "Gewöhnlich",   hex = "ffffff" },
-    { min = 0,   label = "Schrott",      hex = "9d9d9d" },
+    { min = 9.5, label = L.RANK_LEGENDARY, hex = "ff8000" },
+    { min = 8.5, label = L.RANK_EPIC,      hex = "a335ee" },
+    { min = 7.0, label = L.RANK_RARE,      hex = "0070dd" },
+    { min = 5.0, label = L.RANK_UNCOMMON,  hex = "1eff00" },
+    { min = 3.0, label = L.RANK_COMMON,    hex = "ffffff" },
+    { min = 0,   label = L.RANK_POOR,      hex = "9d9d9d" },
 }
 
 local lastReq = {}
 
 -- ---------------------------------------------------------------
--- Hilfsfunktionen
+-- Helpers
 -- ---------------------------------------------------------------
 function ns.Print(msg)
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8000NameScore|r: " .. msg)
@@ -37,9 +51,9 @@ local function MyRealm()
     return r
 end
 
--- Einheitlicher Schlüssel für Spielernamen: eigener Server wird weggelassen,
--- fremde Server bleiben dran ("Name" bzw. "Name-Server"). So ergeben Tooltip,
--- Ziel und Absender von Addon-Nachrichten immer denselben Schlüssel.
+-- Canonical key for player names: own realm is dropped, other realms are kept
+-- ("Name" or "Name-Realm"). This way tooltip, target and addon message sender
+-- always resolve to the same key.
 function ns.FullName(name, realm)
     if not name or name == "" then return nil end
     local full = name
@@ -65,6 +79,10 @@ function ns.HexToRGB(hex)
     return tonumber(hex:sub(1, 2), 16) / 255, tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255
 end
 
+function ns.Plural(n, one, many)
+    return n == 1 and one or many
+end
+
 function ns.SerializeTags(set)
     local list = {}
     for _, t in ipairs(ns.TAGS) do
@@ -81,7 +99,7 @@ function ns.ParseTags(str)
     return set
 end
 
--- Liefert Durchschnitt (1-10), Anzahl Stimmen und Tags nach Häufigkeit sortiert
+-- Returns average (1-10), number of votes and tags sorted by frequency
 function ns.GetScore(target)
     local votes = ns.db and ns.db.votes[target]
     if not votes then return nil end
@@ -104,10 +122,10 @@ end
 
 function ns.ScoreLine(target)
     local avg, n = ns.GetScore(target)
-    if not avg then return "noch nicht bewertet" end
+    if not avg then return L.NOT_RATED end
     local r = ns.Rank(avg)
     return string.format("|cff%s%.1f %s|r |cffaaaaaa(%d %s)|r",
-        r.hex, avg, r.label, n, n == 1 and "Stimme" or "Stimmen")
+        r.hex, avg, r.label, n, ns.Plural(n, L.VOTE, L.VOTES))
 end
 
 function ns.MyVote(target)
@@ -116,7 +134,7 @@ function ns.MyVote(target)
 end
 
 -- ---------------------------------------------------------------
--- Senden mit Drosselung (Blizzard limitiert Addon-Nachrichten)
+-- Sending with throttling (Blizzard rate-limits addon messages)
 -- ---------------------------------------------------------------
 local queue = {}
 
@@ -129,8 +147,8 @@ C_Timer.NewTicker(SEND_INTERVAL, function()
     if m then C_ChatInfo.SendAddonMessage(PREFIX, m[1], m[2], m[3]) end
 end)
 
--- Hinweis: WoW Forever erlaubt keine Addon-Nachrichten in eigenen Chat-Kanälen,
--- daher läuft der Sync nur über Gilde und Gruppe/Raid.
+-- Note: WoW Forever does not allow addon messages in custom chat channels,
+-- so sync only uses guild and party/raid.
 local function Broadcast(msg)
     if IsInGuild() then Enqueue(msg, "GUILD") end
     if IsInRaid() then Enqueue(msg, "RAID")
@@ -142,14 +160,14 @@ local function VoteMessage(target, v)
 end
 
 -- ---------------------------------------------------------------
--- Bewerten: 1-5 Sterne, intern als 2-10 gespeichert
+-- Rating: 1-5 stars, stored internally as 2-10
 -- ---------------------------------------------------------------
 function ns.Rate(target, stars, tags)
-    if not target then ns.Print("Kein Spieler ausgewählt.") return end
-    if target == ns.me then ns.Print("Den eigenen Namen bewerten zählt nicht. ;)") return end
+    if not target then ns.Print(L.NO_TARGET) return end
+    if target == ns.me then ns.Print(L.NO_SELF) return end
     stars = tonumber(stars)
     if not stars or stars < 1 or stars > 5 or stars ~= math.floor(stars) then
-        ns.Print("Bitte 1 bis 5 Sterne vergeben.") return
+        ns.Print(L.STARS_RANGE) return
     end
     local clean = {}
     for t in pairs(tags or {}) do
@@ -160,8 +178,8 @@ function ns.Rate(target, stars, tags)
     local v = { s = stars * 2, tags = clean, ts = time() }
     ns.db.votes[target][ns.me] = v
     Broadcast(VoteMessage(target, v))
-    ns.Print(string.format("%s: %d Stern%s vergeben. Neuer Score: %s",
-        ns.ShortName(target), stars, stars == 1 and "" or "e", ns.ScoreLine(target)))
+    ns.Print(string.format(L.RATED, ns.ShortName(target), stars,
+        ns.Plural(stars, L.STAR, L.STARS), ns.ScoreLine(target)))
 end
 
 function ns.TargetFullName()
@@ -171,24 +189,24 @@ function ns.TargetFullName()
 end
 
 -- ---------------------------------------------------------------
--- Empfangen
+-- Receiving
 -- ---------------------------------------------------------------
 local function HandleMessage(msg, sender)
     sender = ns.FullName(sender)
     if not sender or sender == ns.me then return end
-    -- Zusätzliche Sicherung gegen das eigene Echo aus dem Gildenkanal
+    -- Extra guard against our own echo from the guild channel
     if ns.ShortName(sender) == ns.ShortName(ns.me) then return end
 
     if msg:sub(1, 2) == "V|" then
         local target, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
         s, ts = tonumber(s), tonumber(ts)
         if not target or not s or s < 1 or s > 10 then return end
-        if target == sender then return end          -- keine Selbstbewertung
-        if ts > time() + 300 then return end         -- Zeitstempel aus der Zukunft
+        if target == sender then return end          -- no self-rating
+        if ts > time() + 300 then return end         -- timestamp from the future
         ns.db.votes[target] = ns.db.votes[target] or {}
         local old = ns.db.votes[target][sender]
         if not old or ts > old.ts then
-            -- Stimme gilt nur für den Absender selbst -> niemand kann fremde Stimmen fälschen
+            -- A vote only counts for its sender -> nobody can fake votes for others
             ns.db.votes[target][sender] = { s = s, tags = ns.ParseTags(tagStr), ts = ts }
         end
     elseif msg == "REQ" then
@@ -206,7 +224,7 @@ local function HandleMessage(msg, sender)
     end
 end
 
--- Stimmen aus v0.1 (ein einzelnes Tag-Feld "t") ins neue Format bringen
+-- Convert votes from v0.1 (single tag field "t") to the current format
 local function MigrateDB(db)
     for _, votes in pairs(db.votes) do
         for _, v in pairs(votes) do
@@ -220,8 +238,8 @@ local function MigrateDB(db)
     end
 end
 
--- Alte Schlüssel ("Name-Server") auf das neue Format bringen und Doppelungen
--- zusammenführen, inkl. eigener Echo-Stimmen aus v0.2 (neueste Stimme gewinnt)
+-- Convert old keys ("Name-Realm") to the canonical format and merge duplicates,
+-- including own echo votes from v0.2 (newest vote wins)
 local function NormalizeDB(db)
     local myShort = ns.ShortName(ns.me)
     local normalized = {}
@@ -239,7 +257,7 @@ local function NormalizeDB(db)
 end
 
 -- ---------------------------------------------------------------
--- Slash-Befehle
+-- Slash commands
 -- ---------------------------------------------------------------
 SLASH_NAMESCORE1 = "/ns"
 SLASH_NAMESCORE2 = "/namescore"
@@ -255,20 +273,23 @@ SlashCmdList.NAMESCORE = function(input)
         ns.OpenRating(ns.TargetFullName())
     elseif tonumber(cmd) then
         local tags = {}
-        for i = 2, #args do tags[args[i]] = true end
+        for i = 2, #args do
+            local t = TAG_ALIAS[args[i]]
+            if t then tags[t] = true end
+        end
         ns.Rate(ns.TargetFullName(), cmd, tags)
-    elseif cmd == "check" and args[2] then
+    elseif cmd == "check" and raw[2] then
         local t = ns.FullName(raw[2])
         ns.Print(ns.ShortName(t) .. ": " .. ns.ScoreLine(t))
     elseif cmd == "sync" then
         Broadcast("REQ")
-        ns.Print("Sync angefragt – Stimmen anderer trudeln gleich ein.")
+        ns.Print(L.SYNC_REQUESTED)
     else
-        ns.Print("Befehle:")
-        ns.Print("/ns – Bewertungsfenster für dein Ziel")
-        ns.Print("/ns <1-5> [lustig episch kreativ cringe] – Ziel direkt bewerten")
-        ns.Print("/ns check <Name> – Score nachschlagen")
-        ns.Print("/ns sync – Stimmen von Gilde und Gruppe anfragen")
+        ns.Print(L.HELP_HEADER)
+        ns.Print(L.HELP_OPEN)
+        ns.Print(L.HELP_RATE)
+        ns.Print(L.HELP_CHECK)
+        ns.Print(L.HELP_SYNC)
     end
 end
 
@@ -286,14 +307,14 @@ ev:SetScript("OnEvent", function(_, event, ...)
         NameScoreDB = NameScoreDB or {}
         ns.db = NameScoreDB
         ns.db.votes = ns.db.votes or {}
-        ns.db.useChannel = nil   -- Altlast aus v0.1/v0.2
+        ns.db.useChannel = nil   -- leftover from v0.1/v0.2
         MigrateDB(ns.db)
         C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
         NormalizeDB(ns.db)
         C_Timer.After(8, function()
-            -- Alten Sync-Kanal aus früheren Versionen verlassen
+            -- Leave the sync channel used by earlier versions
             local id = GetChannelName(OLD_SYNC_CHANNEL)
             if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
             Broadcast("REQ")
