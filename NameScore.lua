@@ -37,12 +37,17 @@ local function MyRealm()
     return r
 end
 
+-- Einheitlicher Schlüssel für Spielernamen: eigener Server wird weggelassen,
+-- fremde Server bleiben dran ("Name" bzw. "Name-Server"). So ergeben Tooltip,
+-- Ziel und Absender von Addon-Nachrichten immer denselben Schlüssel.
 function ns.FullName(name, realm)
     if not name or name == "" then return nil end
-    if name:find("-", 1, true) then return name end
-    if not realm or realm == "" then realm = MyRealm() end
-    if realm == "" then return name end
-    return name .. "-" .. realm
+    local full = name
+    if not name:find("-", 1, true) then
+        if not realm or realm == "" then realm = MyRealm() end
+        if realm ~= "" then full = name .. "-" .. realm end
+    end
+    return Ambiguate(full, "none")
 end
 
 function ns.ShortName(full)
@@ -171,6 +176,8 @@ end
 local function HandleMessage(msg, sender)
     sender = ns.FullName(sender)
     if not sender or sender == ns.me then return end
+    -- Zusätzliche Sicherung gegen das eigene Echo aus dem Gildenkanal
+    if ns.ShortName(sender) == ns.ShortName(ns.me) then return end
 
     if msg:sub(1, 2) == "V|" then
         local target, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
@@ -211,6 +218,24 @@ local function MigrateDB(db)
             v.tags = v.tags or {}
         end
     end
+end
+
+-- Alte Schlüssel ("Name-Server") auf das neue Format bringen und Doppelungen
+-- zusammenführen, inkl. eigener Echo-Stimmen aus v0.2 (neueste Stimme gewinnt)
+local function NormalizeDB(db)
+    local myShort = ns.ShortName(ns.me)
+    local normalized = {}
+    for target, votes in pairs(db.votes) do
+        local t = ns.FullName(target)
+        normalized[t] = normalized[t] or {}
+        for voter, v in pairs(votes) do
+            local vk = ns.FullName(voter)
+            if ns.ShortName(vk) == myShort then vk = ns.me end
+            local old = normalized[t][vk]
+            if not old or (v.ts or 0) > (old.ts or 0) then normalized[t][vk] = v end
+        end
+    end
+    db.votes = normalized
 end
 
 -- ---------------------------------------------------------------
@@ -266,6 +291,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
         C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
+        NormalizeDB(ns.db)
         C_Timer.After(8, function()
             -- Alten Sync-Kanal aus früheren Versionen verlassen
             local id = GetChannelName(OLD_SYNC_CHANNEL)

@@ -110,13 +110,16 @@ local function AddToTooltip(tt, unit)
         local label = ns.TAG_LABEL[tags[i].tag]
         parts[#parts + 1] = (i == 1) and ("|cffffd100" .. label .. "|r") or label
     end
-    badge.tags:SetText(table.concat(parts, "  ·  "))
+    if #parts > 0 then
+        badge.tags:SetText(table.concat(parts, "  ·  "))
+    else
+        badge.tags:SetText("|cff777777noch keine Tags|r")
+    end
 
-    -- Platz im Tooltip reservieren und das Abzeichen darüberlegen
-    tt:AddLine(" ")
-    tt:AddLine(" ")
-    tt:AddLine(" ")
-    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 2)]
+    -- Platz im Tooltip reservieren (4 Zeilen = Luft nach unten für andere Addons)
+    -- und das Abzeichen darüberlegen
+    for _ = 1, 4 do tt:AddLine(" ") end
+    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 3)]
     badge:SetParent(tt)
     badge:SetFrameLevel(tt:GetFrameLevel() + 5)
     badge:ClearAllPoints()
