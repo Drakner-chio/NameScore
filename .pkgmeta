@@ -7,3 +7,5 @@ manual-changelog:
 ignore:
   - README.md
   - docs
+  - media/icon.svg
+  - media/icon-400.png

@@ -1,6 +1,8 @@
 ## Interface: 16001
 ## Title: |cffff8000NameScore|r
-## Notes: Community-Bewertungen für Spielernamen – Score im Tooltip
+## Notes: Rate player names – community score in the tooltip
+## Notes-deDE: Community-Bewertungen für Spielernamen – Score im Tooltip
+## IconTexture: Interface\AddOns\NameScore\media\Icon
 ## Author: Drakner-chio
 ## Version: @project-version@
 ## SavedVariables: NameScoreDB

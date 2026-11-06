@@ -43,6 +43,8 @@ Die GitHub Action baut das Zip mit dem [BigWigs Packager](https://github.com/Big
 2. API-Token unter [CurseForge → API Tokens](https://authors.curseforge.com/account/api-tokens) erzeugen
 3. Im GitHub-Repo unter *Settings → Secrets and variables → Actions* als `CF_API_KEY` speichern
 
+Die englische Projektbeschreibung für CurseForge liegt in [`docs/curseforge.md`](docs/curseforge.md), das Projekt-Logo (400×400) in [`media/icon-400.png`](media/icon-400.png).
+
 ## Fair bleiben
 
 NameScore ist als Spaß gedacht. Es gibt bewusst keine Freitext-Kommentare, und niedrige Scores heißen „Cringe“ statt beleidigend.
