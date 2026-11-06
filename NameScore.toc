@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 16001
 ## Title: |cffff8000NameScore|r
 ## Notes: Community-Bewertungen für Spielernamen – Score im Tooltip
 ## Author: Drakner-chio
