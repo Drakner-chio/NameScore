@@ -1,0 +1,13 @@
+## Interface: 11507
+## Title: |cffff8000NameScore|r
+## Notes: Community-Bewertungen für Spielernamen – Score im Tooltip
+## Author: Drakner-chio
+## Version: @project-version@
+## SavedVariables: NameScoreDB
+## OptionalDeps: ElvUI
+## X-License: MIT
+# Nach dem Anlegen des CurseForge-Projekts die Zeile darunter einkommentieren (ein # entfernen) und die ID eintragen:
+# ## X-Curse-Project-ID: 000000
+
+NameScore.lua
+UI.lua
