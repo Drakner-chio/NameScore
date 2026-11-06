@@ -5,3 +5,4 @@
 - Tooltip-Abzeichen mit Score, Rang (Schrott bis Legendär), Balken und Top-Tags
 - Automatischer ElvUI-Skin, wenn ElvUI installiert ist
 - Eigene Stimme wird beim erneuten Öffnen vorausgewählt
+- Sync nur noch über Gilde und Gruppe/Raid (WoW Forever erlaubt keine Addon-Nachrichten in Chat-Kanälen)

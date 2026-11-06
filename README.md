@@ -6,7 +6,7 @@ Community-Addon für **World of Warcraft: Forever**: Bewerte die Namen anderer S
 
 - **Tooltip-Abzeichen:** Score (1–10), Rang von *Schrott* bis *Legendär* in Item-Qualitätsfarben, Balken, Anzahl Stimmen und die häufigsten Tags
 - **Bewertungsfenster:** 1–5 Sterne plus beliebig viele Tags (Lustig, Episch, Kreativ, Cringe)
-- **In-Game-Sync:** Stimmen werden über Gilde, Gruppe/Raid und einen versteckten Kanal geteilt – ganz ohne externe Server
+- **In-Game-Sync:** Stimmen werden über Gilde und Gruppe/Raid geteilt – ganz ohne externe Server
 - **ElvUI-Skin:** Ist ElvUI installiert, übernimmt NameScore automatisch dessen Rahmen, Schrift und Farben
 
 ## Befehle
@@ -16,12 +16,15 @@ Community-Addon für **World of Warcraft: Forever**: Bewerte die Namen anderer S
 | `/ns` | Bewertungsfenster für dein Ziel öffnen |
 | `/ns 4 lustig kreativ` | Ziel direkt mit 4 Sternen und Tags bewerten |
 | `/ns check Name` | Score eines Spielers nachschlagen |
-| `/ns sync` | Stimmen von anderen anfragen |
-| `/ns kanal` | Öffentlichen Sync-Kanal an/aus |
+| `/ns sync` | Stimmen von Gilde und Gruppe anfragen |
 
 ## Wie der Sync funktioniert
 
-Jeder Spieler verschickt nur seine **eigenen** Stimmen. Der Absender einer Addon-Nachricht wird vom Spiel gesetzt, deshalb kann niemand Stimmen im Namen anderer fälschen. Beim Login und beim Gruppenbeitritt fragt NameScore die anderen nach ihren Stimmen. Man sieht also Stimmen von allen, die gleichzeitig online sind oder waren.
+Jeder Spieler verschickt nur seine **eigenen** Stimmen. Der Absender einer Addon-Nachricht wird vom Spiel gesetzt, deshalb kann niemand Stimmen im Namen anderer fälschen. Beim Login und beim Gruppenbeitritt fragt NameScore die anderen nach ihren Stimmen. Man sieht also Stimmen von allen Gilden- und Gruppenmitgliedern, die gleichzeitig online sind oder waren.
+
+WoW Forever erlaubt keine Addon-Nachrichten in eigenen Chat-Kanälen, deshalb gibt es keinen gildenübergreifenden Sync-Kanal.
+
+**Stimmen sind nicht anonym:** Jede Stimme wird mit dem Namen des Absenders gespeichert, damit niemand Stimmen fälschen kann. Im Spiel zeigt NameScore nur Durchschnitt und Anzahl, aber wer das Addon hat, kann in der gespeicherten Datei sehen, wer wen wie bewertet hat.
 
 ## Installation
 

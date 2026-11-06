@@ -3,7 +3,7 @@
 local ADDON_NAME, ns = ...
 
 local PREFIX = "NAMESCORE"
-local SYNC_CHANNEL = "NameScoreSync"
+local OLD_SYNC_CHANNEL = "NameScoreSync"
 local MAX_SYNC_VOTES = 300      -- max. eigene Stimmen pro Sync-Antwort
 local SEND_INTERVAL = 0.25      -- Sekunden zwischen Addon-Nachrichten (Drosselung)
 
@@ -124,19 +124,12 @@ C_Timer.NewTicker(SEND_INTERVAL, function()
     if m then C_ChatInfo.SendAddonMessage(PREFIX, m[1], m[2], m[3]) end
 end)
 
-local function SyncChannelIndex()
-    if not ns.db or not ns.db.useChannel then return nil end
-    local id = GetChannelName(SYNC_CHANNEL)
-    if id and id > 0 then return id end
-    return nil
-end
-
+-- Hinweis: WoW Forever erlaubt keine Addon-Nachrichten in eigenen Chat-Kanälen,
+-- daher läuft der Sync nur über Gilde und Gruppe/Raid.
 local function Broadcast(msg)
     if IsInGuild() then Enqueue(msg, "GUILD") end
     if IsInRaid() then Enqueue(msg, "RAID")
     elseif IsInGroup() then Enqueue(msg, "PARTY") end
-    local ch = SyncChannelIndex()
-    if ch then Enqueue(msg, "CHANNEL", ch) end
 end
 
 local function VoteMessage(target, v)
@@ -245,17 +238,12 @@ SlashCmdList.NAMESCORE = function(input)
     elseif cmd == "sync" then
         Broadcast("REQ")
         ns.Print("Sync angefragt – Stimmen anderer trudeln gleich ein.")
-    elseif cmd == "kanal" then
-        ns.db.useChannel = not ns.db.useChannel
-        if ns.db.useChannel then JoinTemporaryChannel(SYNC_CHANNEL) else LeaveChannelByName(SYNC_CHANNEL) end
-        ns.Print("Öffentlicher Sync-Kanal " .. (ns.db.useChannel and "an" or "aus") .. ".")
     else
         ns.Print("Befehle:")
         ns.Print("/ns – Bewertungsfenster für dein Ziel")
         ns.Print("/ns <1-5> [lustig episch kreativ cringe] – Ziel direkt bewerten")
         ns.Print("/ns check <Name> – Score nachschlagen")
-        ns.Print("/ns sync – Stimmen von anderen anfragen")
-        ns.Print("/ns kanal – öffentlichen Sync-Kanal an/aus")
+        ns.Print("/ns sync – Stimmen von Gilde und Gruppe anfragen")
     end
 end
 
@@ -273,22 +261,15 @@ ev:SetScript("OnEvent", function(_, event, ...)
         NameScoreDB = NameScoreDB or {}
         ns.db = NameScoreDB
         ns.db.votes = ns.db.votes or {}
-        if ns.db.useChannel == nil then ns.db.useChannel = true end
+        ns.db.useChannel = nil   -- Altlast aus v0.1/v0.2
         MigrateDB(ns.db)
         C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
         C_Timer.After(8, function()
-            if ns.db.useChannel then
-                JoinTemporaryChannel(SYNC_CHANNEL)
-                -- Kanal aus den Chatfenstern ausblenden
-                C_Timer.After(1, function()
-                    for i = 1, NUM_CHAT_WINDOWS do
-                        local cf = _G["ChatFrame" .. i]
-                        if cf then ChatFrame_RemoveChannel(cf, SYNC_CHANNEL) end
-                    end
-                end)
-            end
+            -- Alten Sync-Kanal aus früheren Versionen verlassen
+            local id = GetChannelName(OLD_SYNC_CHANNEL)
+            if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
             Broadcast("REQ")
         end)
     elseif event == "GROUP_JOINED" then
