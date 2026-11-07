@@ -81,13 +81,15 @@ end
 
 -- In instances the game can hide unit data behind "secret values";
 -- those must not be used in string operations, so we skip them.
+-- Note: no comparisons on the value itself, they are not allowed on secrets.
 local function IsSecret(v)
-    return issecretvalue ~= nil and v ~= nil and issecretvalue(v)
+    return issecretvalue ~= nil and issecretvalue(v) == true
 end
 
 local function AddToTooltip(tt, unit)
-    if IsSecret(unit) then return end
-    unit = unit or "mouseover"
+    -- In dungeons the tooltip's unit token can be secret; the plain
+    -- "mouseover" token points to the same player and may still be readable
+    if IsSecret(unit) or not unit then unit = "mouseover" end
     if not ns.db or not ns.me or not UnitExists(unit) or not UnitIsPlayer(unit) then return end
     local name, realm = UnitName(unit)
     if IsSecret(name) or IsSecret(realm) then return end
