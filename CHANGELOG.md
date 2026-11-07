@@ -15,3 +15,5 @@
 - `/ns check` also finds players by first name only
 - Fixed Lua errors on mouseover in dungeons; tooltip errors are now caught
   and reported once instead of spamming
+- Fixed Backdrop.lua error spam in dungeons: the tooltip badge border no
+  longer uses BackdropTemplate

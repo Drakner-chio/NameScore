@@ -2,8 +2,6 @@
 local ADDON_NAME, ns = ...
 local L = ns.L
 
-local BACKDROP_TEMPLATE = BackdropTemplateMixin and "BackdropTemplate" or nil
-local WHITE = "Interface\\Buttons\\WHITE8x8"
 local STAR_TEX = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1"
 
 -- ---------------------------------------------------------------
@@ -34,12 +32,32 @@ local function CreateBadge()
     badge = CreateFrame("Frame", nil, GameTooltip)
     badge:SetHeight(40)
 
-    -- Square with the score, border in rank color
-    badge.box = CreateFrame("Frame", nil, badge, BACKDROP_TEMPLATE)
+    -- Square with the score, border in rank color.
+    -- Built from plain textures on purpose: Blizzard's BackdropTemplate does
+    -- Lua math on the frame size, which is a secret value inside a tooltip in
+    -- dungeons and throws an error on every resize.
+    badge.box = CreateFrame("Frame", nil, badge)
     badge.box:SetSize(38, 38)
     badge.box:SetPoint("LEFT")
-    badge.box:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 2 })
-    badge.box:SetBackdropColor(0, 0, 0, 0.6)
+
+    local bg = badge.box:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0, 0, 0, 0.6)
+
+    local function Edge(p1, p2, w, h)
+        local t = badge.box:CreateTexture(nil, "BORDER")
+        t:SetPoint(p1)
+        t:SetPoint(p2)
+        if w then t:SetWidth(w) end
+        if h then t:SetHeight(h) end
+        return t
+    end
+    badge.box.edges = {
+        Edge("TOPLEFT", "TOPRIGHT", nil, 2),
+        Edge("BOTTOMLEFT", "BOTTOMRIGHT", nil, 2),
+        Edge("TOPLEFT", "BOTTOMLEFT", 2, nil),
+        Edge("TOPRIGHT", "BOTTOMRIGHT", 2, nil),
+    }
 
     badge.score = badge.box:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     badge.score:SetPoint("CENTER", 0, 0)
@@ -110,7 +128,7 @@ local function AddToTooltip(tt, unit)
 
     badge.score:SetText(string.format("%.1f", avg))
     badge.score:SetTextColor(cr, cg, cb)
-    badge.box:SetBackdropBorderColor(cr, cg, cb, 1)
+    for _, edge in ipairs(badge.box.edges) do edge:SetColorTexture(cr, cg, cb, 1) end
     badge.rank:SetText(r.label:upper())
     badge.rank:SetTextColor(cr, cg, cb)
     badge.votes:SetText(n .. " " .. ns.Plural(n, L.VOTE, L.VOTES))
