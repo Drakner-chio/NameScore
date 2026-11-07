@@ -1,11 +1,11 @@
 # NameScore
 
-Community addon for **World of Warcraft: Forever**: rate other players' names with 1–5 stars and tags – the score shows up in their tooltip, Raider.io style.
+Community addon for **World of Warcraft: Forever**: rate other players' names with ½ to 5 stars and tags – the score shows up in their tooltip, Raider.io style.
 
 ## Features
 
 - **Tooltip badge:** score (1–10), rank from *Poor* to *Legendary* in item quality colors, score bar, number of votes and the most popular tags
-- **Rating window:** 1–5 stars plus any number of tags (Funny, Epic, Creative, Cringe)
+- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Cringe)
 - **Right-click menu:** right-click a player (target, party, raid, chat name, guild roster) and choose *NameScore → Rate name*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI skin:** if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
@@ -16,7 +16,7 @@ Community addon for **World of Warcraft: Forever**: rate other players' names wi
 | Command | What it does |
 |---|---|
 | `/ns` | Open the rating window for your target |
-| `/ns 4 funny creative` | Rate your target with 4 stars and tags directly |
+| `/ns 3.5 funny creative` | Rate your target with 3.5 stars and tags directly |
 | `/ns check Name` | Look up a player's score (first name is enough if unique) |
 | `/ns sync` | Request votes from your guild and group |
 

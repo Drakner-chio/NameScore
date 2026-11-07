@@ -170,13 +170,26 @@ local function VoteMessage(target, v)
 end
 
 -- ---------------------------------------------------------------
--- Rating: 1-5 stars, stored internally as 2-10
+-- Rating: 0.5-5 stars in half steps, stored internally as 1-10
 -- ---------------------------------------------------------------
+
+-- "3.5" / "3,5" -> 3.5; nil if not a number
+function ns.ParseStars(text)
+    return tonumber((tostring(text or ""):gsub(",", ".")))
+end
+
+-- 3 -> "3", 3.5 -> "3.5" (or "3,5" in German)
+function ns.FormatStars(stars)
+    if stars == math.floor(stars) then return tostring(math.floor(stars)) end
+    return (string.format("%.1f", stars):gsub("%.", L.DECIMAL))
+end
+
 function ns.Rate(target, stars, tags)
     if not target then ns.Print(L.NO_TARGET) return end
     if target == ns.me then ns.Print(L.NO_SELF) return end
-    stars = tonumber(stars)
-    if not stars or stars < 1 or stars > 5 or stars ~= math.floor(stars) then
+    stars = ns.ParseStars(stars)
+    local half = stars and stars * 2
+    if not half or half < 1 or half > 10 or half ~= math.floor(half) then
         ns.Print(L.STARS_RANGE) return
     end
     local clean = {}
@@ -185,10 +198,10 @@ function ns.Rate(target, stars, tags)
     end
 
     ns.db.votes[target] = ns.db.votes[target] or {}
-    local v = { s = stars * 2, tags = clean, ts = time() }
+    local v = { s = half, tags = clean, ts = time() }
     ns.db.votes[target][ns.me] = v
     Broadcast(VoteMessage(target, v))
-    ns.Print(string.format(L.RATED, ns.ShortName(target), stars,
+    ns.Print(string.format(L.RATED, ns.ShortName(target), ns.FormatStars(stars),
         ns.Plural(stars, L.STAR, L.STARS), ns.ScoreLine(target)))
 end
 
@@ -280,7 +293,7 @@ SlashCmdList.NAMESCORE = function(input)
 
     if cmd == "" then
         ns.OpenRating(ns.TargetFullName())
-    elseif tonumber(cmd) then
+    elseif ns.ParseStars(cmd) then
         local tags = {}
         for i = 2, #args do
             local t = TAG_ALIAS[args[i]]

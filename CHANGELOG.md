@@ -1,7 +1,7 @@
 # NameScore
 
 ## v0.2.0
-- Rating window with 1–5 stars and multiple tags (Funny, Epic, Creative, Cringe)
+- Rating window with ½ to 5 stars (half stars allowed) and multiple tags (Funny, Epic, Creative, Cringe)
 - "Rate name" entry in the right-click menu of players (target, party, raid,
   focus, chat names, guild roster)
 - Compact tooltip badge (two lines) with score, rank (Poor to Legendary), score bar and top tags

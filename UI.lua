@@ -191,15 +191,28 @@ GameTooltip:HookScript("OnHide", HideBadge)
 -- Rating window (stars & tags)
 -- ---------------------------------------------------------------
 local frame
-local state = { stars = 0, tags = {} }
+-- state.half = number of half stars (0-10), i.e. the internal 1-10 score
+local state = { half = 0, tags = {} }
+local STAR_SIZE = 36
 
+-- Each star has a dim full star behind and a bright overlay on top that
+-- shows the full star, only its left half, or nothing.
 local function UpdateStars()
-    for i, b in ipairs(frame.stars) do
-        local on = i <= state.stars
-        b.tex:SetDesaturated(not on)
-        b.tex:SetAlpha(on and 1 or 0.35)
+    for i, star in ipairs(frame.stars) do
+        local filled = state.half - (i - 1) * 2   -- 2 = full, 1 = half, <=0 = empty
+        if filled >= 2 then
+            star.on:SetWidth(STAR_SIZE)
+            star.on:SetTexCoord(0, 1, 0, 1)
+            star.on:Show()
+        elseif filled == 1 then
+            star.on:SetWidth(STAR_SIZE / 2)
+            star.on:SetTexCoord(0, 0.5, 0, 1)
+            star.on:Show()
+        else
+            star.on:Hide()
+        end
     end
-    frame.send:SetEnabled(state.stars > 0)
+    frame.send:SetEnabled(state.half > 0)
 end
 
 local function UpdateTags()
@@ -257,26 +270,43 @@ local function BuildFrame()
     frame.current = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.current:SetPoint("TOP", 0, -32)
 
-    -- 5 stars
+    -- 5 stars; clicking the left half of a star gives a half star
     frame.stars = {}
     for i = 1, 5 do
-        local b = CreateFrame("Button", nil, frame)
-        b:SetSize(36, 36)
-        b:SetPoint("TOP", frame, "TOP", (i - 3) * 42, -50)
-        b.tex = b:CreateTexture(nil, "ARTWORK")
-        b.tex:SetAllPoints()
-        b.tex:SetTexture(STAR_TEX)
-        b:SetScript("OnClick", function()
-            state.stars = i
-            UpdateStars()
-        end)
-        b:SetScript("OnEnter", function()
-            GameTooltip:SetOwner(b, "ANCHOR_TOP")
-            GameTooltip:SetText(i .. " " .. ns.Plural(i, L.STAR, L.STARS))
-            GameTooltip:Show()
-        end)
-        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
-        frame.stars[i] = b
+        local star = CreateFrame("Frame", nil, frame)
+        star:SetSize(STAR_SIZE, STAR_SIZE)
+        star:SetPoint("TOP", frame, "TOP", (i - 3) * 42, -50)
+
+        star.off = star:CreateTexture(nil, "ARTWORK")
+        star.off:SetAllPoints()
+        star.off:SetTexture(STAR_TEX)
+        star.off:SetDesaturated(true)
+        star.off:SetAlpha(0.35)
+
+        star.on = star:CreateTexture(nil, "OVERLAY")
+        star.on:SetPoint("TOPLEFT")
+        star.on:SetHeight(STAR_SIZE)
+        star.on:SetTexture(STAR_TEX)
+
+        -- Two invisible click areas: left half = x.5, right half = full star
+        for side = 1, 2 do
+            local value = (i - 1) * 2 + side          -- in half stars
+            local b = CreateFrame("Button", nil, star)
+            b:SetSize(STAR_SIZE / 2, STAR_SIZE)
+            b:SetPoint(side == 1 and "LEFT" or "RIGHT")
+            b:SetScript("OnClick", function()
+                state.half = value
+                UpdateStars()
+            end)
+            b:SetScript("OnEnter", function()
+                local stars = value / 2
+                GameTooltip:SetOwner(star, "ANCHOR_TOP")
+                GameTooltip:SetText(ns.FormatStars(stars) .. " " .. ns.Plural(stars, L.STAR, L.STARS))
+                GameTooltip:Show()
+            end)
+            b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        end
+        frame.stars[i] = star
     end
 
     -- Tags (multiple allowed)
@@ -298,7 +328,7 @@ local function BuildFrame()
     frame.send:SetPoint("BOTTOM", 0, 16)
     frame.send:SetText(L.SUBMIT)
     frame.send:SetScript("OnClick", function()
-        ns.Rate(frame.target, state.stars, state.tags)
+        ns.Rate(frame.target, state.half / 2, state.tags)
         frame:Hide()
     end)
 
@@ -358,10 +388,10 @@ function ns.OpenRating(target)
     if not frame then BuildFrame() end
 
     frame.target = target
-    state.stars, state.tags = 0, {}
+    state.half, state.tags = 0, {}
     local mine = ns.MyVote(target)
     if mine then
-        state.stars = math.floor(mine.s / 2 + 0.5)
+        state.half = mine.s
         for t in pairs(mine.tags or {}) do state.tags[t] = true end
     end
 
