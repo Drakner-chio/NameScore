@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: Cinzel; src: url("fonts/Cinzel[wght].ttf"); font-weight: 400 900; }
+@font-face { font-family: PTSans; src: url("fonts/PT_Sans-Web-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: PTSans; src: url("fonts/PT_Sans-Web-Bold.ttf"); font-weight: 700; }
+:root {
+  --gold: #ffd100; --gold-dim: #8a7a52; --ink: #f2efe6; --text: #c9c5ba; --muted: #8f8b80;
+  --legendary: #ff8000; --epic: #a335ee; --epic-text: #c77dff; --rare: #0070dd; --rare-text: #4ea1ff;
+  --uncommon: #1eff00; --poor: #9d9d9d;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #0b0c11; font-family: PTSans, sans-serif; color: var(--text); }
+.wrap { padding: 20px; display: flex; flex-direction: column; gap: 20px; width: 1240px; }
+.banner {
+  width: 1200px; height: 620px; position: relative; overflow: hidden;
+  background: radial-gradient(ellipse at 75% 40%, #232838 0%, #161925 45%, #0f1118 100%);
+  border-radius: 18px; padding: 3px;
+}
+.card {
+  height: 100%; border: 1.5px solid var(--gold-dim); border-radius: 15px;
+  padding: 40px 52px; display: grid; grid-template-columns: 470px 1fr; gap: 48px; position: relative;
+}
+.brand { position: absolute; top: 34px; left: 52px; display: flex; align-items: center; gap: 12px; }
+.brand img { width: 34px; height: 34px; border-radius: 6px; }
+.brand span { font-family: Cinzel; font-weight: 700; font-size: 22px; color: var(--gold); letter-spacing: .5px; }
+.left { display: flex; flex-direction: column; justify-content: center; gap: 18px; padding-top: 40px; }
+.pill { align-self: flex-start; border: 1.5px solid var(--gold); color: var(--gold); border-radius: 999px;
+        padding: 3px 14px; font-family: Cinzel; font-weight: 700; font-size: 14px; letter-spacing: .5px; }
+h2 { margin: 0; font-family: Cinzel; font-weight: 600; font-size: 46px; line-height: 1.08; color: var(--ink); }
+.lead { margin: 0; font-size: 20px; line-height: 1.45; color: var(--text); }
+.foot { margin: 4px 0 0; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.right { display: flex; align-items: center; justify-content: center; gap: 26px; }
+
+/* In-game look */
+.tt { background: rgba(4,6,16,.94); border: 1px solid #5a5a68; border-radius: 5px; padding: 11px 14px 12px;
+      font-family: PTSans; font-size: 16px; color: #fff; box-shadow: 0 14px 40px rgba(0,0,0,.6);
+      display: flex; flex-direction: column; gap: 2px; }
+.tt .name { font-weight: 700; font-size: 18px; }
+.tt .grey { color: #aaa; }
+.badge { display: flex; gap: 8px; margin-top: 6px; align-items: stretch; }
+.box { width: 46px; height: 34px; border: 2px solid; display: flex; align-items: center; justify-content: center;
+       background: rgba(0,0,0,.55); font-weight: 700; font-size: 16px; }
+.bmid { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 1px 0 3px; }
+.brow { display: flex; justify-content: space-between; gap: 14px; font-size: 13.5px; white-space: nowrap; }
+.bar { height: 5px; background: #292b36; }
+.bar > div { height: 5px; }
+.sep { color: #777; }
+.tag1 { color: var(--gold); } .tag2 { color: #ccc; }
+.star { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; }
+
+.win { background: #0b0d18; border: 2px solid var(--gold-dim); border-radius: 7px; box-shadow: 0 14px 40px rgba(0,0,0,.6);
+       font-family: PTSans; }
+.win .head { background: #1f1a10; border-bottom: 1px solid var(--gold-dim); padding: 8px 14px; display: flex;
+             justify-content: space-between; align-items: center; color: var(--gold); font-family: Cinzel; font-weight: 700; font-size: 16px; }
+.x { width: 22px; height: 22px; border-radius: 4px; background: #6b1a12; border: 1px solid #b0402f; color: #fff;
+     font-family: PTSans; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.btn { background: #3a1a12; color: var(--gold); border: 1px solid #6b4a30; border-radius: 4px; padding: 6px 0;
+       text-align: center; font-size: 14px; }
+.btn.on { background: #5c1010; border-color: #c0503a; font-weight: 700; }
+
+.chip { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-radius: 10px;
+        border: 1.5px solid #3a3d4c; background: rgba(12,14,22,.8); width: 180px; }
+.chip.hl { border-color: var(--gold); box-shadow: 0 0 18px rgba(255,209,0,.18); }
+.sw { width: 16px; height: 16px; border-radius: 4px; flex: none; }
+.chip b { font-family: Cinzel; font-size: 16px; display: block; }
+.chip small { color: var(--muted); font-size: 13px; }
+
+.step { display: flex; align-items: center; gap: 18px; padding: 16px 22px; border-radius: 10px;
+        border: 1.5px solid #3a3d4c; background: rgba(12,14,22,.8); width: 560px; }
+.step.hl { border-color: var(--gold); box-shadow: 0 0 22px rgba(255,209,0,.18); }
+.num { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--gold-dim); color: var(--ink);
+       display: flex; align-items: center; justify-content: center; font-family: Cinzel; font-weight: 700; font-size: 18px; flex: none; }
+.step b { display: block; font-size: 20px; color: var(--ink); font-weight: 400; }
+.step small { color: var(--muted); font-size: 14px; }
+.step .end { margin-left: auto; font-size: 16px; white-space: nowrap; }
+.arrow { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
+         border-top: 10px solid var(--gold-dim); margin: 0 auto; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="st" viewBox="0 0 24 24"><path d="M12 2.2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17.2l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z" fill="#ffd100" stroke="#a8740a" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="st-off" viewBox="0 0 24 24"><path d="M12 2.2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17.2l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z" fill="#2a2b35" stroke="#55566a" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <clipPath id="halfclip"><rect x="0" y="0" width="12" height="24"/></clipPath>
+  </defs>
+</svg>
+<div class="wrap">
+
+<!-- 1 · Tooltip -->
+<section class="banner" id="b1"><div class="card">
+  <div class="brand"><img src="../../media/icon.svg"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">Tooltip</div>
+    <h2>Every name<br>gets a score</h2>
+    <p class="lead">Hover over a player and see what the community thinks of their name – a score from 1 to 10, a rank in item quality colors and the most popular tags.</p>
+    <p class="foot">Score shows from 2 votes · your own vote included · ElvUI style when installed</p>
+  </div>
+  <div class="right">
+    <div class="tt" style="width:350px">
+      <div class="name" style="color:#c79c6e">Tankenstein Eisenfaust</div>
+      <div>Kein Plan &nbsp;<svg class="star"><use href="#st"/></svg> <span style="color:var(--rare-text)">7.5</span></div>
+      <div>Level 20 Orc (Player)</div>
+      <div>Warrior</div>
+      <div>Horde</div>
+      <div class="badge">
+        <div class="box" style="border-color:var(--legendary);color:var(--legendary)">9.6</div>
+        <div class="bmid">
+          <div class="brow"><span><span style="color:var(--legendary)">LEGENDARY</span> <span class="sep">·</span> <span class="tag1">Funny</span> <span class="sep">·</span> <span class="tag2">Creative</span></span><span class="grey">14 votes · you: 5</span></div>
+          <div class="bar"><div style="width:96%;background:var(--legendary)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="chip hl"><div class="sw" style="background:var(--legendary)"></div><div><b style="color:var(--legendary)">Legendary</b><small>9.5 – 10</small></div></div>
+      <div class="chip"><div class="sw" style="background:var(--epic)"></div><div><b style="color:var(--epic-text)">Epic</b><small>8.5 – 9.4</small></div></div>
+      <div class="chip"><div class="sw" style="background:var(--rare)"></div><div><b style="color:var(--rare-text)">Rare</b><small>7 – 8.4</small></div></div>
+      <div class="chip"><div class="sw" style="background:var(--uncommon)"></div><div><b style="color:var(--uncommon)">Uncommon</b><small>5 – 6.9</small></div></div>
+      <div class="chip"><div class="sw" style="background:#fff"></div><div><b style="color:#fff">Common</b><small>3 – 4.9</small></div></div>
+      <div class="chip"><div class="sw" style="background:var(--poor)"></div><div><b style="color:#b0b0b0">Poor</b><small>below 3</small></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 2 · Rating window -->
+<section class="banner" id="b2"><div class="card">
+  <div class="brand"><img src="../../media/icon.svg"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">Rating</div>
+    <h2>Half stars,<br>as many tags<br>as you like</h2>
+    <p class="lead">Right-click any player and choose <b style="color:var(--ink)">NameScore → Rate name</b>. Give ½ to 5 stars, add tags like <span style="color:var(--gold)">Funny</span> or <span style="color:var(--gold)">Cringe</span>, done.</p>
+    <p class="foot">Change your mind any time · delete your vote with one click · or type /ns</p>
+  </div>
+  <div class="right">
+    <div class="win" style="width:350px">
+      <div class="head"><span>Brotkrümel Sonnenkind</span><div class="x">✕</div></div>
+      <div style="padding:16px 18px 18px;display:flex;flex-direction:column;gap:16px;align-items:center">
+        <div style="font-size:14px;color:var(--gold)">Current: <span style="color:var(--epic-text)">8.9 Epic</span> <span class="grey" style="color:#aaa">(23 votes)</span></div>
+        <div style="display:flex;gap:10px">
+          <svg width="42" height="42"><use href="#st"/></svg>
+          <svg width="42" height="42"><use href="#st"/></svg>
+          <svg width="42" height="42"><use href="#st"/></svg>
+          <svg width="42" height="42" viewBox="0 0 24 24"><use href="#st-off"/><g clip-path="url(#halfclip)"><use href="#st"/></g></svg>
+          <svg width="42" height="42"><use href="#st-off"/></svg>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%">
+          <div class="btn on">Funny</div><div class="btn">Epic</div><div class="btn on">Creative</div><div class="btn">Cringe</div>
+        </div>
+        <div style="display:flex;gap:8px;width:100%">
+          <div class="btn" style="flex:1;font-family:Cinzel;font-weight:700">Submit</div>
+          <div class="btn" style="width:96px">Delete</div>
+        </div>
+      </div>
+    </div>
+    <div class="tt" style="width:190px;padding:10px 0;gap:0;font-size:15px">
+      <div style="padding:2px 16px;color:var(--gold)">Brotkrümel</div>
+      <div style="padding:5px 16px;color:#ddd">Whisper</div>
+      <div style="padding:5px 16px;color:#ddd">Invite</div>
+      <div style="padding:5px 16px;color:#ddd">Set Focus</div>
+      <div style="height:1px;background:#333;margin:6px 12px"></div>
+      <div style="padding:2px 16px;color:var(--gold)">NameScore</div>
+      <div style="padding:5px 16px;color:#fff;background:rgba(255,255,255,.08)">Rate name</div>
+      <div style="padding:5px 16px;color:#ddd">Rate guild</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 3 · Guilds & pets -->
+<section class="banner" id="b3"><div class="card">
+  <div class="brand"><img src="../../media/icon.svg"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">New in 0.3</div>
+    <h2>Guilds and<br>hunter pets too</h2>
+    <p class="lead">Rate guild names – their score shows right next to the guild in every member's tooltip. And finally someone judges the wolf called <i>Fluffy McFangs</i>.</p>
+    <p class="foot">Pets are stored with their owner, so not every “Wolfi” shares one score · you can't rate yourself, your guild or your pet</p>
+  </div>
+  <div class="right" style="flex-direction:column;gap:22px">
+    <div class="tt" style="width:400px">
+      <div class="name" style="color:#69ccf0">Frostbeule Winterhauch</div>
+      <div>Gnome Alone &nbsp;<svg class="star"><use href="#st"/></svg> <span style="color:var(--epic-text)">9.1</span></div>
+      <div>Level 18 Gnome (Player)</div>
+      <div>Mage</div>
+    </div>
+    <div style="align-self:flex-start;margin:-12px 0 0 92px;color:var(--gold);font-size:15px">↑ guild score next to the guild name</div>
+    <div class="tt" style="width:400px">
+      <div class="name" style="color:#fff">Fluffy McFangs</div>
+      <div class="grey">Pfeilchen Kurzbogen's Pet</div>
+      <div>Level 20 Wolf</div>
+      <div class="badge">
+        <div class="box" style="border-color:var(--rare);color:var(--rare-text)">8.0</div>
+        <div class="bmid">
+          <div class="brow"><span><span style="color:var(--rare-text)">RARE</span> <span class="sep">·</span> <span class="tag1">Funny</span></span><span class="grey">6 votes</span></div>
+          <div class="bar"><div style="width:80%;background:var(--rare)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 4 · Hall of fame -->
+<section class="banner" id="b4"><div class="card">
+  <div class="brand"><img src="../../media/icon.svg"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">Hall of Fame</div>
+    <h2>The best names.<br>And the worst.</h2>
+    <p class="lead">Type <b style="color:var(--ink)">/ns top</b> to see the highest and lowest rated names around you – players, guilds and pets – plus a list of everything you rated.</p>
+    <p class="foot">Click a name to change your vote · only names with enough votes are listed</p>
+  </div>
+  <div class="right">
+    <div class="win" style="width:430px">
+      <div class="head"><span>NameScore – Hall of Fame</span><div class="x">✕</div></div>
+      <div style="padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div class="btn on">Top</div><div class="btn">Flop</div><div class="btn">Mine</div>
+        </div>
+        <div style="display:flex;flex-direction:column;font-size:16px">
+          <div style="display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #22232c"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">1</span><span style="flex:1;color:#fff">Tankenstein Eisenfaust</span><span style="color:#aaa">14</span><span style="width:36px;text-align:right;color:var(--legendary);font-weight:700">9.6</span></div>
+          <div style="display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #22232c"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">2</span><span style="flex:1;color:#40c040">&lt;Gnome Alone&gt;</span><span style="color:#aaa">9</span><span style="width:36px;text-align:right;color:var(--epic-text);font-weight:700">9.1</span></div>
+          <div style="display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #22232c"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">3</span><span style="flex:1;color:#fff">Heilnix Kräuterbart</span><span style="color:#aaa">11</span><span style="width:36px;text-align:right;color:var(--epic-text);font-weight:700">8.9</span></div>
+          <div style="display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #22232c"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">4</span><span style="flex:1;color:#c8a070">Fluffy McFangs (pet of Pfeilchen…)</span><span style="color:#aaa">6</span><span style="width:36px;text-align:right;color:var(--rare-text);font-weight:700">8.0</span></div>
+          <div style="display:flex;gap:10px;padding:7px 4px;border-bottom:1px solid #22232c"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">5</span><span style="flex:1;color:#fff">Brotkrümel Sonnenkind</span><span style="color:#aaa">23</span><span style="width:36px;text-align:right;color:var(--rare-text);font-weight:700">7.8</span></div>
+          <div style="display:flex;gap:10px;padding:7px 4px"><span style="width:20px;color:var(--gold);font-family:Cinzel;font-weight:700">6</span><span style="flex:1;color:#fff">Frostbeule Winterhauch</span><span style="color:#aaa">5</span><span style="width:36px;text-align:right;color:var(--uncommon);font-weight:700">6.4</span></div>
+        </div>
+        <div style="text-align:center;font-size:13px;color:#888">Only names with at least 2 votes · 1,284 votes known</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 5 · Sync -->
+<section class="banner" id="b5"><div class="card">
+  <div class="brand"><img src="../../media/icon.svg"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">How it works</div>
+    <h2>No servers.<br>No fake votes.</h2>
+    <p class="lead">Votes travel invisibly through your guild and group chat. Everyone only sends their own votes, and the game itself sets the sender – so nobody can vote in someone else's name.</p>
+    <p class="foot">Throttled and invisible in chat · votes older than 6 months are cleaned up · votes are not anonymous</p>
+  </div>
+  <div class="right" style="flex-direction:column;gap:10px">
+    <div class="step"><div class="num">1</div><div><b>You rate a name</b><small>Right-click › NameScore › Rate name</small></div><span class="end" style="color:var(--gold)">★★★½</span></div>
+    <div class="arrow"></div>
+    <div class="step"><div class="num">2</div><div><b>Your guild and group get it</b><small>Invisible addon message, no chat spam</small></div><span class="end" style="color:#40c040">Guild · Party</span></div>
+    <div class="arrow"></div>
+    <div class="step hl"><div class="num">3</div><div><b>The score appears</b><small>From 2 votes – one vote can't decide alone</small></div><span class="end" style="color:var(--rare-text)">7.0 Rare</span></div>
+  </div>
+</div></section>
+
+</div>
+</body>
+</html>
