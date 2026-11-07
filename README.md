@@ -16,7 +16,7 @@ Community addon for **World of Warcraft: Forever**: rate other players' names wi
 |---|---|
 | `/ns` | Open the rating window for your target |
 | `/ns 4 funny creative` | Rate your target with 4 stars and tags directly |
-| `/ns check Name` | Look up a player's score |
+| `/ns check Name` | Look up a player's score (first name is enough if unique) |
 | `/ns sync` | Request votes from your guild and group |
 
 Tags can be typed in English (`funny epic creative cringe`) or German (`lustig episch kreativ cringe`).

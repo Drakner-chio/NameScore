@@ -7,4 +7,7 @@
 - Your own vote is preselected when reopening the rating window
 - English and German localization
 - Sync only via guild and party/raid (WoW: Forever does not allow addon messages in chat channels)
-- Fixed own guild echo being counted as a second vote
+- Fixed own guild echo being counted as a second vote (WoW: Forever surnames
+  arrive as "First Last" or "First-Last" depending on the source)
+- Player names are shown with their surname
+- `/ns check` also finds players by first name only

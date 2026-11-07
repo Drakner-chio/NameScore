@@ -45,27 +45,37 @@ function ns.Print(msg)
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8000NameScore|r: " .. msg)
 end
 
-local function MyRealm()
-    local r = GetNormalizedRealmName and GetNormalizedRealmName()
-    if not r or r == "" then r = (GetRealmName() or ""):gsub("%s", "") end
-    return r
-end
-
--- Canonical key for player names: own realm is dropped, other realms are kept
--- ("Name" or "Name-Realm"). This way tooltip, target and addon message sender
--- always resolve to the same key.
+-- Canonical key for player names. WoW: Forever has surnames and reports them
+-- in different shapes: UnitName("player") gives "First Last", targets give
+-- ("First", "Last") and addon message senders arrive as "First-Last".
+-- All of them become "First-Last", so the same player always has one key.
 function ns.FullName(name, realm)
     if not name or name == "" then return nil end
     local full = name
-    if not name:find("-", 1, true) then
-        if not realm or realm == "" then realm = MyRealm() end
-        if realm ~= "" then full = name .. "-" .. realm end
-    end
-    return Ambiguate(full, "none")
+    if realm and realm ~= "" then full = name .. "-" .. realm end
+    full = full:gsub("^%s+", ""):gsub("%s+$", ""):gsub("%s+", "-")
+    if full == "" then return nil end
+    return full
 end
 
+-- Readable name for chat and windows: "First-Last" -> "First Last"
 function ns.ShortName(full)
-    return (full:match("^([^-]+)")) or full
+    return (full:gsub("-", " "))
+end
+
+-- Finds the stored key for a typed name: exact match first,
+-- otherwise a unique player whose key starts with "Name-"
+function ns.FindKey(typed)
+    local key = ns.FullName(typed)
+    if not key or ns.db.votes[key] then return key end
+    local prefix, found = key:lower() .. "-", nil
+    for k in pairs(ns.db.votes) do
+        if k:lower():sub(1, #prefix) == prefix then
+            if found then return key end   -- ambiguous, keep the typed name
+            found = k
+        end
+    end
+    return found or key
 end
 
 function ns.Rank(avg)
@@ -193,9 +203,8 @@ end
 -- ---------------------------------------------------------------
 local function HandleMessage(msg, sender)
     sender = ns.FullName(sender)
-    if not sender or sender == ns.me then return end
-    -- Extra guard against our own echo from the guild channel
-    if ns.ShortName(sender) == ns.ShortName(ns.me) then return end
+    -- Ignore our own echo from the guild/group channel
+    if not sender or sender:lower() == ns.me:lower() then return end
 
     if msg:sub(1, 2) == "V|" then
         local target, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
@@ -238,17 +247,17 @@ local function MigrateDB(db)
     end
 end
 
--- Convert old keys ("Name-Realm") to the canonical format and merge duplicates,
--- including own echo votes from v0.2 (newest vote wins)
+-- Convert all keys to the canonical format and merge duplicates,
+-- including own echo votes stored by earlier versions (newest vote wins)
 local function NormalizeDB(db)
-    local myShort = ns.ShortName(ns.me)
+    local myLower = ns.me:lower()
     local normalized = {}
     for target, votes in pairs(db.votes) do
         local t = ns.FullName(target)
         normalized[t] = normalized[t] or {}
         for voter, v in pairs(votes) do
             local vk = ns.FullName(voter)
-            if ns.ShortName(vk) == myShort then vk = ns.me end
+            if vk:lower() == myLower then vk = ns.me end
             local old = normalized[t][vk]
             if not old or (v.ts or 0) > (old.ts or 0) then normalized[t][vk] = v end
         end
@@ -279,7 +288,7 @@ SlashCmdList.NAMESCORE = function(input)
         end
         ns.Rate(ns.TargetFullName(), cmd, tags)
     elseif cmd == "check" and raw[2] then
-        local t = ns.FullName(raw[2])
+        local t = ns.FindKey(table.concat(raw, " ", 2))
         ns.Print(ns.ShortName(t) .. ": " .. ns.ScoreLine(t))
     elseif cmd == "sync" then
         Broadcast("REQ")
