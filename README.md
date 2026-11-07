@@ -6,6 +6,7 @@ Community addon for **World of Warcraft: Forever**: rate other players' names wi
 
 - **Tooltip badge:** score (1–10), rank from *Poor* to *Legendary* in item quality colors, score bar, number of votes and the most popular tags
 - **Rating window:** 1–5 stars plus any number of tags (Funny, Epic, Creative, Cringe)
+- **Right-click menu:** right-click a player (target, party, raid, chat name, guild roster) and choose *NameScore → Rate name*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI skin:** if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
 - **Languages:** English and German

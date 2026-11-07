@@ -21,6 +21,7 @@ local L = {
     HELP_CHECK      = "/ns check <name> – look up a player's score",
     HELP_SYNC       = "/ns sync – request votes from your guild and group",
     TOOLTIP_ERROR   = "Tooltip error (shown once, please report on GitHub):",
+    MENU_RATE       = "Rate name",
 
     TAG_lustig      = "Funny",
     TAG_episch      = "Epic",
@@ -55,6 +56,7 @@ if GetLocale() == "deDE" then
     L.HELP_CHECK     = "/ns check <Name> – Score nachschlagen"
     L.HELP_SYNC      = "/ns sync – Stimmen von Gilde und Gruppe anfragen"
     L.TOOLTIP_ERROR  = "Tooltip-Fehler (wird nur einmal angezeigt, bitte auf GitHub melden):"
+    L.MENU_RATE      = "Namen bewerten"
 
     L.TAG_lustig     = "Lustig"
     L.TAG_episch     = "Episch"

@@ -10,13 +10,14 @@ Made for **World of Warcraft: Forever**.
 
 - **Tooltip badge** – score from 1 to 10, a rank colored like item quality (from *Poor* to *Legendary*), a score bar, the number of votes and the most popular tags
 - **Rating window** – give 1–5 stars and as many tags as you like: *Funny*, *Epic*, *Creative*, *Cringe*
+- **Right-click menu** – right-click any player (target, party, raid, chat name, guild roster) and choose *NameScore → Rate name*
 - **No external servers** – votes are shared in-game with your guild and your party/raid
 - **ElvUI support** – if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
 - **Lightweight** – messages are throttled and invisible in chat
 
 ## How to use
 
-Target a player and type `/ns` to open the rating window.
+Right-click a player and choose *NameScore → Rate name*, or target them and type `/ns`.
 
 | Command | What it does |
 |---|---|

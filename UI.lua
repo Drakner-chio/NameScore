@@ -290,6 +290,53 @@ local function BuildFrame()
     ApplyElvUISkin()
 end
 
+-- ---------------------------------------------------------------
+-- Right-click menu entry ("NameScore > Rate name") on player menus
+-- ---------------------------------------------------------------
+local MENU_TAGS = {
+    "MENU_UNIT_PLAYER",                    -- players in the world
+    "MENU_UNIT_TARGET",                    -- target frame
+    "MENU_UNIT_FOCUS",                     -- focus frame
+    "MENU_UNIT_PARTY",                     -- party frames
+    "MENU_UNIT_RAID_PLAYER",               -- raid frames
+    "MENU_UNIT_ENEMY_PLAYER",              -- players of the other faction
+    "MENU_UNIT_FRIEND",                    -- names in chat
+    "MENU_UNIT_GUILD",                     -- guild roster
+    "MENU_UNIT_COMMUNITIES_GUILD_MEMBER",  -- guild & communities window
+    "MENU_UNIT_COMMUNITIES_WOW_MEMBER",
+}
+
+-- Works out the player key from a menu's context: from the unit if it is
+-- readable, otherwise from the name the menu was opened for
+local function MenuTargetKey(ctx)
+    if not ctx then return nil end
+    local unit = ctx.unit
+    if unit and not IsSecret(unit) and UnitExists(unit) then
+        if not UnitIsPlayer(unit) then return nil end
+        local name, realm = UnitName(unit)
+        if not IsSecret(name) and not IsSecret(realm) and type(name) == "string" then
+            return ns.FullName(name, realm)
+        end
+    end
+    local name, server = ctx.name, ctx.server
+    if IsSecret(name) or IsSecret(server) or type(name) ~= "string" then return nil end
+    return ns.FullName(name, server)
+end
+
+local function AddMenuEntry(owner, rootDescription, contextData)
+    local ok, key = pcall(MenuTargetKey, contextData)
+    if not ok or not key or not ns.me or key:lower() == ns.me:lower() then return end
+    rootDescription:CreateDivider()
+    rootDescription:CreateTitle("NameScore")
+    rootDescription:CreateButton(L.MENU_RATE, function() ns.OpenRating(key) end)
+end
+
+if Menu and Menu.ModifyMenu then
+    for _, tag in ipairs(MENU_TAGS) do
+        Menu.ModifyMenu(tag, AddMenuEntry)
+    end
+end
+
 function ns.OpenRating(target)
     if not target then ns.Print(L.NO_TARGET) return end
     if target == ns.me then ns.Print(L.NO_SELF) return end
