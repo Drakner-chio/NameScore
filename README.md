@@ -1,12 +1,17 @@
 # NameScore
 
-Community addon for **World of Warcraft: Forever**: rate other players' names with ½ to 5 stars and tags – the score shows up in their tooltip, Raider.io style.
+Community addon for **World of Warcraft: Forever**: rate the names of players, guilds and hunter pets with ½ to 5 stars and tags – the score shows up in the tooltip, Raider.io style.
 
 ## Features
 
-- **Tooltip badge:** score (1–10), rank from *Poor* to *Legendary* in item quality colors, score bar, number of votes and the most popular tags
-- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Cringe)
-- **Right-click menu:** right-click a player (target, party, raid, chat name, guild roster) and choose *NameScore → Rate name*
+- **Tooltip badge:** score (1–10), rank from *Poor* to *Legendary* in item quality colors, score bar, number of votes, the most popular tags and your own vote
+- **Guilds:** the guild score appears next to the guild name in the tooltip
+- **Hunter pets:** pets (and warlock demons) get their own score, stored together with their owner
+- **Fair scores:** a score is only shown once a name has at least 2 votes (adjustable)
+- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Cringe); delete your vote any time
+- **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
+- **Hall of fame:** best and worst rated names, and everything you rated
+- **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI skin:** if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
 - **Languages:** English and German
@@ -15,20 +20,36 @@ Community addon for **World of Warcraft: Forever**: rate other players' names wi
 
 | Command | What it does |
 |---|---|
-| `/ns` | Open the rating window for your target |
+| `/ns` | Open the rating window for your target (player or pet) |
 | `/ns 3.5 funny creative` | Rate your target with 3.5 stars and tags directly |
+| `/ns guild` | Rate your target's guild |
+| `/ns delete` / `/ns delete guild` | Delete your vote for your target / its guild |
 | `/ns check Name` | Look up a player's score (first name is enough if unique) |
+| `/ns top` | Open the hall of fame |
+| `/ns options` | Open the settings |
+| `/ns min 1-5` | Votes needed before a score is shown |
+| `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI style |
 | `/ns sync` | Request votes from your guild and group |
 
-Tags can be typed in English (`funny epic creative cringe`) or German (`lustig episch kreativ cringe`).
+Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `lustig episch kreativ cringe`). You can't rate yourself, your own guild or your own pet.
 
 ## How sync works
 
 Each player only sends their **own** votes. The game sets the sender of every addon message, so nobody can fake votes on behalf of others. When you log in or join a group, NameScore asks the others for their votes. You see votes from guild and group members who are (or were) online at the same time as you.
 
+A deleted vote is sent as score 0, so it also disappears for the others (versions before 0.3 ignore deletions). Votes older than 6 months are removed automatically.
+
 WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
 
 **Votes are not anonymous:** each vote is stored with the voter's name to prevent fake votes. In-game NameScore only shows the average and the number of votes, but anyone with the addon could look up who rated whom in the saved variables.
+
+### Keys in the saved data
+
+| Kind | Key |
+|---|---|
+| Player | `First-Last` |
+| Guild | `G:<guild name>` |
+| Pet | `P:<owner key>:<pet name>` |
 
 ## Installation
 
@@ -36,13 +57,13 @@ Via CurseForge, or manually: download the release zip and extract the `NameScore
 
 ## Releasing
 
-One click: go to **Actions → Release → Run workflow**, enter a version like `0.2.0` or `0.2.0-beta2` and start it. Versions with `beta` or `alpha` go to CurseForge as test versions.
+One click: go to **Actions → Release → Run workflow**, enter a version like `0.3.0` or `0.3.0-beta1` and start it. Versions with `beta` or `alpha` go to CurseForge as test versions.
 
 Alternatively push a tag yourself:
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
 The GitHub Action builds the zip with the [BigWigs Packager](https://github.com/BigWigsMods/packager) and attaches it to a GitHub release. For automatic uploads to CurseForge:

@@ -1,25 +1,28 @@
--- NameScore UI: tooltip badge, rating window with stars & tags, ElvUI skin
+-- NameScore UI: tooltip badge, guild score, rating window, right-click menus
 local ADDON_NAME, ns = ...
 local L = ns.L
+local IsSecret = ns.IsSecret
 
 local STAR_TEX = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1"
+local STAR_INLINE = "|T" .. STAR_TEX .. ":0|t"
 
 -- ---------------------------------------------------------------
 -- ElvUI detection (optional)
 -- ---------------------------------------------------------------
-local function GetElvUI()
-    if not ElvUI then return nil end
+function ns.GetElvUI()
+    if not ElvUI or not ns.Setting("elvSkin") then return nil end
     local ok, E = pcall(function() return unpack(ElvUI) end)
     if not ok or not E then return nil end
     local okS, S = pcall(E.GetModule, E, "Skins")
     return E, (okS and S) or nil
 end
 
-local function ElvFont(fs, E, size)
+function ns.ElvFont(fs, E, size)
     if E and E.media and E.media.normFont then
         fs:SetFont(E.media.normFont, size, "OUTLINE")
     end
 end
+local GetElvUI, ElvFont = ns.GetElvUI, ns.ElvFont
 
 -- ---------------------------------------------------------------
 -- Tooltip badge
@@ -30,8 +33,8 @@ local function CreateBadge()
     local E = GetElvUI()
 
     -- Compact badge, two tooltip lines high:
-    -- [score] RANK · tags ............ n votes
-    -- [     ] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    -- [score] RANK · tags ............ n votes · you: x
+    -- [     ] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     badge = CreateFrame("Frame", nil, GameTooltip)
     badge:SetHeight(24)
 
@@ -100,27 +103,73 @@ local function HideBadge(tt)
     if tt and tt.SetMinimumWidth then tt:SetMinimumWidth(0) end
 end
 
--- In instances the game can hide unit data behind "secret values";
--- those must not be used in string operations, so we skip them.
--- Note: no comparisons on the value itself, they are not allowed on secrets.
-local function IsSecret(v)
-    return issecretvalue ~= nil and issecretvalue(v) == true
+-- " · you: 3.5" if enabled and we voted
+local function OwnSuffix(key)
+    if not ns.Setting("showOwn") then return "" end
+    local mine = ns.MyVote(key)
+    if not mine then return "" end
+    return " · " .. string.format(L.YOURS, ns.FormatStars(mine.s / 2))
 end
 
-local function AddToTooltip(tt, unit)
-    -- In dungeons the tooltip's unit token can be secret; the plain
-    -- "mouseover" token points to the same player and may still be readable
-    if IsSecret(unit) or not unit then unit = "mouseover" end
-    if not ns.db or not ns.me or not UnitExists(unit) or not UnitIsPlayer(unit) then return end
-    local name, realm = UnitName(unit)
-    if IsSecret(name) or IsSecret(realm) then return end
-    if type(name) ~= "string" then return end
-    local target = ns.FullName(name, realm)
-    if not target then return end
+local function TooltipLines(tt)
+    local lines, name = {}, tt:GetName()
+    for i = 1, tt:NumLines() do
+        local fs = _G[name .. "TextLeft" .. i]
+        lines[i] = fs and fs:GetText()
+    end
+    return lines
+end
 
-    local avg, n, tags = ns.GetScore(target)
+-- Appends the guild score to the tooltip line that shows the guild name
+local function AnnotateGuild(tt, unit)
+    local gkey = ns.UnitGuildKey(unit)
+    if not gkey then return end
+    local avg, n = ns.GetScore(gkey)
+    local own = ns.Setting("showOwn") and ns.MyVote(gkey)
+    if not ((avg and n >= ns.MinVotes()) or own) then return end
+
+    local text = ""
+    if avg and n >= ns.MinVotes() then
+        local r = ns.Rank(avg)
+        text = string.format("%s |cff%s%.1f|r", STAR_INLINE, r.hex, avg)
+    end
+    if own then
+        text = text .. " |cffaaaaaa(" .. string.format(L.YOURS, ns.FormatStars(own.s / 2)) .. ")|r"
+    end
+
+    local guildName = gkey:sub(3)
+    local name = tt:GetName()
+    for i = 2, math.min(tt:NumLines(), 5) do
+        local fs = _G[name .. "TextLeft" .. i]
+        local t = fs and fs:GetText()
+        if type(t) == "string" and not IsSecret(t) and t:find(guildName, 1, true) then
+            fs:SetText(t .. "  " .. text)
+            return
+        end
+    end
+end
+
+local function AddToTooltip(tt)
+    if not ns.db or not ns.me or not ns.Setting("showBadge") then return end
+
+    -- In dungeons the tooltip's unit token can be secret; the plain
+    -- "mouseover" token points to the same unit and may still be readable
+    local _, unit = tt:GetUnit()
+    if IsSecret(unit) or not unit then unit = "mouseover" end
+    local key = ns.UnitKey(unit, TooltipLines(tt))
+    if not key then return end
+
+    if UnitIsPlayer(unit) then AnnotateGuild(tt, unit) end
+
+    local avg, n, tags = ns.GetScore(key)
     if not avg then
         tt:AddLine("|cffff8000NameScore|r |cff777777– " .. L.NOT_RATED .. "|r")
+        tt:Show()
+        return
+    end
+    if n < ns.MinVotes() then
+        tt:AddLine("|cffff8000NameScore|r |cff777777– " ..
+            string.format(L.TOO_FEW, n, ns.MinVotes()) .. OwnSuffix(key) .. "|r")
         tt:Show()
         return
     end
@@ -132,7 +181,7 @@ local function AddToTooltip(tt, unit)
     badge.score:SetText(string.format("%.1f", avg))
     badge.score:SetTextColor(cr, cg, cb)
     for _, edge in ipairs(badge.box.edges) do edge:SetColorTexture(cr, cg, cb, 1) end
-    badge.votes:SetText(n .. " " .. ns.Plural(n, L.VOTE, L.VOTES))
+    badge.votes:SetText(n .. " " .. ns.Plural(n, L.VOTE, L.VOTES) .. OwnSuffix(key))
     badge.bar:SetValue(avg)
     badge.bar:SetStatusBarColor(cr, cg, cb)
 
@@ -152,7 +201,7 @@ local function AddToTooltip(tt, unit)
     badge:ClearAllPoints()
     badge:SetPoint("TOPLEFT", first, "TOPLEFT", 0, 0)
     badge:SetPoint("RIGHT", tt, "RIGHT", -10, 0)
-    if tt.SetMinimumWidth then tt:SetMinimumWidth(220) end
+    if tt.SetMinimumWidth then tt:SetMinimumWidth(240) end
     badge:Show()
     tt:Show()
 end
@@ -161,10 +210,7 @@ end
 -- and report only the first one per session so it can be fixed.
 local errorReported = false
 local function SafeAddToTooltip(tt)
-    local ok, err = pcall(function()
-        local _, unit = tt:GetUnit()
-        AddToTooltip(tt, unit)
-    end)
+    local ok, err = pcall(AddToTooltip, tt)
     if not ok then
         if badge then badge:Hide() end
         if not errorReported then
@@ -244,6 +290,7 @@ local function ApplyElvUISkin()
         if frame.CloseButton then S:HandleCloseButton(frame.CloseButton) end
         for _, b in pairs(frame.tagButtons) do S:HandleButton(b) end
         S:HandleButton(frame.send)
+        S:HandleButton(frame.delete)
         ElvFont(frame.title, E, 14)
         ElvFont(frame.current, E, 12)
     end)
@@ -265,7 +312,9 @@ local function BuildFrame()
     tinsert(UISpecialFrames, "NameScoreFrame") -- ESC closes the window
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    frame.title:SetPoint("TOP", 0, -5)
+    frame.title:SetPoint("TOPLEFT", 10, -5)
+    frame.title:SetPoint("TOPRIGHT", -30, -5)
+    frame.title:SetWordWrap(false)
 
     frame.current = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.current:SetPoint("TOP", 0, -32)
@@ -324,23 +373,57 @@ local function BuildFrame()
     end
 
     frame.send = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    frame.send:SetSize(270, 28)
-    frame.send:SetPoint("BOTTOM", 0, 16)
+    frame.send:SetSize(190, 28)
+    frame.send:SetPoint("BOTTOMLEFT", 15, 16)
     frame.send:SetText(L.SUBMIT)
     frame.send:SetScript("OnClick", function()
         ns.Rate(frame.target, state.half / 2, state.tags)
         frame:Hide()
     end)
 
+    frame.delete = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.delete:SetSize(76, 28)
+    frame.delete:SetPoint("BOTTOMRIGHT", -15, 16)
+    frame.delete:SetText(L.DELETE)
+    frame.delete:SetScript("OnClick", function()
+        ns.DeleteVote(frame.target)
+        frame:Hide()
+    end)
+
     ApplyElvUISkin()
 end
 
+function ns.OpenRating(key)
+    if not key then ns.Print(L.NO_TARGET) return end
+    local reason = ns.OwnReason(key)
+    if reason then ns.Print(reason) return end
+    if not frame then BuildFrame() end
+
+    frame.target = key
+    state.half, state.tags = 0, {}
+    local mine = ns.MyVote(key)
+    if mine then
+        state.half = mine.s
+        for t in pairs(mine.tags or {}) do state.tags[t] = true end
+    end
+
+    local kind = ns.ParseKey(key)
+    local title = ns.ShortName(key)
+    if kind == "guild" then title = L.GUILD_LABEL .. " " .. title end
+    frame.title:SetText(title)
+    frame.current:SetText(string.format(L.CURRENT, ns.ScoreLine(key)))
+    frame.delete:SetEnabled(mine ~= nil)
+    UpdateStars()
+    UpdateTags()
+    frame:Show()
+end
+
 -- ---------------------------------------------------------------
--- Right-click menu entry ("NameScore > Rate name") on player menus
+-- Right-click menu entries on player and pet menus
 -- ---------------------------------------------------------------
 local MENU_TAGS = {
     "MENU_UNIT_PLAYER",                    -- players in the world
-    "MENU_UNIT_TARGET",                    -- target frame
+    "MENU_UNIT_TARGET",                    -- target frame (players and pets)
     "MENU_UNIT_FOCUS",                     -- focus frame
     "MENU_UNIT_PARTY",                     -- party frames
     "MENU_UNIT_RAID_PLAYER",               -- raid frames
@@ -349,55 +432,46 @@ local MENU_TAGS = {
     "MENU_UNIT_GUILD",                     -- guild roster
     "MENU_UNIT_COMMUNITIES_GUILD_MEMBER",  -- guild & communities window
     "MENU_UNIT_COMMUNITIES_WOW_MEMBER",
+    "MENU_UNIT_OTHERPET",                  -- other players' pets
+    "MENU_UNIT_PARTYPET",                  -- pets of party members
+    "MENU_UNIT_RAID_PET",                  -- pets in the raid
 }
 
--- Works out the player key from a menu's context: from the unit if it is
--- readable, otherwise from the name the menu was opened for
-local function MenuTargetKey(ctx)
+-- Works out what the menu was opened for: from the unit if it is readable,
+-- otherwise from the name the menu was opened for (chat, guild roster)
+local function MenuKeys(ctx)
     if not ctx then return nil end
     local unit = ctx.unit
     if unit and not IsSecret(unit) and UnitExists(unit) then
+        local key = ns.UnitKey(unit)
+        if key then return key, ns.UnitGuildKey(unit) end
         if not UnitIsPlayer(unit) then return nil end
-        local name, realm = UnitName(unit)
-        if not IsSecret(name) and not IsSecret(realm) and type(name) == "string" then
-            return ns.FullName(name, realm)
-        end
     end
     local name, server = ctx.name, ctx.server
     if IsSecret(name) or IsSecret(server) or type(name) ~= "string" then return nil end
-    return ns.FullName(name, server)
+    return ns.FullName(name, server), nil
 end
 
 local function AddMenuEntry(owner, rootDescription, contextData)
-    local ok, key = pcall(MenuTargetKey, contextData)
-    if not ok or not key or not ns.me or key:lower() == ns.me:lower() then return end
+    if not ns.me then return end
+    local ok, key, guildKey = pcall(MenuKeys, contextData)
+    if not ok then return end
+    local rateName = key and not ns.OwnReason(key)
+    local rateGuild = guildKey and not ns.OwnReason(guildKey)
+    if not rateName and not rateGuild then return end
+
     rootDescription:CreateDivider()
     rootDescription:CreateTitle("NameScore")
-    rootDescription:CreateButton(L.MENU_RATE, function() ns.OpenRating(key) end)
+    if rateName then
+        rootDescription:CreateButton(L.MENU_RATE, function() ns.OpenRating(key) end)
+    end
+    if rateGuild then
+        rootDescription:CreateButton(L.MENU_RATE_GUILD, function() ns.OpenRating(guildKey) end)
+    end
 end
 
 if Menu and Menu.ModifyMenu then
     for _, tag in ipairs(MENU_TAGS) do
         Menu.ModifyMenu(tag, AddMenuEntry)
     end
-end
-
-function ns.OpenRating(target)
-    if not target then ns.Print(L.NO_TARGET) return end
-    if target == ns.me then ns.Print(L.NO_SELF) return end
-    if not frame then BuildFrame() end
-
-    frame.target = target
-    state.half, state.tags = 0, {}
-    local mine = ns.MyVote(target)
-    if mine then
-        state.half = mine.s
-        for t in pairs(mine.tags or {}) do state.tags[t] = true end
-    end
-
-    frame.title:SetText(ns.ShortName(target))
-    frame.current:SetText(string.format(L.CURRENT, ns.ScoreLine(target)))
-    UpdateStars()
-    UpdateTags()
-    frame:Show()
 end
