@@ -1,11 +1,21 @@
 name: Release
 
-# Push a tag like v0.2.0 -> build the zip and upload it to GitHub Releases
-# (and to CurseForge/Wago once the secrets are set).
+# Two ways to release:
+# 1. One click: Actions -> Release -> "Run workflow", enter a version like
+#    0.2.0-beta2. The workflow creates the tag itself.
+# 2. Push a tag like v0.2.0 yourself.
+# Versions containing "beta" or "alpha" are uploaded to CurseForge as test
+# versions, everything else as a normal release.
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version, e.g. 0.2.0 or 0.2.0-beta2 (beta/alpha = test version)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -21,5 +31,28 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Create tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          v="${VERSION#v}"
+          if ! [[ "$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)[0-9]*)?$ ]]; then
+            echo "::error::Invalid version '$VERSION'. Use e.g. 0.2.0 or 0.2.0-beta2"
+            exit 1
+          fi
+          tag="v$v"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null \
+             || git rev-parse -q --verify "refs/tags/$v" >/dev/null; then
+            echo "::error::Version $tag already exists. Pick the next number."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "$tag"
+          git push origin "$tag"
+          echo "Created tag $tag"
 
       - uses: BigWigsMods/packager@v2

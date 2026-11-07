@@ -36,6 +36,10 @@ Via CurseForge, or manually: download the release zip and extract the `NameScore
 
 ## Releasing
 
+One click: go to **Actions → Release → Run workflow**, enter a version like `0.2.0` or `0.2.0-beta2` and start it. Versions with `beta` or `alpha` go to CurseForge as test versions.
+
+Alternatively push a tag yourself:
+
 ```bash
 git tag v0.2.0
 git push origin v0.2.0
