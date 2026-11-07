@@ -79,10 +79,19 @@ local function HideBadge(tt)
     if tt and tt.SetMinimumWidth then tt:SetMinimumWidth(0) end
 end
 
+-- In instances the game can hide unit data behind "secret values";
+-- those must not be used in string operations, so we skip them.
+local function IsSecret(v)
+    return issecretvalue ~= nil and v ~= nil and issecretvalue(v)
+end
+
 local function AddToTooltip(tt, unit)
+    if IsSecret(unit) then return end
     unit = unit or "mouseover"
-    if not ns.db or not UnitExists(unit) or not UnitIsPlayer(unit) then return end
+    if not ns.db or not ns.me or not UnitExists(unit) or not UnitIsPlayer(unit) then return end
     local name, realm = UnitName(unit)
+    if IsSecret(name) or IsSecret(realm) then return end
+    if type(name) ~= "string" then return end
     local target = ns.FullName(name, realm)
     if not target then return end
 
@@ -131,17 +140,32 @@ local function AddToTooltip(tt, unit)
     tt:Show()
 end
 
+-- A tooltip error must never spam the player: catch it, hide the badge
+-- and report only the first one per session so it can be fixed.
+local errorReported = false
+local function SafeAddToTooltip(tt)
+    local ok, err = pcall(function()
+        local _, unit = tt:GetUnit()
+        AddToTooltip(tt, unit)
+    end)
+    if not ok then
+        if badge then badge:Hide() end
+        if not errorReported then
+            errorReported = true
+            local msg = type(err) == "string" and err or "unknown error"
+            if ns.db then ns.db.lastError = msg end
+            ns.Print(L.TOOLTIP_ERROR .. " " .. msg)
+        end
+    end
+end
+
 if TooltipDataProcessor and Enum and Enum.TooltipDataType then
     TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tt)
         if tt ~= GameTooltip then return end
-        local _, unit = tt:GetUnit()
-        AddToTooltip(tt, unit)
+        SafeAddToTooltip(tt)
     end)
 else
-    GameTooltip:HookScript("OnTooltipSetUnit", function(tt)
-        local _, unit = tt:GetUnit()
-        AddToTooltip(tt, unit)
-    end)
+    GameTooltip:HookScript("OnTooltipSetUnit", SafeAddToTooltip)
 end
 GameTooltip:HookScript("OnTooltipCleared", HideBadge)
 GameTooltip:HookScript("OnHide", HideBadge)

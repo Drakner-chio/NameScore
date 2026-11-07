@@ -20,6 +20,7 @@ local L = {
     HELP_RATE       = "/ns <1-5> [funny epic creative cringe] – rate your target directly",
     HELP_CHECK      = "/ns check <name> – look up a player's score",
     HELP_SYNC       = "/ns sync – request votes from your guild and group",
+    TOOLTIP_ERROR   = "Tooltip error (shown once, please report on GitHub):",
 
     TAG_lustig      = "Funny",
     TAG_episch      = "Epic",
@@ -53,6 +54,7 @@ if GetLocale() == "deDE" then
     L.HELP_RATE      = "/ns <1-5> [lustig episch kreativ cringe] – Ziel direkt bewerten"
     L.HELP_CHECK     = "/ns check <Name> – Score nachschlagen"
     L.HELP_SYNC      = "/ns sync – Stimmen von Gilde und Gruppe anfragen"
+    L.TOOLTIP_ERROR  = "Tooltip-Fehler (wird nur einmal angezeigt, bitte auf GitHub melden):"
 
     L.TAG_lustig     = "Lustig"
     L.TAG_episch     = "Episch"

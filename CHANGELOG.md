@@ -11,3 +11,5 @@
   arrive as "First Last" or "First-Last" depending on the source)
 - Player names are shown with their surname
 - `/ns check` also finds players by first name only
+- Fixed Lua errors on mouseover in dungeons; tooltip errors are now caught
+  and reported once instead of spamming
