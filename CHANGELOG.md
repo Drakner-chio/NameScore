@@ -4,7 +4,7 @@
 - Rating window with 1–5 stars and multiple tags (Funny, Epic, Creative, Cringe)
 - "Rate name" entry in the right-click menu of players (target, party, raid,
   focus, chat names, guild roster)
-- Tooltip badge with score, rank (Poor to Legendary), score bar and top tags
+- Compact tooltip badge (two lines) with score, rank (Poor to Legendary), score bar and top tags
 - Automatic ElvUI skin when ElvUI is installed
 - Your own vote is preselected when reopening the rating window
 - English and German localization

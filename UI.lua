@@ -29,15 +29,18 @@ local badge
 local function CreateBadge()
     local E = GetElvUI()
 
+    -- Compact badge, two tooltip lines high:
+    -- [score] RANK · tags ............ n votes
+    -- [     ] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     badge = CreateFrame("Frame", nil, GameTooltip)
-    badge:SetHeight(40)
+    badge:SetHeight(24)
 
     -- Square with the score, border in rank color.
     -- Built from plain textures on purpose: Blizzard's BackdropTemplate does
     -- Lua math on the frame size, which is a secret value inside a tooltip in
     -- dungeons and throws an error on every resize.
     badge.box = CreateFrame("Frame", nil, badge)
-    badge.box:SetSize(38, 38)
+    badge.box:SetSize(32, 24)
     badge.box:SetPoint("LEFT")
 
     local bg = badge.box:CreateTexture(nil, "BACKGROUND")
@@ -59,34 +62,34 @@ local function CreateBadge()
         Edge("TOPRIGHT", "BOTTOMRIGHT", 2, nil),
     }
 
-    badge.score = badge.box:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    badge.score = badge.box:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     badge.score:SetPoint("CENTER", 0, 0)
 
-    badge.rank = badge:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    badge.rank:SetPoint("TOPLEFT", badge.box, "TOPRIGHT", 8, -1)
-
     badge.votes = badge:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    badge.votes:SetPoint("TOPRIGHT", badge, "TOPRIGHT", 0, -2)
+    badge.votes:SetPoint("TOPRIGHT", badge, "TOPRIGHT", 0, -1)
+
+    -- Rank and tags in one line; cut off with "..." instead of running into the votes
+    badge.rank = badge:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    badge.rank:SetPoint("TOPLEFT", badge.box, "TOPRIGHT", 6, -1)
+    badge.rank:SetPoint("RIGHT", badge.votes, "LEFT", -6, 0)
+    badge.rank:SetJustifyH("LEFT")
+    badge.rank:SetWordWrap(false)
 
     badge.bar = CreateFrame("StatusBar", nil, badge)
     badge.bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
     badge.bar:SetMinMaxValues(0, 10)
-    badge.bar:SetHeight(6)
-    badge.bar:SetPoint("LEFT", badge.box, "RIGHT", 8, 0)
+    badge.bar:SetHeight(4)
+    badge.bar:SetPoint("BOTTOMLEFT", badge.box, "BOTTOMRIGHT", 6, 2)
     badge.bar:SetPoint("RIGHT", badge, "RIGHT", 0, 0)
     badge.bar.bg = badge.bar:CreateTexture(nil, "BACKGROUND")
     badge.bar.bg:SetAllPoints()
     badge.bar.bg:SetColorTexture(0.16, 0.17, 0.21, 1)
 
-    badge.tags = badge:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    badge.tags:SetPoint("BOTTOMLEFT", badge.box, "BOTTOMRIGHT", 8, 1)
-
     if E then
         if E.media.normTex then badge.bar:SetStatusBarTexture(E.media.normTex) end
-        ElvFont(badge.score, E, 16)
-        ElvFont(badge.rank, E, 13)
-        ElvFont(badge.votes, E, 11)
-        ElvFont(badge.tags, E, 11)
+        ElvFont(badge.score, E, 12)
+        ElvFont(badge.rank, E, 10)
+        ElvFont(badge.votes, E, 10)
     end
 
     badge:Hide()
@@ -129,33 +132,27 @@ local function AddToTooltip(tt, unit)
     badge.score:SetText(string.format("%.1f", avg))
     badge.score:SetTextColor(cr, cg, cb)
     for _, edge in ipairs(badge.box.edges) do edge:SetColorTexture(cr, cg, cb, 1) end
-    badge.rank:SetText(r.label:upper())
-    badge.rank:SetTextColor(cr, cg, cb)
     badge.votes:SetText(n .. " " .. ns.Plural(n, L.VOTE, L.VOTES))
     badge.bar:SetValue(avg)
     badge.bar:SetStatusBarColor(cr, cg, cb)
 
-    local parts = {}
-    for i = 1, math.min(#tags, 3) do
-        local label = ns.TagLabel(tags[i].tag)
-        parts[#parts + 1] = (i == 1) and ("|cffffd100" .. label .. "|r") or label
+    -- "RANK · Tag1 · Tag2": rank in its color, top tag gold, second tag grey
+    local line = "|cff" .. r.hex .. r.label:upper() .. "|r"
+    for i = 1, math.min(#tags, 2) do
+        local color = (i == 1) and "|cffffd100" or "|cffcccccc"
+        line = line .. " |cff777777·|r " .. color .. ns.TagLabel(tags[i].tag) .. "|r"
     end
-    if #parts > 0 then
-        badge.tags:SetText(table.concat(parts, "  ·  "))
-    else
-        badge.tags:SetText("|cff777777" .. L.NO_TAGS .. "|r")
-    end
+    badge.rank:SetText(line)
 
-    -- Reserve space in the tooltip (4 lines leave room below for other addons)
-    -- and place the badge on top of it
-    for _ = 1, 4 do tt:AddLine(" ") end
-    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 3)]
+    -- Reserve two lines in the tooltip and place the badge on top of them
+    for _ = 1, 2 do tt:AddLine(" ") end
+    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 1)]
     badge:SetParent(tt)
     badge:SetFrameLevel(tt:GetFrameLevel() + 5)
     badge:ClearAllPoints()
-    badge:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -2)
+    badge:SetPoint("TOPLEFT", first, "TOPLEFT", 0, 0)
     badge:SetPoint("RIGHT", tt, "RIGHT", -10, 0)
-    if tt.SetMinimumWidth then tt:SetMinimumWidth(230) end
+    if tt.SetMinimumWidth then tt:SetMinimumWidth(220) end
     badge:Show()
     tt:Show()
 end
