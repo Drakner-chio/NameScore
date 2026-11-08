@@ -31,6 +31,13 @@ function ns.BuildOptions()
 
     Checkbox("elvSkin", L.OPT_ELVUI, L.OPT_ELVUI_TIP)
 
+    local mm = Settings.RegisterAddOnSetting(cat, "NameScore_showMinimap", "showMinimap", s,
+        Settings.VarType.Boolean, L.OPT_MINIMAP, ns.DEFAULTS.showMinimap)
+    Settings.CreateCheckbox(cat, mm, L.OPT_MINIMAP_TIP)
+    if mm and mm.SetValueChangedCallback then
+        mm:SetValueChangedCallback(function(_, value) ns.SetMinimapShown(value) end)
+    end
+
     Settings.RegisterAddOnCategory(cat)
     category = cat
 end
@@ -49,6 +56,7 @@ function ns.OpenOptions()
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
     ns.Print(L.OPT_ELVUI .. ": " .. OnOff(ns.Setting("elvSkin")) .. "  (/ns elvui)")
+    ns.Print(L.OPT_MINIMAP .. ": " .. OnOff(ns.Setting("showMinimap")) .. "  (/ns minimap)")
 end
 
 -- Toggle a boolean setting from chat

@@ -29,7 +29,7 @@ Right-click any player and choose **NameScore → Rate name** (or target them an
 
 ## Hall of Fame
 
-Type `/ns top` for the best and worst rated names around you – players, guilds and pets – and a list of everything you rated. Click a name to change your vote.
+Click the **minimap button** (or type `/ns top`) for the best and worst rated names around you – players, guilds and pets – and a list of everything you rated. Click a name to change your vote.
 
 ![How sync works](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
 
@@ -54,6 +54,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns delete` | Delete your vote for your target |
 | `/ns top` | Open the hall of fame |
 | `/ns options` | Open the settings |
+| `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
 | `/ns sync` | Request votes from your guild and group |
 

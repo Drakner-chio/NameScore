@@ -18,6 +18,9 @@
 - **EllesmereUI support:** the rating window and hall of fame follow your EllesmereUI
   theme, accent color and font via its official skinning API
 - Hall of fame: names with the same score are sorted by votes, then alphabetically
+- **Minimap button:** left-click opens the hall of fame, right-click the settings;
+  also in the addon compartment, collected by EllesmereUI's minimap button bar;
+  hide it with `/ns minimap` or in the settings
 - Own star graphic in the rating window and tooltip (the raid target star looks
   different in WoW: Forever), more compact rating window
 

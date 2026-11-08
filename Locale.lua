@@ -38,6 +38,7 @@ local L = {
     HELP_CHECK      = "/ns check <name> – look up a player's score",
     HELP_HALL       = "/ns top – open the hall of fame",
     HELP_OPTIONS    = "/ns options – open the settings",
+    HELP_MINIMAP    = "/ns minimap – show/hide the minimap button",
     HELP_SYNC       = "/ns sync – request votes from your guild and group",
 
     HALL_TITLE      = "NameScore – Hall of Fame",
@@ -56,6 +57,11 @@ local L = {
     OPT_MIN_TIP     = "A score and rank are only shown once a name has at least this many votes. Fairer, because a single vote can't decide alone.",
     OPT_ELVUI       = "ElvUI / EllesmereUI style",
     OPT_ELVUI_TIP   = "Use the look of ElvUI or EllesmereUI for NameScore windows if one of them is installed. Takes effect after /reload.",
+    OPT_MINIMAP     = "Minimap button",
+    OPT_MINIMAP_TIP = "Shows the NameScore button at the minimap. Left-click opens the hall of fame, right-click the settings.",
+    MM_LEFT         = "Left-click: hall of fame",
+    MM_RIGHT        = "Right-click: settings",
+    MM_VOTES        = "%d votes known",
 
     TAG_lustig      = "Funny",
     TAG_episch      = "Epic",
@@ -107,6 +113,7 @@ if GetLocale() == "deDE" then
     L.HELP_CHECK      = "/ns check <Name> – Score nachschlagen"
     L.HELP_HALL       = "/ns top – Ruhmeshalle öffnen"
     L.HELP_OPTIONS    = "/ns optionen – Einstellungen öffnen"
+    L.HELP_MINIMAP    = "/ns minimap – Minimap-Button ein-/ausblenden"
     L.HELP_SYNC       = "/ns sync – Stimmen von Gilde und Gruppe anfragen"
 
     L.HALL_TITLE      = "NameScore – Ruhmeshalle"
@@ -125,6 +132,11 @@ if GetLocale() == "deDE" then
     L.OPT_MIN_TIP     = "Score und Rang erscheinen erst, wenn ein Name mindestens so viele Stimmen hat. Fairer, weil eine einzelne Stimme nicht allein entscheidet."
     L.OPT_ELVUI       = "ElvUI- / EllesmereUI-Stil"
     L.OPT_ELVUI_TIP   = "NameScore-Fenster im Look von ElvUI oder EllesmereUI anzeigen, wenn eins davon installiert ist. Wirkt nach /reload."
+    L.OPT_MINIMAP     = "Minimap-Button"
+    L.OPT_MINIMAP_TIP = "Zeigt den NameScore-Button an der Minimap. Linksklick öffnet die Ruhmeshalle, Rechtsklick die Einstellungen."
+    L.MM_LEFT         = "Linksklick: Ruhmeshalle"
+    L.MM_RIGHT        = "Rechtsklick: Einstellungen"
+    L.MM_VOTES        = "%d Stimmen bekannt"
 
     L.TAG_lustig      = "Lustig"
     L.TAG_episch      = "Episch"

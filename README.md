@@ -11,6 +11,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Cringe); delete your vote any time
 - **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
 - **Hall of fame:** best and worst rated names, and everything you rated
+- **Minimap button:** left-click for the hall of fame, right-click for settings (also in the addon compartment)
 - **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI & EllesmereUI:** NameScore windows automatically match your UI – EllesmereUI via its official skinning API (theme, accent color and font), ElvUI via its skin module
@@ -28,6 +29,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns top` | Open the hall of fame |
 | `/ns options` | Open the settings |
 | `/ns min 1-5` | Votes needed before a score is shown |
+| `/ns minimap` | Show/hide the minimap button |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns sync` | Request votes from your guild and group |
 
@@ -80,4 +82,4 @@ NameScore is meant as a bit of fun. There are deliberately no free-text comments
 
 ## License
 
-MIT
+MIT for NameScore's own code. The embedded libraries (LibStub, CallbackHandler, LibDataBroker, LibDBIcon) are added by the release packager and keep their own licenses.

@@ -13,7 +13,8 @@ ns.DEFAULTS = {
     showBadge = true,   -- tooltip badge on/off
     showOwn   = true,   -- show your own vote in the tooltip
     minVotes  = 2,      -- votes needed before a score is shown
-    elvSkin   = true,   -- use ElvUI style if ElvUI is installed
+    elvSkin   = true,   -- use ElvUI / EllesmereUI style if installed
+    showMinimap = true, -- minimap button
 }
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
@@ -509,6 +510,7 @@ local CMD = {
     optionen = "options", options = "options", config = "options",
     check = "check", sync = "sync", min = "min",
     badge = "badge", own = "own", eigene = "own", elvui = "elvui",
+    minimap = "minimap", karte = "minimap",
 }
 
 local function TargetGuildKey()
@@ -564,6 +566,9 @@ SlashCmdList.NAMESCORE = function(input)
         ns.ToggleSetting("showOwn", L.OPT_OWN)
     elseif cmd == "elvui" then
         ns.ToggleSetting("elvSkin", L.OPT_ELVUI)
+    elseif cmd == "minimap" then
+        ns.SetMinimapShown(not ns.Setting("showMinimap"))
+        ns.Print(L.OPT_MINIMAP .. ": " .. (ns.Setting("showMinimap") and "|cff1eff00ON|r" or "|cffff4040OFF|r"))
     else
         ns.Print(L.HELP_HEADER)
         ns.Print(L.HELP_OPEN)
@@ -573,6 +578,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_CHECK)
         ns.Print(L.HELP_HALL)
         ns.Print(L.HELP_OPTIONS)
+        ns.Print(L.HELP_MINIMAP)
         ns.Print(L.HELP_SYNC)
     end
 end
@@ -599,6 +605,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
         MigrateDB(ns.db)
         C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
         if ns.BuildOptions then pcall(ns.BuildOptions) end
+        if ns.BuildMinimap then pcall(ns.BuildMinimap) end
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
         NormalizeDB(ns.db)

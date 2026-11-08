@@ -3,6 +3,9 @@
 ## Notes: Rate player, guild and pet names – community score in the tooltip
 ## Notes-deDE: Spieler-, Gilden- und Begleiternamen bewerten – Score im Tooltip
 ## IconTexture: Interface\AddOns\NameScore\media\Icon
+## AddonCompartmentFunc: NameScore_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: NameScore_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: NameScore_OnAddonCompartmentLeave
 ## Author: Drakner-chio
 ## Version: @project-version@
 ## SavedVariables: NameScoreDB
@@ -10,8 +13,15 @@
 ## X-License: MIT
 ## X-Curse-Project-ID: 1788050
 
+# Libraries, added by the release packager (see .pkgmeta)
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
 Locale.lua
 NameScore.lua
 UI.lua
 Options.lua
 HallOfFame.lua
+Minimap.lua
