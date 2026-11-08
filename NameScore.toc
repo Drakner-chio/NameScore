@@ -6,7 +6,7 @@
 ## Author: Drakner-chio
 ## Version: @project-version@
 ## SavedVariables: NameScoreDB
-## OptionalDeps: ElvUI
+## OptionalDeps: ElvUI, EllesmereUI
 ## X-License: MIT
 ## X-Curse-Project-ID: 1788050
 

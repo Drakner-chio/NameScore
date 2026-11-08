@@ -7,10 +7,40 @@ local STAR_TEX = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1"
 local STAR_INLINE = "|T" .. STAR_TEX .. ":0|t"
 
 -- ---------------------------------------------------------------
--- ElvUI detection (optional)
+-- EllesmereUI (optional): official skinning API, see its SKINNING_API.md.
+-- EUI calls us once at login with a set of skin functions S; our windows are
+-- created later, so each window registers its skin code with ns.WhenEUI.
+-- ---------------------------------------------------------------
+local euiQueue = {}
+
+function ns.HasEUI()
+    return EllesmereUI ~= nil and EllesmereUI.RegisterSkin ~= nil and ns.Setting("elvSkin")
+end
+
+-- Runs fn(S) now if EllesmereUI is ready, otherwise as soon as it is
+function ns.WhenEUI(fn)
+    if ns.EUI then
+        local ok, err = pcall(fn, ns.EUI)
+        if not ok then geterrorhandler()(err) end
+    else
+        euiQueue[#euiQueue + 1] = fn
+    end
+end
+
+if EllesmereUI and EllesmereUI.RegisterSkin then
+    EllesmereUI.RegisterSkin("NameScore", function(S)
+        if not ns.Setting("elvSkin") then return end
+        ns.EUI = S
+        for _, fn in ipairs(euiQueue) do ns.WhenEUI(fn) end
+        euiQueue = {}
+    end)
+end
+
+-- ---------------------------------------------------------------
+-- ElvUI detection (optional, only when EllesmereUI isn't skinning us)
 -- ---------------------------------------------------------------
 function ns.GetElvUI()
-    if not ElvUI or not ns.Setting("elvSkin") then return nil end
+    if not ElvUI or not ns.Setting("elvSkin") or ns.HasEUI() then return nil end
     local ok, E = pcall(function() return unpack(ElvUI) end)
     if not ok or not E then return nil end
     local okS, S = pcall(E.GetModule, E, "Skins")
@@ -93,6 +123,13 @@ local function CreateBadge()
         ElvFont(badge.score, E, 12)
         ElvFont(badge.rank, E, 10)
         ElvFont(badge.votes, E, 10)
+    end
+    if ns.HasEUI() then
+        ns.WhenEUI(function(S)
+            S.Font(badge.score)
+            S.Font(badge.rank)
+            S.Font(badge.votes)
+        end)
     end
 
     badge:Hide()
@@ -265,10 +302,17 @@ local function UpdateTags()
     for tag, b in pairs(frame.tagButtons) do
         local on = state.tags[tag]
         local fs = b:GetFontString()
-        if fs then
+        if frame.eui then
+            -- EllesmereUI: selected tags in the user's accent color
+            if fs then
+                if on then fs:SetTextColor(frame.eui.GetAccentColor()) else fs:SetTextColor(0.7, 0.7, 0.7) end
+            end
+        elseif fs then
             if on then fs:SetTextColor(1, 0.82, 0) else fs:SetTextColor(0.75, 0.75, 0.75) end
         end
-        if frame.elv and b.SetBackdropBorderColor then
+        if frame.eui then
+            -- nothing else to do, the flat EUI button has no highlight state
+        elseif frame.elv and b.SetBackdropBorderColor then
             if on then
                 b:SetBackdropBorderColor(1, 0.82, 0)
             else
@@ -295,6 +339,26 @@ local function ApplyElvUISkin()
         ElvFont(frame.current, E, 12)
     end)
     if ok then frame.elv = E end
+end
+
+local function SkinRatingEUI(S)
+    S.Shell(frame)
+    if frame.CloseButton then S.CloseButton(frame.CloseButton) end
+    for _, b in pairs(frame.tagButtons) do
+        S.Button(b)
+        if b:GetFontString() then S.Font(b:GetFontString()) end
+    end
+    for _, b in ipairs({ frame.send, frame.delete }) do
+        S.Button(b)
+        S.StateButtonLabel(b)   -- white when usable, grey when disabled
+        if b:GetFontString() then S.Font(b:GetFontString()) end
+    end
+    S.Font(frame.title)
+    S.Font(frame.current)
+    frame.eui = S
+    -- Accent color changes live: recolor the selected tags
+    S.OnLooksChanged(function() if frame:IsShown() then UpdateTags() end end)
+    UpdateTags()
 end
 
 local function BuildFrame()
@@ -390,7 +454,11 @@ local function BuildFrame()
         frame:Hide()
     end)
 
-    ApplyElvUISkin()
+    if ns.HasEUI() then
+        ns.WhenEUI(SkinRatingEUI)
+    else
+        ApplyElvUISkin()
+    end
 end
 
 function ns.OpenRating(key)

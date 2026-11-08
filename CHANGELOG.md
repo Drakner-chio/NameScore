@@ -13,8 +13,11 @@
 - **Hall of fame** (`/ns top`): best and worst rated names and your own votes; click a
   name to change your vote
 - **Settings** in *Options → AddOns → NameScore* (`/ns options`): tooltip on/off, own vote
-  on/off, votes needed for a score, ElvUI style
+  on/off, votes needed for a score, ElvUI / EllesmereUI style
 - Votes older than 6 months are removed automatically to keep sync fast
+- **EllesmereUI support:** the rating window and hall of fame follow your EllesmereUI
+  theme, accent color and font via its official skinning API
+- Hall of fame: names with the same score are sorted by votes, then alphabetically
 
 ## v0.2.0
 - Rating window with ½ to 5 stars (half stars allowed) and multiple tags (Funny, Epic, Creative, Cringe)

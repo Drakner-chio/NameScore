@@ -54,8 +54,8 @@ local L = {
     OPT_OWN_TIP     = "Shows your own stars in the tooltip, so you can see who you already rated.",
     OPT_MIN         = "Votes needed for a score",
     OPT_MIN_TIP     = "A score and rank are only shown once a name has at least this many votes. Fairer, because a single vote can't decide alone.",
-    OPT_ELVUI       = "ElvUI style",
-    OPT_ELVUI_TIP   = "Use ElvUI's look for NameScore windows if ElvUI is installed. Takes effect after /reload.",
+    OPT_ELVUI       = "ElvUI / EllesmereUI style",
+    OPT_ELVUI_TIP   = "Use the look of ElvUI or EllesmereUI for NameScore windows if one of them is installed. Takes effect after /reload.",
 
     TAG_lustig      = "Funny",
     TAG_episch      = "Epic",
@@ -123,8 +123,8 @@ if GetLocale() == "deDE" then
     L.OPT_OWN_TIP     = "Zeigt deine eigenen Sterne im Tooltip, damit du siehst, wen du schon bewertet hast."
     L.OPT_MIN         = "Stimmen für einen Score"
     L.OPT_MIN_TIP     = "Score und Rang erscheinen erst, wenn ein Name mindestens so viele Stimmen hat. Fairer, weil eine einzelne Stimme nicht allein entscheidet."
-    L.OPT_ELVUI       = "ElvUI-Stil"
-    L.OPT_ELVUI_TIP   = "NameScore-Fenster im ElvUI-Look anzeigen, wenn ElvUI installiert ist. Wirkt nach /reload."
+    L.OPT_ELVUI       = "ElvUI- / EllesmereUI-Stil"
+    L.OPT_ELVUI_TIP   = "NameScore-Fenster im Look von ElvUI oder EllesmereUI anzeigen, wenn eins davon installiert ist. Wirkt nach /reload."
 
     L.TAG_lustig      = "Lustig"
     L.TAG_episch      = "Episch"

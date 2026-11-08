@@ -13,7 +13,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Hall of fame:** best and worst rated names, and everything you rated
 - **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
-- **ElvUI skin:** if ElvUI is installed, NameScore automatically uses its borders, fonts and colors
+- **ElvUI & EllesmereUI:** NameScore windows automatically match your UI – EllesmereUI via its official skinning API (theme, accent color and font), ElvUI via its skin module
 - **Languages:** English and German
 
 ## Commands
@@ -28,7 +28,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns top` | Open the hall of fame |
 | `/ns options` | Open the settings |
 | `/ns min 1-5` | Votes needed before a score is shown |
-| `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI style |
+| `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns sync` | Request votes from your guild and group |
 
 Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `lustig episch kreativ cringe`). You can't rate yourself, your own guild or your own pet.

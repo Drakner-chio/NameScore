@@ -22,15 +22,18 @@ local function Collect(tab)
             list[#list + 1] = { key = key, avg = avg, n = n, mine = mine }
         end
     end
+    -- Ties: more votes first, then alphabetically, so the order never jumps
     if tab == "top" then
         table.sort(list, function(a, b)
             if a.avg ~= b.avg then return a.avg > b.avg end
-            return a.n > b.n
+            if a.n ~= b.n then return a.n > b.n end
+            return ns.ShortName(a.key) < ns.ShortName(b.key)
         end)
     elseif tab == "flop" then
         table.sort(list, function(a, b)
             if a.avg ~= b.avg then return a.avg < b.avg end
-            return a.n > b.n
+            if a.n ~= b.n then return a.n > b.n end
+            return ns.ShortName(a.key) < ns.ShortName(b.key)
         end)
     else
         table.sort(list, function(a, b) return a.mine.ts > b.mine.ts end)
@@ -66,7 +69,17 @@ local function Refresh()
     hall.empty:SetShown(#list == 0)
 
     for tab, b in pairs(hall.tabs) do
-        if tab == currentTab then b:LockHighlight() else b:UnlockHighlight() end
+        if hall.eui then
+            -- EllesmereUI: active tab label in the user's accent color
+            local fs = b:GetFontString()
+            if fs then
+                if tab == currentTab then fs:SetTextColor(hall.eui.GetAccentColor()) else fs:SetTextColor(0.7, 0.7, 0.7) end
+            end
+        elseif tab == currentTab then
+            b:LockHighlight()
+        else
+            b:UnlockHighlight()
+        end
     end
     if currentTab == "mine" then
         hall.footer:SetText(L.HALL_FOOTER_MINE)
@@ -147,6 +160,28 @@ local function Build()
 
     -- Refresh when opened again, so new votes show up
     hall:SetScript("OnShow", Refresh)
+
+    -- EllesmereUI look (official skinning API)
+    if ns.HasEUI() then
+        ns.WhenEUI(function(S)
+            S.Shell(hall)
+            if hall.CloseButton then S.CloseButton(hall.CloseButton) end
+            for _, b in pairs(hall.tabs) do
+                S.Button(b)
+                if b:GetFontString() then S.Font(b:GetFontString()) end
+            end
+            S.Font(hall.title)
+            S.Font(hall.empty)
+            S.Font(hall.footer)
+            for _, row in ipairs(hall.rows) do
+                S.Font(row.pos)
+                S.Font(row.name)
+                S.Font(row.score)
+            end
+            hall.eui = S
+            S.OnLooksChanged(function() if hall:IsShown() then Refresh() end end)
+        end)
+    end
 
     -- ElvUI look
     local E, S = ns.GetElvUI()

@@ -59,7 +59,9 @@ There are no external servers. Votes travel invisibly through your **guild** and
 
 ## Settings
 
-Find them in **Options → AddOns → NameScore**: tooltip badge on/off, show your own vote, votes needed for a score, and ElvUI style. If ElvUI is installed, NameScore automatically uses its borders, fonts and colors.
+Find them in **Options → AddOns → NameScore**: tooltip badge on/off, show your own vote, votes needed for a score, and the UI style.
+
+**ElvUI & EllesmereUI:** NameScore windows automatically match your UI. With **EllesmereUI** they follow your theme, accent color and font through its official skinning API (toggle it under *Blizzard Skins+ → Window Skins → Third-Party Addons*). With **ElvUI** they use its borders, fonts and colors.
 
 ## Language
 
