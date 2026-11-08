@@ -16,6 +16,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI & EllesmereUI:** NameScore windows automatically match your UI – EllesmereUI via its official skinning API (theme, accent color and font), ElvUI via its skin module
+- **Badge size:** small (one text line), normal or large
 - **Key bindings** for rating your target and the hall of fame
 - **Languages:** English, German, French and Spanish
 
@@ -33,6 +34,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns options` | Open the settings |
 | `/ns min 1-5` | Votes needed before a score is shown |
 | `/ns minimap` | Show/hide the minimap button |
+| `/ns size small\|normal\|large` | Size of the tooltip badge |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns sync` | Request votes from your guild and group |
 

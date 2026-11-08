@@ -62,7 +62,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 
 ## Settings
 
-Key bindings for rating your target and the hall of fame are in **Options → Key Bindings → AddOns**. The settings are in **Options → AddOns → NameScore**: tooltip badge on/off, show your own vote, votes needed for a score, and the UI style.
+Key bindings for rating your target and the hall of fame are in **Options → Key Bindings → AddOns**. The settings are in **Options → AddOns → NameScore**: tooltip badge on/off and its size (one text line, normal or large), show your own vote, votes needed for a score, and the UI style.
 
 **ElvUI & EllesmereUI:** NameScore windows automatically match your UI. With **EllesmereUI** they follow your theme, accent color and font through its official skinning API (toggle it under *Blizzard Skins+ → Window Skins → Third-Party Addons*). With **ElvUI** they use its borders, fonts and colors.
 

@@ -21,6 +21,16 @@ function ns.BuildOptions()
     Checkbox("showBadge", L.OPT_BADGE, L.OPT_BADGE_TIP)
     Checkbox("showOwn", L.OPT_OWN, L.OPT_OWN_TIP)
 
+    local sizeSetting = Settings.RegisterAddOnSetting(cat, "NameScore_badgeSize", "badgeSize", s,
+        Settings.VarType.Number, L.OPT_SIZE, ns.DEFAULTS.badgeSize)
+    local function SizeOptions()
+        local c = Settings.CreateControlTextContainer()
+        for size = 1, 3 do c:Add(size, ns.SizeLabel(size)) end
+        return c:GetData()
+    end
+    local CreateDropdown = Settings.CreateDropdown or Settings.CreateDropDown
+    CreateDropdown(cat, sizeSetting, SizeOptions, L.OPT_SIZE_TIP)
+
     local minSetting = Settings.RegisterAddOnSetting(cat, "NameScore_minVotes", "minVotes", s,
         Settings.VarType.Number, L.OPT_MIN, ns.DEFAULTS.minVotes)
     local sliderOptions = Settings.CreateSliderOptions(1, 5, 1)
@@ -54,6 +64,7 @@ function ns.OpenOptions()
     -- Fallback: show the settings in chat with the commands to change them
     ns.Print(L.OPT_BADGE .. ": " .. OnOff(ns.Setting("showBadge")) .. "  (/ns badge)")
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
+    ns.Print(L.OPT_SIZE .. ": " .. ns.SizeLabel(ns.Setting("badgeSize")) .. "  (/ns size 1-3)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
     ns.Print(L.OPT_ELVUI .. ": " .. OnOff(ns.Setting("elvSkin")) .. "  (/ns elvui)")
     ns.Print(L.OPT_MINIMAP .. ": " .. OnOff(ns.Setting("showMinimap")) .. "  (/ns minimap)")

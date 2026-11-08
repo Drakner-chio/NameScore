@@ -212,8 +212,21 @@ local function AddToTooltip(tt)
         return
     end
 
-    if not badge then CreateBadge() end
     local r = ns.Rank(avg)
+    local size = ns.Setting("badgeSize")
+
+    -- Small: one text line instead of the badge
+    if size == 1 then
+        local left = string.format("|cffff8000NameScore|r  |cff%s%.1f %s|r", r.hex, avg, r.label)
+        local right = ""
+        if tags[1] then right = "|cffffd100" .. ns.TagLabel(tags[1].tag) .. "|r  " end
+        right = right .. "|cffaaaaaa" .. n .. " " .. ns.Plural(n, L.VOTE, L.VOTES) .. OwnSuffix(key) .. "|r"
+        tt:AddDoubleLine(left, right)
+        tt:Show()
+        return
+    end
+
+    if not badge then CreateBadge() end
     local cr, cg, cb = ns.HexToRGB(r.hex)
 
     badge.score:SetText(string.format("%.1f", avg))
@@ -231,15 +244,21 @@ local function AddToTooltip(tt)
     end
     badge.rank:SetText(line)
 
-    -- Reserve two lines in the tooltip and place the badge on top of them
-    for _ = 1, 2 do tt:AddLine(" ") end
-    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - 1)]
+    -- Normal: 2 tooltip lines high; large: scaled up and 3 lines high.
+    -- Fixed numbers on purpose: reading sizes can hit secret values in dungeons.
+    local scale, reserve = 1, 2
+    if size == 3 then scale, reserve = 1.35, 3 end
+
+    -- Reserve the lines in the tooltip and place the badge on top of them
+    for _ = 1, reserve do tt:AddLine(" ") end
+    local first = _G[tt:GetName() .. "TextLeft" .. (tt:NumLines() - reserve + 1)]
     badge:SetParent(tt)
+    badge:SetScale(scale)
     badge:SetFrameLevel(tt:GetFrameLevel() + 5)
     badge:ClearAllPoints()
     badge:SetPoint("TOPLEFT", first, "TOPLEFT", 0, 0)
     badge:SetPoint("RIGHT", tt, "RIGHT", -10, 0)
-    if tt.SetMinimumWidth then tt:SetMinimumWidth(240) end
+    if tt.SetMinimumWidth then tt:SetMinimumWidth(240 * scale) end
     badge:Show()
     tt:Show()
 end

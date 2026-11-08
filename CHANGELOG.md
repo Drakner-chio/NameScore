@@ -10,6 +10,8 @@
 - **Smarter sync:** only votes you don't have yet are sent. Each player remembers up to
   when it is complete per sender, so nothing missed while offline gets skipped, and
   large vote lists continue in batches of 300. Clients before 0.4 are still answered.
+- **Badge size** setting: small (one text line), normal or large
+  (*Options → AddOns → NameScore* or `/ns size small|normal|large`)
 - **French and Spanish** translations
 
 ## v0.3.0

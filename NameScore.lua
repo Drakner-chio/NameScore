@@ -15,6 +15,7 @@ ns.DEFAULTS = {
     minVotes  = 2,      -- votes needed before a score is shown
     elvSkin   = true,   -- use ElvUI / EllesmereUI style if installed
     showMinimap = true, -- minimap button
+    badgeSize = 2,      -- tooltip badge: 1 small (one line), 2 normal, 3 large
 }
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
@@ -298,6 +299,10 @@ function ns.GetScore(key)
     end
     table.sort(tags, function(a, b) return a.count > b.count end)
     return sum / n, n, tags
+end
+
+function ns.SizeLabel(size)
+    return ({ L.SIZE_SMALL, L.SIZE_NORMAL, L.SIZE_LARGE })[size] or L.SIZE_NORMAL
 end
 
 function ns.MinVotes()
@@ -637,6 +642,7 @@ local CMD = {
     badge = "badge", own = "own", eigene = "own", elvui = "elvui",
     minimap = "minimap", karte = "minimap",
     ich = "me", me = "me", moi = "me", yo = "me",
+    ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
 }
 
 local function TargetGuildKey()
@@ -678,6 +684,19 @@ SlashCmdList.NAMESCORE = function(input)
     elseif cmd == "sync" then
         ns.RequestSync()
         ns.Print(L.SYNC_REQUESTED)
+    elseif cmd == "size" then
+        local SIZES = {
+            ["1"] = 1, klein = 1, small = 1, petit = 1, ["pequeño"] = 1, pequeno = 1,
+            ["2"] = 2, normal = 2,
+            ["3"] = 3, ["groß"] = 3, gross = 3, large = 3, grand = 3, grande = 3,
+        }
+        local size = SIZES[args[2] or ""]
+        if size then
+            ns.db.settings.badgeSize = size
+            ns.Print(string.format(L.SIZE_SET, ns.SizeLabel(size)))
+        else
+            ns.Print(L.HELP_SIZE)
+        end
     elseif cmd == "me" then
         ns.PrintMyStats()
     elseif cmd == "hall" then
@@ -707,6 +726,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_HALL)
         ns.Print(L.HELP_ME)
         ns.Print(L.HELP_OPTIONS)
+        ns.Print(L.HELP_SIZE)
         ns.Print(L.HELP_MINIMAP)
         ns.Print(L.HELP_SYNC)
     end
