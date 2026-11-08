@@ -364,7 +364,7 @@ end
 
 local function BuildFrame()
     frame = CreateFrame("Frame", "NameScoreFrame", UIParent, "BasicFrameTemplateWithInset")
-    frame:SetSize(300, 178)
+    frame:SetSize(340, 204)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -427,8 +427,12 @@ local function BuildFrame()
     frame.tagButtons = {}
     for i, tag in ipairs(ns.TAGS) do
         local b = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-        b:SetSize(64, 22)
-        b:SetPoint("TOPLEFT", frame, "TOPLEFT", 14 + (i - 1) * 68, -98)
+        -- 4 tags in the first row, the rest centered in the second
+        local row, col = math.floor((i - 1) / 4), (i - 1) % 4
+        local inRow = math.min(4, #ns.TAGS - row * 4)
+        local startX = (340 - (inRow * 76 + (inRow - 1) * 4)) / 2
+        b:SetSize(76, 22)
+        b:SetPoint("TOPLEFT", frame, "TOPLEFT", startX + col * 80, -98 - row * 26)
         b:SetText(ns.TagLabel(tag))
         b:SetScript("OnClick", function()
             state.tags[tag] = not state.tags[tag] or nil
@@ -438,7 +442,7 @@ local function BuildFrame()
     end
 
     frame.send = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    frame.send:SetSize(190, 28)
+    frame.send:SetSize(218, 28)
     frame.send:SetPoint("BOTTOMLEFT", 15, 16)
     frame.send:SetText(L.SUBMIT)
     frame.send:SetScript("OnClick", function()
@@ -447,7 +451,7 @@ local function BuildFrame()
     end)
 
     frame.delete = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    frame.delete:SetSize(76, 28)
+    frame.delete:SetSize(88, 28)
     frame.delete:SetPoint("BOTTOMRIGHT", -15, 16)
     frame.delete:SetText(L.DELETE)
     frame.delete:SetScript("OnClick", function()

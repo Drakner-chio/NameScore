@@ -1,0 +1,8 @@
+<Bindings>
+    <Binding name="NAMESCORE_RATE" header="NAMESCORE" category="ADDONS">
+        NameScore_RateTarget()
+    </Binding>
+    <Binding name="NAMESCORE_HALL" category="ADDONS">
+        NameScore_ToggleHall()
+    </Binding>
+</Bindings>

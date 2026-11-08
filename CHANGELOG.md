@@ -1,5 +1,17 @@
 # NameScore
 
+## v0.4.0
+- **Your own score:** `/ns me` (or the new *Me* tab in the hall of fame) shows what
+  others think of your name, your guild and your pets – score, top tags and how many
+  votes gave how many stars. Without the names of the voters.
+- **New tags:** Wordplay, Lore and Classic (7 tags in total)
+- **Key bindings** for "Rate target" and "Open/close hall of fame"
+  (*Options → Key Bindings → AddOns → NameScore*)
+- **Smarter sync:** only votes you don't have yet are sent. Each player remembers up to
+  when it is complete per sender, so nothing missed while offline gets skipped, and
+  large vote lists continue in batches of 300. Clients before 0.4 are still answered.
+- **French and Spanish** translations
+
 ## v0.3.0
 - **Guild names:** rate a player's guild via right-click (*Rate guild*) or `/ns guild`;
   the guild score appears next to the guild name in the tooltip. Your own guild can't be rated.

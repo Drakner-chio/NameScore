@@ -5,8 +5,9 @@
 Ever met a *Tankenstein*, a guild called *Kein Plan* or a wolf named *Fluffy McFangs* and wished you could tell the world what you think? **NameScore** lets you and your guild rate the names of players, guilds and hunter pets – and shows the community score right in the tooltip, Raider.io style.
 
 - **Score from 1 to 10** with a rank in item quality colors, from *Poor* to *Legendary*
-- **Top tags** like *Funny*, *Epic*, *Creative* or *Cringe*
+- **Top tags** like *Funny*, *Epic*, *Wordplay*, *Lore* or *Cringe*
 - **Your own vote** in the tooltip, so you know who you already rated
+- **Your own score:** see what others think of your name, guild and pets
 - **Fair:** a score only shows up once a name has at least 2 votes (adjustable)
 
 Made for **World of Warcraft: Forever**.
@@ -29,7 +30,7 @@ Right-click any player and choose **NameScore → Rate name** (or target them an
 
 ## Hall of Fame
 
-Click the **minimap button** (or type `/ns top`) for the best and worst rated names around you – players, guilds and pets – and a list of everything you rated. Click a name to change your vote.
+Click the **minimap button** (or type `/ns top`) for the best and worst rated names around you – players, guilds and pets – and a list of everything you rated. Click a name to change your vote. The **Me** tab shows what others think of you – without the names of the voters.
 
 ![How sync works](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
 
@@ -38,7 +39,7 @@ Click the **minimap button** (or type `/ns top`) for the best and worst rated na
 There are no external servers. Votes travel invisibly through your **guild** and **party/raid** chat – throttled and never visible in the chat window.
 
 - Each player only sends their **own** votes, and the game itself sets the sender – nobody can fake votes on behalf of others.
-- When you log in or join a group, NameScore asks the others for their votes. You see votes from guild and group members who are (or were) online at the same time as you.
+- When you log in or join a group, NameScore asks the others for their votes – and only fetches what it doesn't have yet. You see votes from guild and group members who are (or were) online at the same time as you.
 - Votes older than 6 months are cleaned up automatically.
 - WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
 
@@ -53,6 +54,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns guild` | Rate your target's guild |
 | `/ns delete` | Delete your vote for your target |
 | `/ns top` | Open the hall of fame |
+| `/ns me` | What others think of you |
 | `/ns options` | Open the settings |
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
@@ -60,13 +62,13 @@ There are no external servers. Votes travel invisibly through your **guild** and
 
 ## Settings
 
-Find them in **Options → AddOns → NameScore**: tooltip badge on/off, show your own vote, votes needed for a score, and the UI style.
+Key bindings for rating your target and the hall of fame are in **Options → Key Bindings → AddOns**. The settings are in **Options → AddOns → NameScore**: tooltip badge on/off, show your own vote, votes needed for a score, and the UI style.
 
 **ElvUI & EllesmereUI:** NameScore windows automatically match your UI. With **EllesmereUI** they follow your theme, accent color and font through its official skinning API (toggle it under *Blizzard Skins+ → Window Skins → Third-Party Addons*). With **ElvUI** they use its borders, fonts and colors.
 
 ## Language
 
-English and German, following your game client's language. More translations are welcome!
+English, German, French and Spanish, following your game client's language. More translations are welcome!
 
 ## Keep it fun
 

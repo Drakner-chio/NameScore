@@ -1,4 +1,5 @@
--- NameScore localization: English is the default, German overrides for deDE clients
+-- NameScore localization: English is the default; German, French and Spanish
+-- override it depending on the game client's language.
 local _, ns = ...
 
 local L = {
@@ -32,11 +33,12 @@ local L = {
 
     HELP_HEADER     = "Commands:",
     HELP_OPEN       = "/ns – open the rating window for your target (player or pet)",
-    HELP_RATE       = "/ns <0.5-5> [funny epic creative cringe] – rate your target directly",
+    HELP_RATE       = "/ns <0.5-5> [funny epic creative wordplay lore classic cringe] – rate your target directly",
     HELP_GUILD      = "/ns guild – rate your target's guild",
     HELP_DELETE     = "/ns delete [guild] – delete your vote for your target (or its guild)",
     HELP_CHECK      = "/ns check <name> – look up a player's score",
     HELP_HALL       = "/ns top – open the hall of fame",
+    HELP_ME         = "/ns me – what others think of your name, guild and pets",
     HELP_OPTIONS    = "/ns options – open the settings",
     HELP_MINIMAP    = "/ns minimap – show/hide the minimap button",
     HELP_SYNC       = "/ns sync – request votes from your guild and group",
@@ -45,9 +47,14 @@ local L = {
     TAB_TOP         = "Top",
     TAB_FLOP        = "Flop",
     TAB_MINE        = "Mine",
+    TAB_ME          = "Me",
     HALL_EMPTY      = "Nothing here yet.",
     HALL_FOOTER     = "Only names with at least %d votes · %d votes known",
     HALL_FOOTER_MINE = "Click a name to change your vote",
+
+    ME_TITLE        = "What others think of you:",
+    ME_PET          = "Your pet %s",
+    ME_FOOTER       = "Counts the votes of everyone you have synced with",
 
     OPT_BADGE       = "Show score in tooltips",
     OPT_BADGE_TIP   = "Shows the NameScore badge when you hover over players and pets, and the guild score next to the guild name.",
@@ -63,9 +70,15 @@ local L = {
     MM_RIGHT        = "Right-click: settings",
     MM_VOTES        = "%d votes known",
 
+    BIND_RATE       = "Rate target",
+    BIND_HALL       = "Open/close hall of fame",
+
     TAG_lustig      = "Funny",
     TAG_episch      = "Epic",
     TAG_kreativ     = "Creative",
+    TAG_wortspiel   = "Wordplay",
+    TAG_lore        = "Lore",
+    TAG_klassiker   = "Classic",
     TAG_cringe      = "Cringe",
 
     RANK_LEGENDARY  = "Legendary",
@@ -76,79 +89,279 @@ local L = {
     RANK_POOR       = "Poor",
 }
 
-if GetLocale() == "deDE" then
-    L.NOT_RATED       = "noch nicht bewertet"
-    L.TOO_FEW         = "zu wenig Stimmen (%d/%d)"
-    L.VOTE            = "Stimme"
-    L.VOTES           = "Stimmen"
-    L.STAR            = "Stern"
-    L.STARS           = "Sterne"
-    L.YOURS           = "du: %s"
-    L.SUBMIT          = "Senden"
-    L.DELETE          = "Löschen"
-    L.CURRENT         = "Aktuell: %s"
-    L.NO_TARGET       = "Ziele zuerst einen Spieler oder Begleiter an."
-    L.NO_GUILD        = "Dein Ziel ist in keiner Gilde."
-    L.NO_SELF         = "Den eigenen Namen bewerten zählt nicht. ;)"
-    L.NO_SELF_GUILD   = "Die eigene Gilde bewerten zählt nicht. ;)"
-    L.NO_SELF_PET     = "Den eigenen Begleiter bewerten zählt nicht. ;)"
-    L.NO_VOTE         = "Du hast %s noch nicht bewertet."
-    L.VOTE_DELETED    = "%s: deine Stimme wurde gelöscht."
-    L.STARS_RANGE     = "Bitte 0,5 bis 5 Sterne in halben Schritten vergeben."
-    L.RATED           = "%s: %s %s vergeben. Neuer Score: %s"
-    L.DECIMAL         = ","
-    L.PET_DISPLAY     = "%s (Begleiter von %s)"
-    L.GUILD_LABEL     = "Gilde"
-    L.SYNC_REQUESTED  = "Sync angefragt – Stimmen von Gilde und Gruppe trudeln gleich ein."
-    L.MIN_SET         = "Scores werden jetzt ab %d Stimmen angezeigt."
-    L.TOOLTIP_ERROR   = "Tooltip-Fehler (wird nur einmal angezeigt, bitte auf GitHub melden):"
-    L.MENU_RATE       = "Namen bewerten"
-    L.MENU_RATE_GUILD = "Gilde bewerten"
+local LOCALES = {}
 
-    L.HELP_HEADER     = "Befehle:"
-    L.HELP_OPEN       = "/ns – Bewertungsfenster für dein Ziel (Spieler oder Begleiter)"
-    L.HELP_RATE       = "/ns <0,5-5> [lustig episch kreativ cringe] – Ziel direkt bewerten"
-    L.HELP_GUILD      = "/ns gilde – Gilde deines Ziels bewerten"
-    L.HELP_DELETE     = "/ns löschen [gilde] – deine Stimme für dein Ziel (oder seine Gilde) löschen"
-    L.HELP_CHECK      = "/ns check <Name> – Score nachschlagen"
-    L.HELP_HALL       = "/ns top – Ruhmeshalle öffnen"
-    L.HELP_OPTIONS    = "/ns optionen – Einstellungen öffnen"
-    L.HELP_MINIMAP    = "/ns minimap – Minimap-Button ein-/ausblenden"
-    L.HELP_SYNC       = "/ns sync – Stimmen von Gilde und Gruppe anfragen"
+LOCALES.deDE = {
+    NOT_RATED       = "noch nicht bewertet",
+    TOO_FEW         = "zu wenig Stimmen (%d/%d)",
+    VOTE            = "Stimme",
+    VOTES           = "Stimmen",
+    STAR            = "Stern",
+    STARS           = "Sterne",
+    YOURS           = "du: %s",
+    SUBMIT          = "Senden",
+    DELETE          = "Löschen",
+    CURRENT         = "Aktuell: %s",
+    NO_TARGET       = "Ziele zuerst einen Spieler oder Begleiter an.",
+    NO_GUILD        = "Dein Ziel ist in keiner Gilde.",
+    NO_SELF         = "Den eigenen Namen bewerten zählt nicht. ;)",
+    NO_SELF_GUILD   = "Die eigene Gilde bewerten zählt nicht. ;)",
+    NO_SELF_PET     = "Den eigenen Begleiter bewerten zählt nicht. ;)",
+    NO_VOTE         = "Du hast %s noch nicht bewertet.",
+    VOTE_DELETED    = "%s: deine Stimme wurde gelöscht.",
+    STARS_RANGE     = "Bitte 0,5 bis 5 Sterne in halben Schritten vergeben.",
+    RATED           = "%s: %s %s vergeben. Neuer Score: %s",
+    DECIMAL         = ",",
+    PET_DISPLAY     = "%s (Begleiter von %s)",
+    GUILD_LABEL     = "Gilde",
+    SYNC_REQUESTED  = "Sync angefragt – Stimmen von Gilde und Gruppe trudeln gleich ein.",
+    MIN_SET         = "Scores werden jetzt ab %d Stimmen angezeigt.",
+    TOOLTIP_ERROR   = "Tooltip-Fehler (wird nur einmal angezeigt, bitte auf GitHub melden):",
+    MENU_RATE       = "Namen bewerten",
+    MENU_RATE_GUILD = "Gilde bewerten",
 
-    L.HALL_TITLE      = "NameScore – Ruhmeshalle"
-    L.TAB_TOP         = "Top"
-    L.TAB_FLOP        = "Flop"
-    L.TAB_MINE        = "Meine"
-    L.HALL_EMPTY      = "Noch nichts da."
-    L.HALL_FOOTER     = "Nur Namen mit mindestens %d Stimmen · %d Stimmen bekannt"
-    L.HALL_FOOTER_MINE = "Klick auf einen Namen, um deine Stimme zu ändern"
+    HELP_HEADER     = "Befehle:",
+    HELP_OPEN       = "/ns – Bewertungsfenster für dein Ziel (Spieler oder Begleiter)",
+    HELP_RATE       = "/ns <0,5-5> [lustig episch kreativ wortspiel lore klassiker cringe] – Ziel direkt bewerten",
+    HELP_GUILD      = "/ns gilde – Gilde deines Ziels bewerten",
+    HELP_DELETE     = "/ns löschen [gilde] – deine Stimme für dein Ziel (oder seine Gilde) löschen",
+    HELP_CHECK      = "/ns check <Name> – Score nachschlagen",
+    HELP_HALL       = "/ns top – Ruhmeshalle öffnen",
+    HELP_ME         = "/ns ich – was andere von deinem Namen, deiner Gilde und deinen Begleitern halten",
+    HELP_OPTIONS    = "/ns optionen – Einstellungen öffnen",
+    HELP_MINIMAP    = "/ns minimap – Minimap-Button ein-/ausblenden",
+    HELP_SYNC       = "/ns sync – Stimmen von Gilde und Gruppe anfragen",
 
-    L.OPT_BADGE       = "Score in Tooltips anzeigen"
-    L.OPT_BADGE_TIP   = "Zeigt das NameScore-Abzeichen bei Spielern und Begleitern sowie den Gilden-Score neben dem Gildennamen."
-    L.OPT_OWN         = "Eigene Stimme anzeigen"
-    L.OPT_OWN_TIP     = "Zeigt deine eigenen Sterne im Tooltip, damit du siehst, wen du schon bewertet hast."
-    L.OPT_MIN         = "Stimmen für einen Score"
-    L.OPT_MIN_TIP     = "Score und Rang erscheinen erst, wenn ein Name mindestens so viele Stimmen hat. Fairer, weil eine einzelne Stimme nicht allein entscheidet."
-    L.OPT_ELVUI       = "ElvUI- / EllesmereUI-Stil"
-    L.OPT_ELVUI_TIP   = "NameScore-Fenster im Look von ElvUI oder EllesmereUI anzeigen, wenn eins davon installiert ist. Wirkt nach /reload."
-    L.OPT_MINIMAP     = "Minimap-Button"
-    L.OPT_MINIMAP_TIP = "Zeigt den NameScore-Button an der Minimap. Linksklick öffnet die Ruhmeshalle, Rechtsklick die Einstellungen."
-    L.MM_LEFT         = "Linksklick: Ruhmeshalle"
-    L.MM_RIGHT        = "Rechtsklick: Einstellungen"
-    L.MM_VOTES        = "%d Stimmen bekannt"
+    HALL_TITLE      = "NameScore – Ruhmeshalle",
+    TAB_TOP         = "Top",
+    TAB_FLOP        = "Flop",
+    TAB_MINE        = "Meine",
+    TAB_ME          = "Ich",
+    HALL_EMPTY      = "Noch nichts da.",
+    HALL_FOOTER     = "Nur Namen mit mindestens %d Stimmen · %d Stimmen bekannt",
+    HALL_FOOTER_MINE = "Klick auf einen Namen, um deine Stimme zu ändern",
 
-    L.TAG_lustig      = "Lustig"
-    L.TAG_episch      = "Episch"
-    L.TAG_kreativ     = "Kreativ"
-    L.TAG_cringe      = "Cringe"
+    ME_TITLE        = "Was andere von dir halten:",
+    ME_PET          = "Dein Begleiter %s",
+    ME_FOOTER       = "Zählt die Stimmen aller, mit denen du synchronisiert bist",
 
-    L.RANK_LEGENDARY  = "Legendär"
-    L.RANK_EPIC       = "Episch"
-    L.RANK_RARE       = "Selten"
-    L.RANK_UNCOMMON   = "Ungewöhnlich"
-    L.RANK_COMMON     = "Gewöhnlich"
-    L.RANK_POOR       = "Schrott"
+    OPT_BADGE       = "Score in Tooltips anzeigen",
+    OPT_BADGE_TIP   = "Zeigt das NameScore-Abzeichen bei Spielern und Begleitern sowie den Gilden-Score neben dem Gildennamen.",
+    OPT_OWN         = "Eigene Stimme anzeigen",
+    OPT_OWN_TIP     = "Zeigt deine eigenen Sterne im Tooltip, damit du siehst, wen du schon bewertet hast.",
+    OPT_MIN         = "Stimmen für einen Score",
+    OPT_MIN_TIP     = "Score und Rang erscheinen erst, wenn ein Name mindestens so viele Stimmen hat. Fairer, weil eine einzelne Stimme nicht allein entscheidet.",
+    OPT_ELVUI       = "ElvUI- / EllesmereUI-Stil",
+    OPT_ELVUI_TIP   = "NameScore-Fenster im Look von ElvUI oder EllesmereUI anzeigen, wenn eins davon installiert ist. Wirkt nach /reload.",
+    OPT_MINIMAP     = "Minimap-Button",
+    OPT_MINIMAP_TIP = "Zeigt den NameScore-Button an der Minimap. Linksklick öffnet die Ruhmeshalle, Rechtsklick die Einstellungen.",
+    MM_LEFT         = "Linksklick: Ruhmeshalle",
+    MM_RIGHT        = "Rechtsklick: Einstellungen",
+    MM_VOTES        = "%d Stimmen bekannt",
+
+    BIND_RATE       = "Ziel bewerten",
+    BIND_HALL       = "Ruhmeshalle öffnen/schließen",
+
+    TAG_lustig      = "Lustig",
+    TAG_episch      = "Episch",
+    TAG_kreativ     = "Kreativ",
+    TAG_wortspiel   = "Wortspiel",
+    TAG_lore        = "Lore",
+    TAG_klassiker   = "Klassiker",
+    TAG_cringe      = "Cringe",
+
+    RANK_LEGENDARY  = "Legendär",
+    RANK_EPIC       = "Episch",
+    RANK_RARE       = "Selten",
+    RANK_UNCOMMON   = "Ungewöhnlich",
+    RANK_COMMON     = "Gewöhnlich",
+    RANK_POOR       = "Schrott",
+}
+
+LOCALES.frFR = {
+    NOT_RATED       = "pas encore noté",
+    TOO_FEW         = "pas assez de votes (%d/%d)",
+    VOTE            = "vote",
+    VOTES           = "votes",
+    STAR            = "étoile",
+    STARS           = "étoiles",
+    YOURS           = "toi : %s",
+    SUBMIT          = "Envoyer",
+    DELETE          = "Supprimer",
+    CURRENT         = "Actuel : %s",
+    NO_TARGET       = "Cible d'abord un joueur ou un familier.",
+    NO_GUILD        = "Ta cible n'est dans aucune guilde.",
+    NO_SELF         = "Noter ton propre nom ne compte pas. ;)",
+    NO_SELF_GUILD   = "Noter ta propre guilde ne compte pas. ;)",
+    NO_SELF_PET     = "Noter ton propre familier ne compte pas. ;)",
+    NO_VOTE         = "Tu n'as pas encore noté %s.",
+    VOTE_DELETED    = "%s : ton vote a été supprimé.",
+    STARS_RANGE     = "Donne entre 0,5 et 5 étoiles, par demi-étoile.",
+    RATED           = "%s : %s %s. Nouveau score : %s",
+    DECIMAL         = ",",
+    PET_DISPLAY     = "%s (familier de %s)",
+    GUILD_LABEL     = "Guilde",
+    SYNC_REQUESTED  = "Synchronisation demandée – les votes de ta guilde et de ton groupe arrivent.",
+    MIN_SET         = "Les scores s'affichent maintenant à partir de %d votes.",
+    TOOLTIP_ERROR   = "Erreur d'infobulle (affichée une seule fois, merci de la signaler sur GitHub) :",
+    MENU_RATE       = "Noter le nom",
+    MENU_RATE_GUILD = "Noter la guilde",
+
+    HELP_HEADER     = "Commandes :",
+    HELP_OPEN       = "/ns – ouvrir la fenêtre de notation pour ta cible (joueur ou familier)",
+    HELP_RATE       = "/ns <0,5-5> [drôle épique créatif calembour lore classique gênant] – noter ta cible directement",
+    HELP_GUILD      = "/ns guild – noter la guilde de ta cible",
+    HELP_DELETE     = "/ns delete [guild] – supprimer ton vote pour ta cible (ou sa guilde)",
+    HELP_CHECK      = "/ns check <nom> – voir le score d'un joueur",
+    HELP_HALL       = "/ns top – ouvrir le panthéon",
+    HELP_ME         = "/ns moi – ce que les autres pensent de ton nom, ta guilde et tes familiers",
+    HELP_OPTIONS    = "/ns options – ouvrir les réglages",
+    HELP_MINIMAP    = "/ns minimap – afficher/masquer le bouton de la minicarte",
+    HELP_SYNC       = "/ns sync – demander les votes de ta guilde et de ton groupe",
+
+    HALL_TITLE      = "NameScore – Panthéon",
+    TAB_TOP         = "Top",
+    TAB_FLOP        = "Flop",
+    TAB_MINE        = "Mes votes",
+    TAB_ME          = "Moi",
+    HALL_EMPTY      = "Rien pour l'instant.",
+    HALL_FOOTER     = "Seulement les noms avec au moins %d votes · %d votes connus",
+    HALL_FOOTER_MINE = "Clique sur un nom pour modifier ton vote",
+
+    ME_TITLE        = "Ce que les autres pensent de toi :",
+    ME_PET          = "Ton familier %s",
+    ME_FOOTER       = "Compte les votes de tous ceux avec qui tu es synchronisé",
+
+    OPT_BADGE       = "Afficher le score dans les infobulles",
+    OPT_BADGE_TIP   = "Affiche le badge NameScore au survol des joueurs et des familiers, et le score de la guilde à côté de son nom.",
+    OPT_OWN         = "Afficher ton propre vote",
+    OPT_OWN_TIP     = "Affiche tes propres étoiles dans l'infobulle pour voir qui tu as déjà noté.",
+    OPT_MIN         = "Votes nécessaires pour un score",
+    OPT_MIN_TIP     = "Le score et le rang n'apparaissent qu'à partir de ce nombre de votes. Plus juste, car un seul vote ne décide pas tout.",
+    OPT_ELVUI       = "Style ElvUI / EllesmereUI",
+    OPT_ELVUI_TIP   = "Utilise l'apparence d'ElvUI ou d'EllesmereUI pour les fenêtres de NameScore si l'un des deux est installé. Prend effet après /reload.",
+    OPT_MINIMAP     = "Bouton de la minicarte",
+    OPT_MINIMAP_TIP = "Affiche le bouton NameScore sur la minicarte. Clic gauche : panthéon, clic droit : réglages.",
+    MM_LEFT         = "Clic gauche : panthéon",
+    MM_RIGHT        = "Clic droit : réglages",
+    MM_VOTES        = "%d votes connus",
+
+    BIND_RATE       = "Noter la cible",
+    BIND_HALL       = "Ouvrir/fermer le panthéon",
+
+    TAG_lustig      = "Drôle",
+    TAG_episch      = "Épique",
+    TAG_kreativ     = "Créatif",
+    TAG_wortspiel   = "Calembour",
+    TAG_lore        = "Lore",
+    TAG_klassiker   = "Classique",
+    TAG_cringe      = "Gênant",
+
+    RANK_LEGENDARY  = "Légendaire",
+    RANK_EPIC       = "Épique",
+    RANK_RARE       = "Rare",
+    RANK_UNCOMMON   = "Inhabituel",
+    RANK_COMMON     = "Commun",
+    RANK_POOR       = "Médiocre",
+}
+
+LOCALES.esES = {
+    NOT_RATED       = "sin valorar",
+    TOO_FEW         = "pocos votos (%d/%d)",
+    VOTE            = "voto",
+    VOTES           = "votos",
+    STAR            = "estrella",
+    STARS           = "estrellas",
+    YOURS           = "tú: %s",
+    SUBMIT          = "Enviar",
+    DELETE          = "Borrar",
+    CURRENT         = "Actual: %s",
+    NO_TARGET       = "Primero selecciona a un jugador o una mascota.",
+    NO_GUILD        = "Tu objetivo no está en ninguna hermandad.",
+    NO_SELF         = "Valorar tu propio nombre no cuenta. ;)",
+    NO_SELF_GUILD   = "Valorar tu propia hermandad no cuenta. ;)",
+    NO_SELF_PET     = "Valorar tu propia mascota no cuenta. ;)",
+    NO_VOTE         = "Aún no has valorado a %s.",
+    VOTE_DELETED    = "%s: tu voto se ha borrado.",
+    STARS_RANGE     = "Da entre 0,5 y 5 estrellas, en medias estrellas.",
+    RATED           = "%s: %s %s. Nueva puntuación: %s",
+    DECIMAL         = ",",
+    PET_DISPLAY     = "%s (mascota de %s)",
+    GUILD_LABEL     = "Hermandad",
+    SYNC_REQUESTED  = "Sincronización solicitada: los votos de tu hermandad y tu grupo llegarán enseguida.",
+    MIN_SET         = "Las puntuaciones se muestran ahora a partir de %d votos.",
+    TOOLTIP_ERROR   = "Error de descripción emergente (se muestra una vez, avísanos en GitHub):",
+    MENU_RATE       = "Valorar nombre",
+    MENU_RATE_GUILD = "Valorar hermandad",
+
+    HELP_HEADER     = "Comandos:",
+    HELP_OPEN       = "/ns – abrir la ventana de valoración para tu objetivo (jugador o mascota)",
+    HELP_RATE       = "/ns <0,5-5> [gracioso épico creativo ingenioso lore clásico cringe] – valorar a tu objetivo directamente",
+    HELP_GUILD      = "/ns guild – valorar la hermandad de tu objetivo",
+    HELP_DELETE     = "/ns delete [guild] – borrar tu voto para tu objetivo (o su hermandad)",
+    HELP_CHECK      = "/ns check <nombre> – ver la puntuación de un jugador",
+    HELP_HALL       = "/ns top – abrir el salón de la fama",
+    HELP_ME         = "/ns yo – lo que los demás opinan de tu nombre, tu hermandad y tus mascotas",
+    HELP_OPTIONS    = "/ns options – abrir los ajustes",
+    HELP_MINIMAP    = "/ns minimap – mostrar/ocultar el botón del minimapa",
+    HELP_SYNC       = "/ns sync – pedir los votos de tu hermandad y tu grupo",
+
+    HALL_TITLE      = "NameScore – Salón de la fama",
+    TAB_TOP         = "Top",
+    TAB_FLOP        = "Flop",
+    TAB_MINE        = "Mis votos",
+    TAB_ME          = "Yo",
+    HALL_EMPTY      = "Todavía no hay nada.",
+    HALL_FOOTER     = "Solo nombres con al menos %d votos · %d votos conocidos",
+    HALL_FOOTER_MINE = "Haz clic en un nombre para cambiar tu voto",
+
+    ME_TITLE        = "Lo que los demás opinan de ti:",
+    ME_PET          = "Tu mascota %s",
+    ME_FOOTER       = "Cuenta los votos de todos con los que te has sincronizado",
+
+    OPT_BADGE       = "Mostrar puntuación en las descripciones",
+    OPT_BADGE_TIP   = "Muestra la insignia de NameScore al pasar el ratón por jugadores y mascotas, y la puntuación de la hermandad junto a su nombre.",
+    OPT_OWN         = "Mostrar tu propio voto",
+    OPT_OWN_TIP     = "Muestra tus propias estrellas en la descripción para ver a quién ya has valorado.",
+    OPT_MIN         = "Votos necesarios para una puntuación",
+    OPT_MIN_TIP     = "La puntuación y el rango solo aparecen a partir de este número de votos. Más justo, porque un solo voto no decide.",
+    OPT_ELVUI       = "Estilo ElvUI / EllesmereUI",
+    OPT_ELVUI_TIP   = "Usa el aspecto de ElvUI o EllesmereUI para las ventanas de NameScore si uno de ellos está instalado. Se aplica tras /reload.",
+    OPT_MINIMAP     = "Botón del minimapa",
+    OPT_MINIMAP_TIP = "Muestra el botón de NameScore en el minimapa. Clic izquierdo: salón de la fama, clic derecho: ajustes.",
+    MM_LEFT         = "Clic izquierdo: salón de la fama",
+    MM_RIGHT        = "Clic derecho: ajustes",
+    MM_VOTES        = "%d votos conocidos",
+
+    BIND_RATE       = "Valorar objetivo",
+    BIND_HALL       = "Abrir/cerrar salón de la fama",
+
+    TAG_lustig      = "Gracioso",
+    TAG_episch      = "Épico",
+    TAG_kreativ     = "Creativo",
+    TAG_wortspiel   = "Ingenioso",
+    TAG_lore        = "Lore",
+    TAG_klassiker   = "Clásico",
+    TAG_cringe      = "Cringe",
+
+    RANK_LEGENDARY  = "Legendario",
+    RANK_EPIC       = "Épico",
+    RANK_RARE       = "Raro",
+    RANK_UNCOMMON   = "Poco común",
+    RANK_COMMON     = "Común",
+    RANK_POOR       = "Pobre",
+}
+LOCALES.esMX = LOCALES.esES
+
+local override = LOCALES[GetLocale()]
+if override then
+    for k, v in pairs(override) do L[k] = v end
 end
 
+-- Names in the key bindings menu (Bindings.xml)
+BINDING_HEADER_NAMESCORE = "NameScore"
+BINDING_NAME_NAMESCORE_RATE = L.BIND_RATE
+BINDING_NAME_NAMESCORE_HALL = L.BIND_HALL
+
 ns.L = L
+ns.LOCALES = LOCALES

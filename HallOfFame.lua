@@ -41,9 +41,31 @@ local function Collect(tab)
     return list
 end
 
-local function Refresh()
-    local list = Collect(currentTab)
+-- "Me" tab: your own name, guild and pets as plain text lines (not clickable)
+local function RefreshMe()
+    local lines = ns.MyStatsLines()
     for i, row in ipairs(hall.rows) do
+        local line = lines[i]
+        row.key = nil
+        if line then
+            row.pos:SetText("")
+            row.name:SetText(line[1])
+            row.score:SetText(line[2])
+            row:Show()
+        else
+            row:Hide()
+        end
+    end
+    hall.empty:SetShown(false)
+end
+
+local function Refresh()
+    if currentTab == "me" then
+        RefreshMe()
+    end
+    local list = currentTab == "me" and {} or Collect(currentTab)
+    for i, row in ipairs(hall.rows) do
+        if currentTab == "me" then break end
         local e = list[i]
         if e then
             local kind = ns.ParseKey(e.key)
@@ -66,7 +88,7 @@ local function Refresh()
             row:Hide()
         end
     end
-    hall.empty:SetShown(#list == 0)
+    if currentTab ~= "me" then hall.empty:SetShown(#list == 0) end
 
     for tab, b in pairs(hall.tabs) do
         if hall.eui then
@@ -83,6 +105,8 @@ local function Refresh()
     end
     if currentTab == "mine" then
         hall.footer:SetText(L.HALL_FOOTER_MINE)
+    elseif currentTab == "me" then
+        hall.footer:SetText(L.ME_FOOTER)
     else
         hall.footer:SetText(string.format(L.HALL_FOOTER, ns.MinVotes(), ns.CountVotes()))
     end
@@ -108,11 +132,11 @@ local function Build()
 
     -- Tabs
     hall.tabs = {}
-    local tabs = { { "top", L.TAB_TOP }, { "flop", L.TAB_FLOP }, { "mine", L.TAB_MINE } }
+    local tabs = { { "top", L.TAB_TOP }, { "flop", L.TAB_FLOP }, { "mine", L.TAB_MINE }, { "me", L.TAB_ME } }
     for i, t in ipairs(tabs) do
         local b = CreateFrame("Button", nil, hall, "UIPanelButtonTemplate")
-        b:SetSize(94, 22)
-        b:SetPoint("TOPLEFT", 12 + (i - 1) * 99, -30)
+        b:SetSize(70, 22)
+        b:SetPoint("TOPLEFT", 12 + (i - 1) * 74, -30)
         b:SetText(t[2])
         b:SetScript("OnClick", function()
             currentTab = t[1]

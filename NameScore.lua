@@ -19,16 +19,20 @@ ns.DEFAULTS = {
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
 -- so they stay as they are; display names come from the locale.
-ns.TAGS = { "lustig", "episch", "kreativ", "cringe" }
+-- Older versions simply ignore tag ids they don't know.
+ns.TAGS = { "lustig", "episch", "kreativ", "wortspiel", "lore", "klassiker", "cringe" }
 local VALID_TAG = {}
 for _, t in ipairs(ns.TAGS) do VALID_TAG[t] = true end
 
--- Words accepted for tags in slash commands (English and German)
+-- Words accepted for tags in slash commands (English, German, French, Spanish)
 local TAG_ALIAS = {
-    funny = "lustig", lustig = "lustig",
-    epic = "episch", episch = "episch",
-    creative = "kreativ", kreativ = "kreativ",
-    cringe = "cringe",
+    funny = "lustig", lustig = "lustig", ["drôle"] = "lustig", drole = "lustig", gracioso = "lustig",
+    epic = "episch", episch = "episch", ["épique"] = "episch", epique = "episch", ["épico"] = "episch", epico = "episch",
+    creative = "kreativ", kreativ = "kreativ", ["créatif"] = "kreativ", creatif = "kreativ", creativo = "kreativ",
+    wordplay = "wortspiel", pun = "wortspiel", wortspiel = "wortspiel", calembour = "wortspiel", ingenioso = "wortspiel",
+    lore = "lore",
+    classic = "klassiker", klassiker = "klassiker", classique = "klassiker", ["clásico"] = "klassiker", clasico = "klassiker",
+    cringe = "cringe", ["gênant"] = "cringe", genant = "cringe", vergonzoso = "cringe",
 }
 
 function ns.TagLabel(tag)
@@ -332,6 +336,69 @@ function ns.CountVotes()
 end
 
 -- ---------------------------------------------------------------
+-- Your own scores: what others think of your name, guild and pets.
+-- Deliberately without the names of the voters.
+-- ---------------------------------------------------------------
+local STAR_INLINE = "|TInterface\\AddOns\\NameScore\\media\\Star:0|t"
+
+-- How many votes gave 5, 4, 3, 2, 1 stars (half stars rounded up)
+function ns.GetDistribution(key)
+    local dist = { 0, 0, 0, 0, 0 }
+    for _, v in pairs((ns.db.votes[key]) or {}) do
+        if v.s > 0 then
+            local stars = math.ceil(v.s / 2)
+            dist[stars] = dist[stars] + 1
+        end
+    end
+    return dist
+end
+
+-- Lines { left, right } describing your own scores, for chat and the hall of fame
+function ns.MyStatsLines()
+    local lines = {}
+    local function add(left, right) lines[#lines + 1] = { left, right or "" } end
+
+    local function describe(key, label)
+        local avg, n, tags = ns.GetScore(key)
+        add(label, ns.ScoreLine(key))
+        if not avg or n < ns.MinVotes() then return end
+        local parts = {}
+        for i = 1, math.min(#tags, 3) do
+            parts[#parts + 1] = ns.TagLabel(tags[i].tag) .. " ×" .. tags[i].count
+        end
+        if #parts > 0 then add("   |cffffd100" .. table.concat(parts, " · ") .. "|r") end
+        local dist, d = ns.GetDistribution(key), {}
+        for stars = 5, 1, -1 do
+            if dist[stars] > 0 then d[#d + 1] = stars .. STAR_INLINE .. " " .. dist[stars] end
+        end
+        add("   |cffaaaaaa" .. table.concat(d, "   ") .. "|r")
+    end
+
+    describe(ns.me, "|cffffffff" .. ns.ShortName(ns.me) .. "|r")
+    local gkey = ns.MyGuildKey()
+    if gkey then describe(gkey, "|cff40c040" .. L.GUILD_LABEL .. " " .. ns.ShortName(gkey) .. "|r") end
+    local prefix = "P:" .. ns.me .. ":"
+    for key in pairs(ns.db.votes) do
+        if key:sub(1, #prefix) == prefix then
+            describe(key, "|cffc8a070" .. string.format(L.ME_PET, key:sub(#prefix + 1)) .. "|r")
+        end
+    end
+    return lines
+end
+
+function ns.PrintMyStats()
+    ns.Print(L.ME_TITLE)
+    for _, line in ipairs(ns.MyStatsLines()) do
+        DEFAULT_CHAT_FRAME:AddMessage("   " .. line[1] .. (line[2] ~= "" and (": " .. line[2]) or ""))
+    end
+    DEFAULT_CHAT_FRAME:AddMessage("   |cff888888" .. L.ME_FOOTER .. "|r")
+end
+
+-- Key bindings (Bindings.xml)
+function NameScore_RateTarget() ns.OpenRating(ns.TargetKey()) end
+function NameScore_ToggleHall() ns.ToggleHall() end
+
+-- ---------------------------------------------------------------
 -- Sending with throttling (Blizzard rate-limits addon messages)
 -- ---------------------------------------------------------------
 local queue = {}
@@ -357,6 +424,41 @@ ns.Broadcast = Broadcast
 -- "V|key|score|tags|time"; score 0 means "vote deleted"
 local function VoteMessage(key, v)
     return string.format("V|%s|%d|%s|%d", key, v.s, ns.SerializeTags(v.tags), v.ts)
+end
+
+-- ---------------------------------------------------------------
+-- Incremental sync (since v0.4)
+--   requester -> everyone:   SYN
+--   responder -> requester:  HI|<time of its newest own vote>        (whisper)
+--   requester -> responder:  GET|<since>   only if that is newer than
+--                            what we already have from them          (whisper)
+--   responder -> requester:  V|...  own votes with time >= since, oldest first,
+--                            at most MAX_SYNC_VOTES, then END|<last time>|<more>
+-- The requester remembers per responder up to which time it is complete
+-- (ns.db.sync[name]). Live votes don't move that mark, so votes missed while
+-- offline are never skipped. Clients before 0.4 still get a full reply to "REQ".
+-- ---------------------------------------------------------------
+local function OwnVotesSince(since)
+    local list = {}
+    for key, votes in pairs(ns.db.votes) do
+        local v = votes[ns.me]
+        if v and v.ts >= since then list[#list + 1] = { key, v } end
+    end
+    table.sort(list, function(a, b) return a[2].ts < b[2].ts end)
+    return list
+end
+
+local function NewestOwnTs()
+    local newest = 0
+    for _, votes in pairs(ns.db.votes) do
+        local v = votes[ns.me]
+        if v and v.ts > newest then newest = v.ts end
+    end
+    return newest
+end
+
+function ns.RequestSync()
+    Broadcast("SYN")
 end
 
 -- ---------------------------------------------------------------
@@ -431,17 +533,40 @@ local function HandleMessage(msg, sender)
             -- A vote only counts for its sender -> nobody can fake votes for others
             ns.db.votes[key][sender] = { s = s, tags = ns.ParseTags(tagStr), ts = ts }
         end
+    elseif msg == "SYN" then
+        -- Someone wants to sync: tell them how new our latest own vote is
+        local now = GetTime()
+        if lastReq[sender] and now - lastReq[sender] < 60 then return end
+        lastReq[sender] = now
+        local newest = NewestOwnTs()
+        if newest > 0 then Enqueue("HI|" .. newest, "WHISPER", sender) end
+    elseif msg:sub(1, 3) == "HI|" then
+        -- Only ask for votes if they have something we haven't got yet
+        local newest = tonumber(msg:match("^HI|(%d+)$"))
+        local mark = ns.db.sync[sender] or 0
+        if newest and newest > mark then Enqueue("GET|" .. mark, "WHISPER", sender) end
+    elseif msg:sub(1, 4) == "GET|" then
+        local since = tonumber(msg:match("^GET|(%d+)$"))
+        if not since then return end
+        local list = OwnVotesSince(since)
+        local n = math.min(#list, MAX_SYNC_VOTES)
+        for i = 1, n do Enqueue(VoteMessage(list[i][1], list[i][2]), "WHISPER", sender) end
+        local last = n > 0 and list[n][2].ts or since
+        Enqueue(string.format("END|%d|%d", last, #list > n and 1 or 0), "WHISPER", sender)
+    elseif msg:sub(1, 4) == "END|" then
+        -- All votes up to `last` received: remember it, continue if there is more
+        local last, more = msg:match("^END|(%d+)|([01])$")
+        last = tonumber(last)
+        if not last or last > time() + 300 then return end
+        if last > (ns.db.sync[sender] or 0) then ns.db.sync[sender] = last end
+        if more == "1" then Enqueue("GET|" .. last, "WHISPER", sender) end
     elseif msg == "REQ" then
+        -- Request from a version before 0.4: reply with all our votes, newest first
         local now = GetTime()
         if lastReq[sender] and now - lastReq[sender] < 120 then return end
         lastReq[sender] = now
-        -- Reply with our own votes, including deletions, newest first
-        local mine = {}
-        for key, votes in pairs(ns.db.votes) do
-            if votes[ns.me] then mine[#mine + 1] = { key, votes[ns.me] } end
-        end
-        table.sort(mine, function(a, b) return a[2].ts > b[2].ts end)
-        for i = 1, math.min(#mine, MAX_SYNC_VOTES) do
+        local mine = OwnVotesSince(0)
+        for i = #mine, math.max(1, #mine - MAX_SYNC_VOTES + 1), -1 do
             Enqueue(VoteMessage(mine[i][1], mine[i][2]), "WHISPER", sender)
         end
     end
@@ -511,6 +636,7 @@ local CMD = {
     check = "check", sync = "sync", min = "min",
     badge = "badge", own = "own", eigene = "own", elvui = "elvui",
     minimap = "minimap", karte = "minimap",
+    ich = "me", me = "me", moi = "me", yo = "me",
 }
 
 local function TargetGuildKey()
@@ -550,8 +676,10 @@ SlashCmdList.NAMESCORE = function(input)
         local t = ns.FindKey(table.concat(raw, " ", 2))
         ns.Print(ns.ShortName(t) .. ": " .. ns.ScoreLine(t))
     elseif cmd == "sync" then
-        Broadcast("REQ")
+        ns.RequestSync()
         ns.Print(L.SYNC_REQUESTED)
+    elseif cmd == "me" then
+        ns.PrintMyStats()
     elseif cmd == "hall" then
         ns.ToggleHall()
     elseif cmd == "options" then
@@ -577,6 +705,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_DELETE)
         ns.Print(L.HELP_CHECK)
         ns.Print(L.HELP_HALL)
+        ns.Print(L.HELP_ME)
         ns.Print(L.HELP_OPTIONS)
         ns.Print(L.HELP_MINIMAP)
         ns.Print(L.HELP_SYNC)
@@ -598,6 +727,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
         ns.db = NameScoreDB
         ns.db.votes = ns.db.votes or {}
         ns.db.settings = ns.db.settings or {}
+        ns.db.sync = ns.db.sync or {}       -- per sender: complete up to this time
         for k, v in pairs(ns.DEFAULTS) do
             if ns.db.settings[k] == nil then ns.db.settings[k] = v end
         end
@@ -614,10 +744,10 @@ ev:SetScript("OnEvent", function(_, event, ...)
             -- Leave the sync channel used by earlier versions
             local id = GetChannelName(OLD_SYNC_CHANNEL)
             if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
-            Broadcast("REQ")
+            ns.RequestSync()
         end)
     elseif event == "GROUP_JOINED" then
-        C_Timer.After(3, function() Broadcast("REQ") end)
+        C_Timer.After(3, ns.RequestSync)
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, msg, _, sender = ...
         if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender) end

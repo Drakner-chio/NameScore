@@ -8,14 +8,16 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Guilds:** the guild score appears next to the guild name in the tooltip
 - **Hunter pets:** pets (and warlock demons) get their own score, stored together with their owner
 - **Fair scores:** a score is only shown once a name has at least 2 votes (adjustable)
-- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Cringe); delete your vote any time
+- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Wordplay, Lore, Classic, Cringe); delete your vote any time
 - **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
+- **Your own score:** see what others think of your name, guild and pets (`/ns me`)
 - **Hall of fame:** best and worst rated names, and everything you rated
 - **Minimap button:** left-click for the hall of fame, right-click for settings (also in the addon compartment)
 - **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI & EllesmereUI:** NameScore windows automatically match your UI – EllesmereUI via its official skinning API (theme, accent color and font), ElvUI via its skin module
-- **Languages:** English and German
+- **Key bindings** for rating your target and the hall of fame
+- **Languages:** English, German, French and Spanish
 
 ## Commands
 
@@ -27,17 +29,29 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns delete` / `/ns delete guild` | Delete your vote for your target / its guild |
 | `/ns check Name` | Look up a player's score (first name is enough if unique) |
 | `/ns top` | Open the hall of fame |
+| `/ns me` | What others think of your name, guild and pets |
 | `/ns options` | Open the settings |
 | `/ns min 1-5` | Votes needed before a score is shown |
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns sync` | Request votes from your guild and group |
 
-Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `lustig episch kreativ cringe`). You can't rate yourself, your own guild or your own pet.
+Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `/ns ich`, `lustig episch kreativ wortspiel lore klassiker cringe`); tags also in French and Spanish. You can't rate yourself, your own guild or your own pet.
 
 ## How sync works
 
 Each player only sends their **own** votes. The game sets the sender of every addon message, so nobody can fake votes on behalf of others. When you log in or join a group, NameScore asks the others for their votes. You see votes from guild and group members who are (or were) online at the same time as you.
+
+Sync only transfers what you don't have yet (since 0.4):
+
+| Step | Message | Meaning |
+|---|---|---|
+| 1 | `SYN` (guild/group) | "Who has votes for me?" |
+| 2 | `HI\|<time>` (whisper) | "My newest own vote is from `<time>`" |
+| 3 | `GET\|<since>` (whisper) | Sent only if that is newer than what we have from them |
+| 4 | `V\|…` … `END\|<time>\|<more>` | Their own votes since then, oldest first, max 300 per batch |
+
+Per sender NameScore remembers up to when it is complete (`NameScoreDB.sync`). Live votes don't move that mark, so votes missed while offline are never skipped. Clients before 0.4 send `REQ` and still get a full reply.
 
 A deleted vote is sent as score 0, so it also disappears for the others (versions before 0.3 ignore deletions). Votes older than 6 months are removed automatically.
 
