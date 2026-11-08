@@ -3,7 +3,8 @@ local ADDON_NAME, ns = ...
 local L = ns.L
 local IsSecret = ns.IsSecret
 
-local STAR_TEX = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1"
+-- Own star (media/Star.tga): the raid target star looks different in WoW: Forever
+local STAR_TEX = "Interface\\AddOns\\NameScore\\media\\Star"
 local STAR_INLINE = "|T" .. STAR_TEX .. ":0|t"
 
 -- ---------------------------------------------------------------
@@ -363,7 +364,7 @@ end
 
 local function BuildFrame()
     frame = CreateFrame("Frame", "NameScoreFrame", UIParent, "BasicFrameTemplateWithInset")
-    frame:SetSize(300, 200)
+    frame:SetSize(300, 178)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -427,7 +428,7 @@ local function BuildFrame()
     for i, tag in ipairs(ns.TAGS) do
         local b = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
         b:SetSize(64, 22)
-        b:SetPoint("TOPLEFT", frame, "TOPLEFT", 14 + (i - 1) * 68, -100)
+        b:SetPoint("TOPLEFT", frame, "TOPLEFT", 14 + (i - 1) * 68, -98)
         b:SetText(ns.TagLabel(tag))
         b:SetScript("OnClick", function()
             state.tags[tag] = not state.tags[tag] or nil

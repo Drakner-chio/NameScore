@@ -3,7 +3,7 @@ local _, ns = ...
 local L = ns.L
 
 local ROWS = 15
-local STAR_INLINE = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_1:0|t"
+local STAR_INLINE = "|TInterface\\AddOns\\NameScore\\media\\Star:0|t"
 local KIND_COLOR = { player = "ffffff", guild = "40c040", pet = "c8a070" }
 
 local hall
