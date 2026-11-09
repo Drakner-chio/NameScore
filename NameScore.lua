@@ -757,9 +757,12 @@ ev:SetScript("OnEvent", function(_, event, ...)
         -- Report setup errors to BugSack/the error frame instead of hiding them
         local function Try(fn) if fn then local ok, err = pcall(fn); if not ok then geterrorhandler()(err) end end end
         Try(ns.BuildOptions)
-        Try(ns.BuildMinimap)
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
+        -- Minimap button only now, when every addon is loaded: button collectors
+        -- like OneForAll load after us and would otherwise miss it
+        local ok, err = pcall(ns.BuildMinimap)
+        if not ok then geterrorhandler()(err) end
         NormalizeDB(ns.db)
         PruneDB(ns.db)
         C_Timer.After(8, function()
