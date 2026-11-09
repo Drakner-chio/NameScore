@@ -754,8 +754,10 @@ ev:SetScript("OnEvent", function(_, event, ...)
         ns.db.useChannel = nil   -- leftover from v0.1/v0.2
         MigrateDB(ns.db)
         C_ChatInfo.RegisterAddonMessagePrefix(PREFIX)
-        if ns.BuildOptions then pcall(ns.BuildOptions) end
-        if ns.BuildMinimap then pcall(ns.BuildMinimap) end
+        -- Report setup errors to BugSack/the error frame instead of hiding them
+        local function Try(fn) if fn then local ok, err = pcall(fn); if not ok then geterrorhandler()(err) end end end
+        Try(ns.BuildOptions)
+        Try(ns.BuildMinimap)
     elseif event == "PLAYER_LOGIN" then
         ns.me = ns.FullName(UnitName("player"))
         NormalizeDB(ns.db)
