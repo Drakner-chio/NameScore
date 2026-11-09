@@ -42,55 +42,22 @@ Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optione
 
 ## How sync works
 
-Each player only sends their **own** votes. The game sets the sender of every addon message, so nobody can fake votes on behalf of others. When you log in or join a group, NameScore asks the others for their votes. You see votes from guild and group members who are (or were) online at the same time as you.
+There are no external servers. Votes travel invisibly through your **guild** and **party/raid** – throttled and never visible in the chat window.
 
-Sync only transfers what you don't have yet (since 0.4):
-
-| Step | Message | Meaning |
-|---|---|---|
-| 1 | `SYN` (guild/group) | "Who has votes for me?" |
-| 2 | `HI\|<time>` (whisper) | "My newest own vote is from `<time>`" |
-| 3 | `GET\|<since>` (whisper) | Sent only if that is newer than what we have from them |
-| 4 | `V\|…` … `END\|<time>\|<more>` | Their own votes since then, oldest first, max 300 per batch |
-
-Per sender NameScore remembers up to when it is complete (`NameScoreDB.sync`). Live votes don't move that mark, so votes missed while offline are never skipped. Clients before 0.4 send `REQ` and still get a full reply.
-
-A deleted vote is sent as score 0, so it also disappears for the others (versions before 0.3 ignore deletions). Votes older than 6 months are removed automatically.
-
-WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
+- Each player only sends their **own** votes, and the game itself sets the sender – nobody can fake votes on behalf of others.
+- When you log in or join a group, NameScore asks the others for their votes and only fetches what it doesn't have yet. You see votes from guild and group members who are (or were) online at the same time as you.
+- A deleted vote disappears for the others too. Votes older than 6 months are cleaned up automatically.
+- WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
 
 **Votes are not anonymous:** each vote is stored with the voter's name to prevent fake votes. In-game NameScore only shows the average and the number of votes, but anyone with the addon could look up who rated whom in the saved variables.
 
-### Keys in the saved data
-
-| Kind | Key |
-|---|---|
-| Player | `First-Last` |
-| Guild | `G:<guild name>` |
-| Pet | `P:<owner key>:<pet name>` |
-
 ## Installation
 
-Via CurseForge, or manually: download the release zip and extract the `NameScore` folder to `World of Warcraft\<Forever folder>\Interface\AddOns\`.
+Install NameScore with the CurseForge app or the Wago app, or manually: download the latest release zip from GitHub and extract the `NameScore` folder to `World of Warcraft\<Forever folder>\Interface\AddOns\`.
 
-## Releasing
+## Feedback
 
-One click: go to **Actions → Release → Run workflow**, enter a version like `0.3.0` or `0.3.0-beta1` and start it. Versions with `beta` or `alpha` go to CurseForge as test versions.
-
-Alternatively push a tag yourself:
-
-```bash
-git tag v0.3.0
-git push origin v0.3.0
-```
-
-The GitHub Action builds the zip with the [BigWigs Packager](https://github.com/BigWigsMods/packager) and attaches it to a GitHub release. For automatic uploads to CurseForge:
-
-1. Create the project on CurseForge and enter its project ID in `NameScore.toc` (`## X-Curse-Project-ID:`)
-2. Create an API token at [CurseForge → API Tokens](https://authors.curseforge.com/account/api-tokens)
-3. Save it in the GitHub repo under *Settings → Secrets and variables → Actions* as `CF_API_KEY`
-
-The CurseForge project description is in [`docs/curseforge.md`](docs/curseforge.md), the project logo (400×400) in [`media/icon-400.png`](media/icon-400.png).
+Found a bug or have an idea? Open an [issue on GitHub](https://github.com/Drakner-chio/NameScore/issues). Working on NameScore yourself? See the [development notes](docs/DEVELOPMENT.md).
 
 ## Keep it fun
 
@@ -98,4 +65,4 @@ NameScore is meant as a bit of fun. There are deliberately no free-text comments
 
 ## License
 
-MIT for NameScore's own code. The embedded libraries (LibStub, CallbackHandler, LibDataBroker, LibDBIcon) are added by the release packager and keep their own licenses.
+MIT. The embedded libraries (LibStub, CallbackHandler, LibDataBroker, LibDBIcon) keep their own licenses.
