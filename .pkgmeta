@@ -4,13 +4,10 @@ manual-changelog:
   filename: CHANGELOG.md
   markup-type: markdown
 
-# Libraries for the minimap button, fetched by the packager when building a release.
-# They keep their own licenses; NameScore's MIT license covers NameScore's own code.
-externals:
-  Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
-  Libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
-  Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
-  Libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+# The libraries for the minimap button are committed in Libs/ (no externals),
+# so building a release needs no downloads. They keep their own licenses.
+# Sources for updating them: LibStub, CallbackHandler-1.0, LibDBIcon-1.0 on
+# repos.curseforge.com/wow/..., LibDataBroker-1.1 on github.com/tekkub/libdatabroker-1-1
 
 ignore:
   - README.md

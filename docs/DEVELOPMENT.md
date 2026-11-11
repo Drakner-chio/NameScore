@@ -16,9 +16,10 @@ git tag v0.4.0
 git push origin v0.4.0
 ```
 
-The GitHub Action builds the zip with the [BigWigs Packager](https://github.com/BigWigsMods/packager),
-fetches the libraries listed under `externals` in `.pkgmeta` and attaches the zip to a
-GitHub release. It also uploads to the stores that are set up:
+The GitHub Action builds the zip with the [BigWigs Packager](https://github.com/BigWigsMods/packager)
+and attaches it to a GitHub release. The minimap libraries (LibStub, CallbackHandler-1.0,
+LibDataBroker-1.1, LibDBIcon-1.0) are committed in `Libs/`, so the build downloads and
+installs nothing; to update them, replace the files (sources are noted in `.pkgmeta`). It also uploads to the stores that are set up:
 
 | Store | In `NameScore.toc` | GitHub secret |
 |---|---|---|

@@ -65,21 +65,8 @@ jobs:
           git checkout -q "$tag"
           echo "Created tag $tag"
 
-      # The packager installs subversion (needed for the svn externals in .pkgmeta)
-      # without refreshing the package lists first, which fails whenever the runner
-      # image's lists are out of date. Install it ourselves, with retries.
-      - name: Install subversion
-        run: |
-          for attempt in 1 2 3; do
-            if sudo apt-get update -q && sudo apt-get install -yq subversion; then
-              svn --version --quiet
-              exit 0
-            fi
-            echo "apt-get failed (attempt $attempt), retrying in 20s"
-            sleep 20
-          done
-          exit 1
-
+      # Libraries are committed in Libs/, so the packager needs no downloads and
+      # nothing has to be installed (no subversion, no apt).
       - uses: BigWigsMods/packager@v2
         with:
           pandoc: false   # only needed for WoWInterface uploads
