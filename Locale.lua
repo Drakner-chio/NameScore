@@ -77,6 +77,12 @@ local L = {
     MM_RIGHT        = "Right-click: settings",
     MM_VOTES        = "%d votes known",
 
+    USERS_RESULT    = "%d of %d online guild members use NameScore",
+    USERS_RESULT_NOTOTAL = "%d online guild members use NameScore",
+    USERS_OLDER     = " (%d of them with an older version)",
+    USERS_NO_GUILD  = "You are not in a guild.",
+    USERS_COUNTING  = "Counting NameScore users in your guild…",
+    HELP_USERS      = "/ns users – how many online guild members use NameScore (a number only, no names)",
     BIND_RATE       = "Rate target",
     BIND_HALL       = "Open/close hall of fame",
 
@@ -182,6 +188,12 @@ LOCALES.deDE = {
     MM_RIGHT        = "Rechtsklick: Einstellungen",
     MM_VOTES        = "%d Stimmen bekannt",
 
+    USERS_RESULT    = "%d von %d Online-Gildenmitgliedern nutzen NameScore",
+    USERS_RESULT_NOTOTAL = "%d Online-Gildenmitglieder nutzen NameScore",
+    USERS_OLDER     = " (davon %d mit älterer Version)",
+    USERS_NO_GUILD  = "Du bist in keiner Gilde.",
+    USERS_COUNTING  = "Zähle NameScore-Nutzer in deiner Gilde …",
+    HELP_USERS      = "/ns nutzer – wie viele Online-Gildenmitglieder NameScore nutzen (nur die Zahl, keine Namen)",
     BIND_RATE       = "Ziel bewerten",
     BIND_HALL       = "Ruhmeshalle öffnen/schließen",
 
@@ -285,6 +297,12 @@ LOCALES.frFR = {
     MM_RIGHT        = "Clic droit : réglages",
     MM_VOTES        = "%d votes connus",
 
+    USERS_RESULT    = "%d membres de la guilde en ligne sur %d utilisent NameScore",
+    USERS_RESULT_NOTOTAL = "%d membres de la guilde en ligne utilisent NameScore",
+    USERS_OLDER     = " (dont %d avec une version plus ancienne)",
+    USERS_NO_GUILD  = "Tu n'es dans aucune guilde.",
+    USERS_COUNTING  = "Comptage des utilisateurs de NameScore dans ta guilde…",
+    HELP_USERS      = "/ns users – combien de membres de la guilde en ligne utilisent NameScore (un nombre seulement, sans noms)",
     BIND_RATE       = "Noter la cible",
     BIND_HALL       = "Ouvrir/fermer le panthéon",
 
@@ -388,6 +406,12 @@ LOCALES.esES = {
     MM_RIGHT        = "Clic derecho: ajustes",
     MM_VOTES        = "%d votos conocidos",
 
+    USERS_RESULT    = "%d de %d miembros conectados de la hermandad usan NameScore",
+    USERS_RESULT_NOTOTAL = "%d miembros conectados de la hermandad usan NameScore",
+    USERS_OLDER     = " (%d de ellos con una versión anterior)",
+    USERS_NO_GUILD  = "No estás en ninguna hermandad.",
+    USERS_COUNTING  = "Contando usuarios de NameScore en tu hermandad…",
+    HELP_USERS      = "/ns users – cuántos miembros conectados de la hermandad usan NameScore (solo el número, sin nombres)",
     BIND_RATE       = "Valorar objetivo",
     BIND_HALL       = "Abrir/cerrar salón de la fama",
 

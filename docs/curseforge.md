@@ -59,6 +59,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns options` | Open the settings |
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
+| `/ns users` | How many online guild members use NameScore |
 | `/ns optout` | Don't let others rate you (or allow it again) |
 | `/ns sync` | Request votes from your guild and group |
 

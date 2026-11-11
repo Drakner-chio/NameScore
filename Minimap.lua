@@ -18,6 +18,8 @@ local function FillTooltip(tt)
     tt:AddLine(L.MM_RIGHT, 1, 1, 1)
     if ns.db then
         tt:AddLine(string.format(L.MM_VOTES, ns.CountVotes()), 0.6, 0.6, 0.6)
+        local users = ns.GuildCountText()
+        if users then tt:AddLine(users, 0.6, 0.6, 0.6, true) end
     end
 end
 

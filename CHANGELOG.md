@@ -1,5 +1,11 @@
 # NameScore
 
+## v0.6.0
+- **How many in your guild use NameScore:** `/ns users` (German `/ns nutzer`) and the
+  minimap button tooltip show e.g. "5 of 23 online guild members use NameScore" –
+  a number only, no names. Members on versions before 0.6 are counted separately as
+  "older version" if they sent NameScore messages in the guild recently.
+
 ## v0.5.0
 - **"Don't rate me" (opt-out):** `/ns optout` or *Options → AddOns → NameScore*.
   Everyone with NameScore 0.5 or newer stops showing and accepting ratings of your name

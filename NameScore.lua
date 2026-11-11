@@ -575,12 +575,92 @@ end
 -- ---------------------------------------------------------------
 -- Receiving
 -- ---------------------------------------------------------------
-local function HandleMessage(msg, sender)
+-- ---------------------------------------------------------------
+-- How many online guild members use NameScore. Only a number is shown; the
+-- names are kept in memory for the few seconds of a count and never saved.
+--   requester -> guild:      PING
+--   everyone  -> requester:  PONG|<version>   (whisper)
+-- Versions before 0.6 don't answer PING, so guild members who sent any
+-- NameScore message in the guild channel recently are counted as "older".
+-- ---------------------------------------------------------------
+local RECENT = 10 * 60          -- "recently" for the older versions, in seconds
+local COUNT_WAIT = 5            -- seconds to collect answers
+local pongs = {}                -- name -> true, only during a count
+local guildSeen = {}            -- name -> time of their last guild message (memory only)
+local lastPingReply = {}
+local counting = false
+
+do
+    local getMeta = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+    local ok, version = pcall(function() return getMeta and getMeta(ADDON_NAME, "Version") end)
+    ns.VERSION = (ok and type(version) == "string" and version) or "?"
+end
+
+local function OnlineGuildMembers()
+    local ok, total, online = pcall(GetNumGuildMembers)
+    if ok and type(online) == "number" and online > 0 then return online end
+    return nil
+end
+
+-- Starts a count; calls done(users, older, online) when finished
+function ns.CountGuildUsers(done)
+    if not IsInGuild() then if done then done(nil) end return end
+    if counting then return end
+    counting = true
+    pongs = {}
+    if C_GuildInfo and C_GuildInfo.GuildRoster then pcall(C_GuildInfo.GuildRoster) end
+    Enqueue("PING", "GUILD")
+    C_Timer.After(COUNT_WAIT, function()
+        counting = false
+        local users, older = 1, 0          -- 1 = yourself
+        for _ in pairs(pongs) do users = users + 1 end
+        local now = time()
+        for name, seen in pairs(guildSeen) do
+            if now - seen <= RECENT and not pongs[name] then
+                users, older = users + 1, older + 1
+            end
+        end
+        pongs = {}
+        ns.guildCount = { users = users, older = older, online = OnlineGuildMembers(), at = now }
+        if done then done(users, older, ns.guildCount.online) end
+    end)
+end
+
+function ns.GuildCountText(c)
+    c = c or ns.guildCount
+    if not c then return nil end
+    local text
+    if c.online and c.online >= c.users then
+        text = string.format(L.USERS_RESULT, c.users, c.online)
+    else
+        text = string.format(L.USERS_RESULT_NOTOTAL, c.users)
+    end
+    if c.older > 0 then text = text .. string.format(L.USERS_OLDER, c.older) end
+    return text
+end
+
+function ns.PrintGuildUsers()
+    if not IsInGuild() then ns.Print(L.USERS_NO_GUILD) return end
+    ns.Print(L.USERS_COUNTING)
+    ns.CountGuildUsers(function() ns.Print(ns.GuildCountText()) end)
+end
+
+local function HandleMessage(msg, sender, chatType)
     sender = ns.FullName(sender)
     -- Ignore our own echo from the guild/group channel
     if not sender or sender:lower() == ns.me:lower() then return end
+    if chatType == "GUILD" then guildSeen[sender] = time() end
 
-    if msg:sub(1, 2) == "V|" then
+    if msg == "PING" then
+        -- Someone in our guild counts NameScore users: answer with our version
+        if chatType ~= "GUILD" then return end
+        local now = GetTime()
+        if lastPingReply[sender] and now - lastPingReply[sender] < 30 then return end
+        lastPingReply[sender] = now
+        Enqueue("PONG|" .. ns.VERSION, "WHISPER", sender)
+    elseif msg:sub(1, 5) == "PONG|" then
+        if counting then pongs[sender] = true end
+    elseif msg:sub(1, 2) == "V|" then
         local key, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
         s, ts = tonumber(s), tonumber(ts)
         if not key or not s or s > 10 then return end
@@ -711,6 +791,7 @@ local CMD = {
     minimap = "minimap", karte = "minimap",
     ich = "me", me = "me", moi = "me", yo = "me",
     optout = "optout", privat = "optout", private = "optout",
+    nutzer = "users", users = "users", utilisateurs = "users", usuarios = "users",
     ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
 }
 
@@ -766,6 +847,8 @@ SlashCmdList.NAMESCORE = function(input)
         else
             ns.Print(L.HELP_SIZE)
         end
+    elseif cmd == "users" then
+        ns.PrintGuildUsers()
     elseif cmd == "optout" then
         ns.SetOptOut(not ns.Setting("optOut"))
     elseif cmd == "me" then
@@ -797,6 +880,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_HALL)
         ns.Print(L.HELP_ME)
         ns.Print(L.HELP_OPTOUT)
+        ns.Print(L.HELP_USERS)
         ns.Print(L.HELP_OPTIONS)
         ns.Print(L.HELP_SIZE)
         ns.Print(L.HELP_MINIMAP)
@@ -848,10 +932,11 @@ ev:SetScript("OnEvent", function(_, event, ...)
             ns.BroadcastOptOut()
             ns.RequestSync()
         end)
+        C_Timer.After(20, function() ns.CountGuildUsers() end)
     elseif event == "GROUP_JOINED" then
         C_Timer.After(3, function() ns.BroadcastOptOut(); ns.RequestSync() end)
     elseif event == "CHAT_MSG_ADDON" then
-        local prefix, msg, _, sender = ...
-        if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender) end
+        local prefix, msg, chatType, sender = ...
+        if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender, chatType) end
     end
 end)

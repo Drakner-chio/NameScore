@@ -13,7 +13,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
 - **Your own score:** see what others think of your name, guild and pets (`/ns me`)
 - **Hall of fame:** best and worst rated names, and everything you rated
-- **Minimap button:** left-click for the hall of fame, right-click for settings (also in the addon compartment)
+- **Minimap button:** left-click for the hall of fame, right-click for settings (also in the addon compartment); its tooltip shows how many online guild members use NameScore
 - **Settings** in *Options → AddOns → NameScore*
 - **In-game sync:** votes are shared with your guild and party/raid – no external servers
 - **ElvUI & EllesmereUI:** NameScore windows automatically match your UI – EllesmereUI via its official skinning API (theme, accent color and font), ElvUI via its skin module
@@ -37,6 +37,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns size small\|normal\|large` | Size of the tooltip badge |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
+| `/ns users` | How many online guild members use NameScore (a number only, no names) |
 | `/ns optout` | Don't let others rate you and your pets (or allow it again) |
 | `/ns sync` | Request votes from your guild and group |
 
