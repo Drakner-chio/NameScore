@@ -16,12 +16,13 @@ ns.DEFAULTS = {
     elvSkin   = true,   -- use ElvUI / EllesmereUI style if installed
     showMinimap = true, -- minimap button
     badgeSize = 2,      -- tooltip badge: 1 small (one line), 2 normal, 3 large
+    optOut    = false,  -- "don't rate me": others stop showing and accepting ratings of us
 }
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
 -- so they stay as they are; display names come from the locale.
 -- Older versions simply ignore tag ids they don't know.
-ns.TAGS = { "lustig", "episch", "kreativ", "wortspiel", "lore", "klassiker", "cringe" }
+ns.TAGS = { "lustig", "episch", "kreativ", "wortspiel", "lore", "klassiker", "cute", "cringe" }
 local VALID_TAG = {}
 for _, t in ipairs(ns.TAGS) do VALID_TAG[t] = true end
 
@@ -33,6 +34,7 @@ local TAG_ALIAS = {
     wordplay = "wortspiel", pun = "wortspiel", wortspiel = "wortspiel", calembour = "wortspiel", ingenioso = "wortspiel",
     lore = "lore",
     classic = "klassiker", klassiker = "klassiker", classique = "klassiker", ["clásico"] = "klassiker", clasico = "klassiker",
+    cute = "cute", ["süß"] = "cute", suess = "cute", suss = "cute", mignon = "cute", adorable = "cute", lindo = "cute",
     cringe = "cringe", ["gênant"] = "cringe", genant = "cringe", vergonzoso = "cringe",
 }
 
@@ -138,6 +140,28 @@ function ns.MyGuildKey()
     return ns.GuildKey(g)
 end
 
+-- ---------------------------------------------------------------
+-- Opt-out ("don't rate me"). A player can only opt out themselves: the flag is
+-- taken from the sender of an addon message, which the game sets. It covers the
+-- player and their pets, not their guild (a guild belongs to many people).
+-- ---------------------------------------------------------------
+
+-- The player a key belongs to (players and pets), nil for guilds
+local function OwnerOf(key)
+    local kind, a, owner = ns.ParseKey(key)
+    if kind == "player" then return a end
+    if kind == "pet" then return owner end
+    return nil
+end
+
+function ns.IsOptedOut(key)
+    local owner = key and OwnerOf(key)
+    if not owner or not ns.db then return false end
+    if ns.me and owner:lower() == ns.me:lower() then return ns.Setting("optOut") == true end
+    local o = ns.db.optout[owner]
+    return o ~= nil and o.on == true
+end
+
 -- Returns the reason why this key may not be rated by us, or nil
 function ns.OwnReason(key)
     if not ns.me or not key then return L.NO_TARGET end
@@ -145,6 +169,7 @@ function ns.OwnReason(key)
     local kind, _, owner = ns.ParseKey(key)
     if kind == "guild" and key == ns.MyGuildKey() then return L.NO_SELF_GUILD end
     if kind == "pet" and owner:lower() == ns.me:lower() then return L.NO_SELF_PET end
+    if ns.IsOptedOut(key) then return string.format(L.OPTED_OUT_RATE, ns.ShortName(OwnerOf(key))) end
     return nil
 end
 
@@ -283,7 +308,7 @@ end
 -- Deleted votes (s = 0) are kept so the deletion can be synced, but don't count.
 function ns.GetScore(key)
     local votes = ns.db and ns.db.votes[key]
-    if not votes then return nil end
+    if not votes or ns.IsOptedOut(key) then return nil end
     local sum, n, counts = 0, 0, {}
     for _, v in pairs(votes) do
         if v.s > 0 then
@@ -379,12 +404,16 @@ function ns.MyStatsLines()
         add("   |cffaaaaaa" .. table.concat(d, "   ") .. "|r")
     end
 
-    describe(ns.me, "|cffffffff" .. ns.ShortName(ns.me) .. "|r")
+    if ns.Setting("optOut") then
+        add("|cffffffff" .. ns.ShortName(ns.me) .. "|r", "|cffaaaaaa" .. L.ME_OPTED_OUT .. "|r")
+    else
+        describe(ns.me, "|cffffffff" .. ns.ShortName(ns.me) .. "|r")
+    end
     local gkey = ns.MyGuildKey()
     if gkey then describe(gkey, "|cff40c040" .. L.GUILD_LABEL .. " " .. ns.ShortName(gkey) .. "|r") end
     local prefix = "P:" .. ns.me .. ":"
     for key in pairs(ns.db.votes) do
-        if key:sub(1, #prefix) == prefix then
+        if key:sub(1, #prefix) == prefix and not ns.Setting("optOut") then
             describe(key, "|cffc8a070" .. string.format(L.ME_PET, key:sub(#prefix + 1)) .. "|r")
         end
     end
@@ -504,15 +533,43 @@ function ns.Rate(key, stars, tags)
 end
 
 -- Deleting keeps an empty marker (s = 0) so the deletion reaches the others
-function ns.DeleteVote(key)
+function ns.DeleteVote(key, quiet)
     if not key then ns.Print(L.NO_TARGET) return end
     if not ns.MyVote(key) then
-        ns.Print(string.format(L.NO_VOTE, ns.ShortName(key))) return
+        if not quiet then ns.Print(string.format(L.NO_VOTE, ns.ShortName(key))) end
+        return
     end
     local v = { s = 0, tags = {}, ts = time() }
     ns.db.votes[key][ns.me] = v
     Broadcast(VoteMessage(key, v))
-    ns.Print(string.format(L.VOTE_DELETED, ns.ShortName(key)))
+    if not quiet then ns.Print(string.format(L.VOTE_DELETED, ns.ShortName(key))) end
+end
+
+-- Delete our own votes for an opted-out player and their pets
+local function RespectOptOut(player)
+    local lower = player:lower()
+    for key, votes in pairs(ns.db.votes) do
+        local owner = OwnerOf(key)
+        if owner and owner:lower() == lower and votes[ns.me] and votes[ns.me].s > 0 then
+            ns.DeleteVote(key, true)
+        end
+    end
+end
+
+local function OptMessage()
+    return string.format("OPT|%d|%d", ns.Setting("optOut") and 1 or 0, ns.db.optOutTs or 0)
+end
+
+-- Tell guild and group about our choice (only once we ever made one)
+function ns.BroadcastOptOut()
+    if ns.db.optOutTs then Broadcast(OptMessage()) end
+end
+
+function ns.SetOptOut(on)
+    ns.db.settings.optOut = on and true or false
+    ns.db.optOutTs = time()
+    ns.BroadcastOptOut()
+    ns.Print(on and L.OPTOUT_ON or L.OPTOUT_OFF)
 end
 
 -- ---------------------------------------------------------------
@@ -543,8 +600,19 @@ local function HandleMessage(msg, sender)
         local now = GetTime()
         if lastReq[sender] and now - lastReq[sender] < 60 then return end
         lastReq[sender] = now
+        if ns.db.optOutTs then Enqueue(OptMessage(), "WHISPER", sender) end
         local newest = NewestOwnTs()
         if newest > 0 then Enqueue("HI|" .. newest, "WHISPER", sender) end
+    elseif msg:sub(1, 4) == "OPT|" then
+        -- Someone opts out of (or back into) being rated; newest choice wins
+        local on, ts = msg:match("^OPT|([01])|(%d+)$")
+        ts = tonumber(ts)
+        if not ts or ts > time() + 300 then return end
+        local old = ns.db.optout[sender]
+        if not old or ts > old.ts then
+            ns.db.optout[sender] = { on = on == "1", ts = ts }
+            if on == "1" then RespectOptOut(sender) end
+        end
     elseif msg:sub(1, 3) == "HI|" then
         -- Only ask for votes if they have something we haven't got yet
         local newest = tonumber(msg:match("^HI|(%d+)$"))
@@ -642,6 +710,7 @@ local CMD = {
     badge = "badge", own = "own", eigene = "own", elvui = "elvui",
     minimap = "minimap", karte = "minimap",
     ich = "me", me = "me", moi = "me", yo = "me",
+    optout = "optout", privat = "optout", private = "optout",
     ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
 }
 
@@ -697,6 +766,8 @@ SlashCmdList.NAMESCORE = function(input)
         else
             ns.Print(L.HELP_SIZE)
         end
+    elseif cmd == "optout" then
+        ns.SetOptOut(not ns.Setting("optOut"))
     elseif cmd == "me" then
         ns.PrintMyStats()
     elseif cmd == "hall" then
@@ -725,6 +796,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_CHECK)
         ns.Print(L.HELP_HALL)
         ns.Print(L.HELP_ME)
+        ns.Print(L.HELP_OPTOUT)
         ns.Print(L.HELP_OPTIONS)
         ns.Print(L.HELP_SIZE)
         ns.Print(L.HELP_MINIMAP)
@@ -748,6 +820,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
         ns.db.votes = ns.db.votes or {}
         ns.db.settings = ns.db.settings or {}
         ns.db.sync = ns.db.sync or {}       -- per sender: complete up to this time
+        ns.db.optout = ns.db.optout or {}   -- per player: { on = bool, ts = time }
         for k, v in pairs(ns.DEFAULTS) do
             if ns.db.settings[k] == nil then ns.db.settings[k] = v end
         end
@@ -765,14 +838,18 @@ ev:SetScript("OnEvent", function(_, event, ...)
         if not ok then geterrorhandler()(err) end
         NormalizeDB(ns.db)
         PruneDB(ns.db)
+        for player, o in pairs(ns.db.optout) do
+            if o.on then RespectOptOut(player) end
+        end
         C_Timer.After(8, function()
             -- Leave the sync channel used by earlier versions
             local id = GetChannelName(OLD_SYNC_CHANNEL)
             if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
+            ns.BroadcastOptOut()
             ns.RequestSync()
         end)
     elseif event == "GROUP_JOINED" then
-        C_Timer.After(3, ns.RequestSync)
+        C_Timer.After(3, function() ns.BroadcastOptOut(); ns.RequestSync() end)
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, msg, _, sender = ...
         if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender) end

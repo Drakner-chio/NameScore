@@ -21,6 +21,13 @@ function ns.BuildOptions()
     Checkbox("showBadge", L.OPT_BADGE, L.OPT_BADGE_TIP)
     Checkbox("showOwn", L.OPT_OWN, L.OPT_OWN_TIP)
 
+    local opt = Settings.RegisterAddOnSetting(cat, "NameScore_optOut", "optOut", s,
+        Settings.VarType.Boolean, L.OPT_OPTOUT, ns.DEFAULTS.optOut)
+    Settings.CreateCheckbox(cat, opt, L.OPT_OPTOUT_TIP)
+    if opt and opt.SetValueChangedCallback then
+        opt:SetValueChangedCallback(function(_, value) ns.SetOptOut(value) end)
+    end
+
     local sizeSetting = Settings.RegisterAddOnSetting(cat, "NameScore_badgeSize", "badgeSize", s,
         Settings.VarType.Number, L.OPT_SIZE, ns.DEFAULTS.badgeSize)
     local function SizeOptions()
@@ -64,6 +71,7 @@ function ns.OpenOptions()
     -- Fallback: show the settings in chat with the commands to change them
     ns.Print(L.OPT_BADGE .. ": " .. OnOff(ns.Setting("showBadge")) .. "  (/ns badge)")
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
+    ns.Print(L.OPT_OPTOUT .. ": " .. OnOff(ns.Setting("optOut")) .. "  (/ns optout)")
     ns.Print(L.OPT_SIZE .. ": " .. ns.SizeLabel(ns.Setting("badgeSize")) .. "  (/ns size 1-3)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
     ns.Print(L.OPT_ELVUI .. ": " .. OnOff(ns.Setting("elvSkin")) .. "  (/ns elvui)")

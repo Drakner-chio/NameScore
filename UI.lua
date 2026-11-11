@@ -199,6 +199,12 @@ local function AddToTooltip(tt)
 
     if UnitIsPlayer(unit) then AnnotateGuild(tt, unit) end
 
+    if ns.IsOptedOut(key) then
+        tt:AddLine("|cffff8000NameScore|r |cff777777– " .. L.OPTED_OUT_TT .. "|r")
+        tt:Show()
+        return
+    end
+
     local avg, n, tags = ns.GetScore(key)
     if not avg then
         tt:AddLine("|cffff8000NameScore|r |cff777777– " .. L.NOT_RATED .. "|r")

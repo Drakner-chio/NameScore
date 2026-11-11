@@ -5,10 +5,11 @@
 Ever met a *Tankenstein*, a guild called *Kein Plan* or a wolf named *Fluffy McFangs* and wished you could tell the world what you think? **NameScore** lets you and your guild rate the names of players, guilds and hunter pets – and shows the community score right in the tooltip, Raider.io style.
 
 - **Score from 1 to 10** with a rank in item quality colors, from *Poor* to *Legendary*
-- **Top tags** like *Funny*, *Epic*, *Wordplay*, *Lore* or *Cringe*
+- **Top tags** like *Funny*, *Epic*, *Wordplay*, *Lore*, *Cute* or *Cringe*
 - **Your own vote** in the tooltip, so you know who you already rated
 - **Your own score:** see what others think of your name, guild and pets
 - **Fair:** a score only shows up once a name has at least 2 votes (adjustable)
+- **Respectful:** anyone who doesn't want to be rated can opt out with one click
 
 Made for **World of Warcraft: Forever**.
 
@@ -58,6 +59,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns options` | Open the settings |
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
+| `/ns optout` | Don't let others rate you (or allow it again) |
 | `/ns sync` | Request votes from your guild and group |
 
 ## Settings
@@ -72,7 +74,9 @@ English, German, French and Spanish, following your game client's language. More
 
 ## Keep it fun
 
-NameScore is meant as a bit of fun among friends. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier. Please don't use scores to mock other players in chat.
+NameScore rates **names, not people** – it's meant as a bit of fun among friends. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
+
+**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then stops showing and accepting ratings of your name and your pets, and deletes their votes for you. Please don't use scores to mock other players in chat.
 
 ## Feedback & source
 

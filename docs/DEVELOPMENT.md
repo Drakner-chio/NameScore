@@ -45,6 +45,7 @@ behalf of others.
 | `GET\|<since>` (whisper) | Sent only if that is newer than what we have from them |
 | `END\|<time>\|<more>` (whisper) | All own votes since `<since>` were sent (oldest first, max 300); `more` = 1 if another batch follows |
 | `REQ` | Request from clients before 0.4; answered with up to 300 own votes |
+| `OPT\|<0/1>\|<time>` (guild/group, and whispered on `SYN`) | Sender opts out of (1) or back into (0) being rated; newest choice wins. Covers the sender and their pets, not their guild |
 
 Per sender NameScore remembers up to when it is complete (`NameScoreDB.sync`). Live
 votes don't move that mark, so votes missed while offline are never skipped.
@@ -62,7 +63,9 @@ guild, party/raid and whispers.
 | Guild | `G:<guild name>` |
 | Pet | `P:<owner key>:<pet name>` |
 
-Tag ids are `lustig episch kreativ wortspiel lore klassiker cringe`; older versions
+`NameScoreDB.optout[player] = { on = bool, ts = time }` – opt-out choices of others. On receiving an opt-out, clients delete their own votes for that player and their pets.
+
+Tag ids are `lustig episch kreativ wortspiel lore klassiker cute cringe`; older versions
 ignore ids they don't know. Votes older than 6 months are removed on login.
 
 ## Testing in the game

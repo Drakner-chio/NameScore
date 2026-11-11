@@ -8,7 +8,8 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Guilds:** the guild score appears next to the guild name in the tooltip
 - **Hunter pets:** pets (and warlock demons) get their own score, stored together with their owner
 - **Fair scores:** a score is only shown once a name has at least 2 votes (adjustable)
-- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Wordplay, Lore, Classic, Cringe); delete your vote any time
+- **"Don't rate me":** anyone can opt out – their score disappears for everyone and existing votes for them are deleted
+- **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Wordplay, Lore, Classic, Cute, Cringe); delete your vote any time
 - **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
 - **Your own score:** see what others think of your name, guild and pets (`/ns me`)
 - **Hall of fame:** best and worst rated names, and everything you rated
@@ -36,9 +37,10 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns size small\|normal\|large` | Size of the tooltip badge |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
+| `/ns optout` | Don't let others rate you and your pets (or allow it again) |
 | `/ns sync` | Request votes from your guild and group |
 
-Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `/ns ich`, `lustig episch kreativ wortspiel lore klassiker cringe`); tags also in French and Spanish. You can't rate yourself, your own guild or your own pet.
+Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `/ns ich`, `lustig episch kreativ wortspiel lore klassiker süß cringe`); tags also in French and Spanish. You can't rate yourself, your own guild or your own pet.
 
 ## How sync works
 
@@ -61,7 +63,7 @@ Found a bug or have an idea? Open an [issue on GitHub](https://github.com/Drakne
 
 ## Keep it fun
 
-NameScore is meant as a bit of fun. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
+NameScore rates **names, not people**. There are deliberately no free-text comments, the lowest rating is called *Cringe* rather than anything nastier, and anyone who doesn't want to be rated can opt out with `/ns optout`.
 
 ## License
 

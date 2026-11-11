@@ -10,6 +10,8 @@ Ideas and planned features for NameScore.
 
 ## Done
 
+- [x] **Opt-out "Don't rate me"** (v0.5.0)
+- [x] **Tag Cute** (v0.5.0)
 - [x] **Own score** (`/ns me`, *Me* tab) (v0.4.0)
 - [x] **Key bindings** (v0.4.0)
 - [x] **Tags Wordplay, Lore, Classic** (v0.4.0)

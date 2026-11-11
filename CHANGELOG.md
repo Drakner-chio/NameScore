@@ -1,5 +1,12 @@
 # NameScore
 
+## v0.5.0
+- **"Don't rate me" (opt-out):** `/ns optout` or *Options → AddOns → NameScore*.
+  Everyone with NameScore 0.5 or newer stops showing and accepting ratings of your name
+  and your pets, and deletes their votes for you. The tooltip says "doesn't want to be
+  rated". Your guild is not affected. You can switch it back on any time.
+- **New tag:** Cute (8 tags in total)
+
 ## v0.4.0
 - **Your own score:** `/ns me` (or the new *Me* tab in the hall of fame) shows what
   others think of your name, your guild and your pets – score, top tags and how many
