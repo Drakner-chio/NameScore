@@ -1,6 +1,8 @@
 # NameScore
 
 ## Unreleased
+- Opt-out now **hides** the votes for a player instead of deleting them: after `/ns optin`
+  all earlier scores are back
 - `/ns optout` now only switches ratings off and `/ns optin` switches them back on
   (before, `/ns optout` toggled)
 

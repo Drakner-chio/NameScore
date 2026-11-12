@@ -8,7 +8,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 - **Guilds:** the guild score appears next to the guild name in the tooltip
 - **Hunter pets:** pets (and warlock demons) get their own score, stored together with their owner
 - **Fair scores:** a score is only shown once a name has at least 2 votes (adjustable)
-- **"Don't rate me":** anyone can opt out – their score disappears for everyone and existing votes for them are deleted
+- **"Don't rate me":** anyone can opt out – their score is hidden for everyone and nobody can rate them; opting back in restores everything
 - **Rating window:** ½ to 5 stars (half stars allowed) plus any number of tags (Funny, Epic, Creative, Wordplay, Lore, Classic, Cute, Cringe); delete your vote any time
 - **Right-click menu:** right-click a player or pet and choose *NameScore → Rate name* or *Rate guild*
 - **Your own score:** see what others think of your name, guild and pets (`/ns me`)

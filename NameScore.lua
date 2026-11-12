@@ -144,6 +144,8 @@ end
 -- Opt-out ("don't rate me"). A player can only opt out themselves: the flag is
 -- taken from the sender of an addon message, which the game sets. It covers the
 -- player and their pets, not their guild (a guild belongs to many people).
+-- Votes for an opted-out player are kept but hidden everywhere, so an opt-in
+-- brings them back unchanged.
 -- ---------------------------------------------------------------
 
 -- The player a key belongs to (players and pets), nil for guilds
@@ -545,17 +547,6 @@ function ns.DeleteVote(key, quiet)
     if not quiet then ns.Print(string.format(L.VOTE_DELETED, ns.ShortName(key))) end
 end
 
--- Delete our own votes for an opted-out player and their pets
-local function RespectOptOut(player)
-    local lower = player:lower()
-    for key, votes in pairs(ns.db.votes) do
-        local owner = OwnerOf(key)
-        if owner and owner:lower() == lower and votes[ns.me] and votes[ns.me].s > 0 then
-            ns.DeleteVote(key, true)
-        end
-    end
-end
-
 local function OptMessage()
     return string.format("OPT|%d|%d", ns.Setting("optOut") and 1 or 0, ns.db.optOutTs or 0)
 end
@@ -690,8 +681,8 @@ local function HandleMessage(msg, sender, chatType)
         if not ts or ts > time() + 300 then return end
         local old = ns.db.optout[sender]
         if not old or ts > old.ts then
+            -- Votes are only hidden, not deleted: after an opt-in everything is back
             ns.db.optout[sender] = { on = on == "1", ts = ts }
-            if on == "1" then RespectOptOut(sender) end
         end
     elseif msg:sub(1, 3) == "HI|" then
         -- Only ask for votes if they have something we haven't got yet
@@ -925,9 +916,6 @@ ev:SetScript("OnEvent", function(_, event, ...)
         if not ok then geterrorhandler()(err) end
         NormalizeDB(ns.db)
         PruneDB(ns.db)
-        for player, o in pairs(ns.db.optout) do
-            if o.on then RespectOptOut(player) end
-        end
         C_Timer.After(8, function()
             -- Leave the sync channel used by earlier versions
             local id = GetChannelName(OLD_SYNC_CHANNEL)

@@ -65,7 +65,7 @@ guild, party/raid and whispers.
 | Guild | `G:<guild name>` |
 | Pet | `P:<owner key>:<pet name>` |
 
-`NameScoreDB.optout[player] = { on = bool, ts = time }` – opt-out choices of others. On receiving an opt-out, clients delete their own votes for that player and their pets.
+`NameScoreDB.optout[player] = { on = bool, ts = time }` – opt-out choices of others. Votes for an opted-out player and their pets are kept but hidden everywhere, so an opt-in restores them.
 
 Tag ids are `lustig episch kreativ wortspiel lore klassiker cute cringe`; older versions
 ignore ids they don't know. Votes older than 6 months are removed on login.

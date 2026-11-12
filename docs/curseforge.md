@@ -77,7 +77,7 @@ English, German, French and Spanish, following your game client's language. More
 
 NameScore rates **names, not people** – it's meant as a bit of fun among friends. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
 
-**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then stops showing and accepting ratings of your name and your pets, and deletes their votes for you. Changed your mind? `/ns optin` allows it again. Please don't use scores to mock other players in chat.
+**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then hides your score and that of your pets and accepts no new ratings. Changed your mind? `/ns optin` allows it again – and all earlier votes are back. Please don't use scores to mock other players in chat.
 
 ## Feedback & source
 

@@ -17,7 +17,7 @@ local function Collect(tab)
         local avg, n = ns.GetScore(key)
         local mine = ns.MyVote(key)
         if tab == "mine" then
-            if mine then list[#list + 1] = { key = key, avg = avg, n = n, mine = mine } end
+            if mine and not ns.IsOptedOut(key) then list[#list + 1] = { key = key, avg = avg, n = n, mine = mine } end
         elseif avg and n >= min then
             list[#list + 1] = { key = key, avg = avg, n = n, mine = mine }
         end
