@@ -1,6 +1,20 @@
 # NameScore
 
-## Unreleased
+## v1.0.0 – first stable release
+
+**NameScore** lets you and your guild rate the names of players, guilds and hunter pets
+with ½ to 5 stars and tags – and shows the community score right in the tooltip,
+Raider.io style. Made for World of Warcraft: Forever.
+
+- Score from 1 to 10 with a rank in item quality colors, from *Poor* to *Legendary*
+- 8 tags: Funny, Epic, Creative, Wordplay, Lore, Classic, Cute, Cringe
+- Rate via right-click on any player or pet, or with `/ns`
+- Fair: a score only shows from 2 votes, and anyone can opt out with `/ns optout`
+- Hall of fame, your own score (`/ns me`), guild user count, minimap button, key bindings
+- No external servers: votes are synced invisibly through guild and group
+- ElvUI and EllesmereUI support; English, German, French and Spanish
+
+Changes since 0.6.0:
 - Opt-out now **hides** the votes for a player instead of deleting them: after `/ns optin`
   all earlier scores are back
 - `/ns optout` now only switches ratings off and `/ns optin` switches them back on
@@ -15,7 +29,7 @@
 ## v0.5.0
 - **"Don't rate me" (opt-out):** `/ns optout` or *Options → AddOns → NameScore*.
   Everyone with NameScore 0.5 or newer stops showing and accepting ratings of your name
-  and your pets, and deletes their votes for you. The tooltip says "doesn't want to be
+  and your pets, and deletes their votes for you (since 1.0 they are only hidden). The tooltip says "doesn't want to be
   rated". Your guild is not affected. You can switch it back on any time.
 - **New tag:** Cute (8 tags in total)
 
