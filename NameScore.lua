@@ -791,6 +791,7 @@ local CMD = {
     minimap = "minimap", karte = "minimap",
     ich = "me", me = "me", moi = "me", yo = "me",
     optout = "optout", privat = "optout", private = "optout",
+    optin = "optin", ["öffentlich"] = "optin", oeffentlich = "optin", public = "optin",
     nutzer = "users", users = "users", utilisateurs = "users", usuarios = "users",
     ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
 }
@@ -850,7 +851,9 @@ SlashCmdList.NAMESCORE = function(input)
     elseif cmd == "users" then
         ns.PrintGuildUsers()
     elseif cmd == "optout" then
-        ns.SetOptOut(not ns.Setting("optOut"))
+        if ns.Setting("optOut") then ns.Print(L.OPTOUT_ALREADY) else ns.SetOptOut(true) end
+    elseif cmd == "optin" then
+        if not ns.Setting("optOut") then ns.Print(L.OPTIN_ALREADY) else ns.SetOptOut(false) end
     elseif cmd == "me" then
         ns.PrintMyStats()
     elseif cmd == "hall" then

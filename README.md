@@ -38,7 +38,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns size small\|normal\|large` | Size of the tooltip badge |
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns users` | How many online guild members use NameScore (a number only, no names) |
-| `/ns optout` | Don't let others rate you and your pets (or allow it again) |
+| `/ns optout` / `/ns optin` | Don't let others rate you and your pets / allow it again |
 | `/ns sync` | Request votes from your guild and group |
 
 Commands and tags also work in German (`/ns gilde`, `/ns löschen`, `/ns optionen`, `/ns ich`, `lustig episch kreativ wortspiel lore klassiker süß cringe`); tags also in French and Spanish. You can't rate yourself, your own guild or your own pet.

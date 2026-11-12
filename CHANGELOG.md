@@ -1,5 +1,9 @@
 # NameScore
 
+## Unreleased
+- `/ns optout` now only switches ratings off and `/ns optin` switches them back on
+  (before, `/ns optout` toggled)
+
 ## v0.6.0
 - **How many in your guild use NameScore:** `/ns users` (German `/ns nutzer`) and the
   minimap button tooltip show e.g. "5 of 23 online guild members use NameScore" –

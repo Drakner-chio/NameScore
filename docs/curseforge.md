@@ -60,7 +60,7 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
 | `/ns users` | How many online guild members use NameScore |
-| `/ns optout` | Don't let others rate you (or allow it again) |
+| `/ns optout` / `/ns optin` | Don't let others rate you / allow it again |
 | `/ns sync` | Request votes from your guild and group |
 
 ## Settings
@@ -77,7 +77,7 @@ English, German, French and Spanish, following your game client's language. More
 
 NameScore rates **names, not people** – it's meant as a bit of fun among friends. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
 
-**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then stops showing and accepting ratings of your name and your pets, and deletes their votes for you. Please don't use scores to mock other players in chat.
+**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then stops showing and accepting ratings of your name and your pets, and deletes their votes for you. Changed your mind? `/ns optin` allows it again. Please don't use scores to mock other players in chat.
 
 ## Feedback & source
 

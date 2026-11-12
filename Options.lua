@@ -71,7 +71,7 @@ function ns.OpenOptions()
     -- Fallback: show the settings in chat with the commands to change them
     ns.Print(L.OPT_BADGE .. ": " .. OnOff(ns.Setting("showBadge")) .. "  (/ns badge)")
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
-    ns.Print(L.OPT_OPTOUT .. ": " .. OnOff(ns.Setting("optOut")) .. "  (/ns optout)")
+    ns.Print(L.OPT_OPTOUT .. ": " .. OnOff(ns.Setting("optOut")) .. "  (/ns optout, /ns optin)")
     ns.Print(L.OPT_SIZE .. ": " .. ns.SizeLabel(ns.Setting("badgeSize")) .. "  (/ns size 1-3)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
     ns.Print(L.OPT_ELVUI .. ": " .. OnOff(ns.Setting("elvSkin")) .. "  (/ns elvui)")
