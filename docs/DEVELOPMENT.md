@@ -41,7 +41,7 @@ behalf of others.
 | Message | Meaning |
 |---|---|
 | `V\|<key>\|<score>\|<tags>\|<time>` | A vote: score 1–10 (half stars), `0` = vote deleted |
-| `SYN` (guild/group) | "Who has votes for me?" |
+| `SYN` (guild/group, or whispered to online friends) | "Who has votes for me?" |
 | `HI\|<time>` (whisper) | "My newest own vote is from `<time>`" |
 | `GET\|<since>` (whisper) | Sent only if that is newer than what we have from them |
 | `END\|<time>\|<more>` (whisper) | All own votes since `<since>` were sent (oldest first, max 300); `more` = 1 if another batch follows |
@@ -49,6 +49,14 @@ behalf of others.
 | `PING` (guild) / `PONG\|<version>` (whisper) | Counting NameScore users in the guild; only the number is shown, names are kept in memory for the few seconds of a count |
 | `VER\|<version>` (guild/group, at login) | Own version; a newer full release (no beta) triggers a one-time update notice. Older clients ignore it |
 | `OPT\|<0/1>\|<time>` (guild/group, and whispered on `SYN`) | Sender opts out of (1) or back into (0) being rated; newest choice wins. Covers the sender and their pets, not their guild |
+
+**Friends sync (1.1):** at login, on `/ns sync` and when a friend comes online, `SYN`
+is whispered to every online friend who is not in our guild or group (at most once per
+10 minutes per friend). It needs nothing new on the other side: every client since 0.4
+answers `SYN` on any channel. Friends who answer (`HI`, or a whispered `SYN` from them)
+become *peers* for the session and also get live `V` and `OPT` messages by whisper.
+Peers are memory only; going offline removes them. The game's "player not found" line
+for one of these whispers is filtered out of the chat.
 
 Per sender NameScore remembers up to when it is complete (`NameScoreDB.sync`). Live
 votes don't move that mark, so votes missed while offline are never skipped.

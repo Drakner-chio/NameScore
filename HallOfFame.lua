@@ -3,6 +3,8 @@ local _, ns = ...
 local L = ns.L
 
 local ROWS = 15
+local MIN_ROWS = 4          -- the window never gets smaller than this many rows
+local ROW_TOP, ROW_H, BOTTOM = 60, 21, 45
 local STAR_INLINE = "|TInterface\\AddOns\\NameScore\\media\\Star:0|t"
 local KIND_COLOR = { player = "ffffff", guild = "40c040", pet = "c8a070" }
 
@@ -41,6 +43,21 @@ local function Collect(tab)
     return list
 end
 
+-- The window is only as tall as the rows it shows. Its top edge stays where it
+-- is, so switching tabs doesn't make the window jump.
+local function FitHeight(rows)
+    rows = math.max(MIN_ROWS, math.min(ROWS, rows))
+    hall:SetHeight(ROW_TOP + rows * ROW_H + BOTTOM)
+end
+
+-- After dragging: anchor at the top left corner, so height changes grow downwards
+local function PinTop()
+    local left, top = hall:GetLeft(), hall:GetTop()
+    if not left or not top then return end
+    hall:ClearAllPoints()
+    hall:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left, top)
+end
+
 -- "Me" tab: your own name, guild and pets as plain text lines (not clickable)
 local function RefreshMe()
     local lines = ns.MyStatsLines()
@@ -57,6 +74,7 @@ local function RefreshMe()
         end
     end
     hall.empty:SetShown(false)
+    FitHeight(#lines)
 end
 
 local function Refresh()
@@ -88,7 +106,10 @@ local function Refresh()
             row:Hide()
         end
     end
-    if currentTab ~= "me" then hall.empty:SetShown(#list == 0) end
+    if currentTab ~= "me" then
+        hall.empty:SetShown(#list == 0)
+        FitHeight(#list)
+    end
 
     for tab, b in pairs(hall.tabs) do
         if hall.eui then
@@ -114,14 +135,18 @@ end
 
 local function Build()
     hall = CreateFrame("Frame", "NameScoreHallFrame", UIParent, "BasicFrameTemplateWithInset")
-    hall:SetSize(320, 420)
-    hall:SetPoint("CENTER", 200, 0)
+    hall:SetSize(320, ROW_TOP + ROWS * ROW_H + BOTTOM)
+    -- Anchored at the top: the window grows and shrinks downwards
+    hall:SetPoint("TOP", UIParent, "CENTER", 200, (ROW_TOP + ROWS * ROW_H + BOTTOM) / 2)
     hall:SetMovable(true)
     hall:EnableMouse(true)
     hall:SetClampedToScreen(true)
     hall:RegisterForDrag("LeftButton")
     hall:SetScript("OnDragStart", hall.StartMoving)
-    hall:SetScript("OnDragStop", hall.StopMovingOrSizing)
+    hall:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        PinTop()
+    end)
     hall:SetFrameStrata("DIALOG")
     hall:Hide()
     tinsert(UISpecialFrames, "NameScoreHallFrame") -- ESC closes the window

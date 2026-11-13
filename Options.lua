@@ -28,6 +28,13 @@ function ns.BuildOptions()
         opt:SetValueChangedCallback(function(_, value) ns.SetOptOut(value) end)
     end
 
+    local fr = Settings.RegisterAddOnSetting(cat, "NameScore_friendsSync", "friendsSync", s,
+        Settings.VarType.Boolean, L.OPT_FRIENDS, ns.DEFAULTS.friendsSync)
+    Settings.CreateCheckbox(cat, fr, L.OPT_FRIENDS_TIP)
+    if fr and fr.SetValueChangedCallback then
+        fr:SetValueChangedCallback(function(_, value) ns.SetFriendsSync(value) end)
+    end
+
     local sizeSetting = Settings.RegisterAddOnSetting(cat, "NameScore_badgeSize", "badgeSize", s,
         Settings.VarType.Number, L.OPT_SIZE, ns.DEFAULTS.badgeSize)
     local function SizeOptions()
@@ -72,6 +79,7 @@ function ns.OpenOptions()
     ns.Print(L.OPT_BADGE .. ": " .. OnOff(ns.Setting("showBadge")) .. "  (/ns badge)")
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
     ns.Print(L.OPT_OPTOUT .. ": " .. OnOff(ns.Setting("optOut")) .. "  (/ns optout, /ns optin)")
+    ns.Print(L.OPT_FRIENDS .. ": " .. OnOff(ns.Setting("friendsSync")) .. "  (/ns friends)")
     ns.Print(L.OPT_SIZE .. ": " .. ns.SizeLabel(ns.Setting("badgeSize")) .. "  (/ns size 1-3)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
     ns.Print(L.OPT_ELVUI .. ": " .. OnOff(ns.Setting("elvSkin")) .. "  (/ns elvui)")

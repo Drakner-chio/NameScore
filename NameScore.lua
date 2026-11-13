@@ -17,6 +17,7 @@ ns.DEFAULTS = {
     showMinimap = true, -- minimap button
     badgeSize = 2,      -- tooltip badge: 1 small (one line), 2 normal, 3 large
     optOut    = false,  -- "don't rate me": others stop showing and accepting ratings of us
+    friendsSync = true, -- also sync with online friends from the friend list (whispers)
 }
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
@@ -457,6 +458,140 @@ local function Broadcast(msg)
 end
 ns.Broadcast = Broadcast
 
+-- ---------------------------------------------------------------
+-- Friends sync (since 1.1): online friends from the friend list are asked
+-- with a whispered SYN; it works with every version since 0.4, because SYN
+-- is answered on any channel. Friends who answer are remembered for this
+-- session ("peers") and also get our live votes and opt-out by whisper.
+-- Nothing about friends is saved.
+-- ---------------------------------------------------------------
+local friendPeers = {}          -- name -> true: friend uses NameScore (this session)
+local friendAsked = {}          -- name -> GetTime() of our last whispered SYN
+local friendOnline              -- name -> true, last known online friends (nil before login)
+local FRIEND_ASK_AGAIN = 600    -- seconds before the same friend is asked again
+
+local function FriendsEnabled()
+    return ns.db and ns.Setting("friendsSync")
+end
+
+-- Online friends as canonical names
+local function OnlineFriends()
+    local list = {}
+    local ok = pcall(function()
+        local api = C_FriendList
+        local num = (api and api.GetNumFriends and api.GetNumFriends()) or (GetNumFriends and GetNumFriends()) or 0
+        for i = 1, num do
+            local name, connected
+            if api and api.GetFriendInfoByIndex then
+                local info = api.GetFriendInfoByIndex(i)
+                if info then name, connected = info.name, info.connected end
+            elseif GetFriendInfo then
+                local _
+                name, _, _, _, connected = GetFriendInfo(i)
+            end
+            if type(name) == "string" and connected then
+                local full = ns.FullName(name)
+                if full then list[full] = true end
+            end
+        end
+    end)
+    return ok and list or {}
+end
+
+local function IsFriend(name)
+    return friendOnline and friendOnline[name] or OnlineFriends()[name] or false
+end
+
+-- In our guild or group anyway? Then they get everything through that channel.
+local function SharesChannel(name)
+    local ok, shared = pcall(function()
+        if (IsInGroup() and (UnitInParty(name) or UnitInRaid(name))) then return true end
+        if IsInGuild() and C_GuildInfo and C_GuildInfo.MemberExistsByName then
+            return C_GuildInfo.MemberExistsByName(name) and true or false
+        end
+        return false
+    end)
+    return ok and shared
+end
+
+local function AskFriend(name)
+    local now = GetTime()
+    if friendAsked[name] and now - friendAsked[name] < FRIEND_ASK_AGAIN then return end
+    friendAsked[name] = now
+    Enqueue("SYN", "WHISPER", name)
+end
+
+-- Ask all online friends who are not in our guild or group
+local function AskFriends()
+    if not FriendsEnabled() then return end
+    friendOnline = OnlineFriends()
+    for name in pairs(friendOnline) do
+        if name:lower() ~= ns.me:lower() and not SharesChannel(name) then AskFriend(name) end
+    end
+end
+
+-- A friend came online: ask them (only after the login sync ran)
+function ns.OnFriendListUpdate()
+    if not friendOnline or not FriendsEnabled() then return end
+    local now = OnlineFriends()
+    for name in pairs(now) do
+        if not friendOnline[name] and not SharesChannel(name) then AskFriend(name) end
+    end
+    for name in pairs(friendPeers) do
+        if not now[name] then friendPeers[name] = nil end
+    end
+    friendOnline = now
+end
+
+local function NoteFriendPeer(name)
+    if FriendsEnabled() and IsFriend(name) then friendPeers[name] = true end
+end
+
+-- Live messages: guild/group as before, plus every friend peer by whisper
+local function BroadcastAll(msg)
+    Broadcast(msg)
+    if not FriendsEnabled() then return end
+    for name in pairs(friendPeers) do
+        if not SharesChannel(name) then Enqueue(msg, "WHISPER", name) end
+    end
+end
+ns.BroadcastAll = BroadcastAll
+
+-- A friend who went offline a moment ago would make the game print "No player
+-- named ... is currently playing" for our invisible whisper; hide only those.
+do
+    local fmt = type(ERR_CHAT_PLAYER_NOT_FOUND_S) == "string" and ERR_CHAT_PLAYER_NOT_FOUND_S
+    if fmt and ChatFrame_AddMessageEventFilter then
+        local pattern = "^" .. fmt:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"):gsub("%%%%s", "(.+)") .. "$"
+        pcall(ChatFrame_AddMessageEventFilter, "CHAT_MSG_SYSTEM", function(_, _, text)
+            if type(text) ~= "string" then return false end
+            local name = text:match(pattern)
+            name = name and ns.FullName(name)
+            if name and (friendAsked[name] or friendPeers[name]) then
+                friendPeers[name] = nil
+                return true
+            end
+            return false
+        end)
+    end
+end
+
+function ns.CountFriendPeers()
+    local n = 0
+    for _ in pairs(friendPeers) do n = n + 1 end
+    return n
+end
+
+function ns.SetFriendsSync(on)
+    ns.db.settings.friendsSync = on and true or false
+    if on then
+        friendAsked = {}
+        AskFriends()
+    else
+        friendPeers = {}
+    end
+end
+
 -- "V|key|score|tags|time"; score 0 means "vote deleted"
 local function VoteMessage(key, v)
     return string.format("V|%s|%d|%s|%d", key, v.s, ns.SerializeTags(v.tags), v.ts)
@@ -493,8 +628,10 @@ local function NewestOwnTs()
     return newest
 end
 
-function ns.RequestSync()
+function ns.RequestSync(manual)
     Broadcast("SYN")
+    if manual then friendAsked = {} end
+    AskFriends()
 end
 
 -- ---------------------------------------------------------------
@@ -529,7 +666,7 @@ function ns.Rate(key, stars, tags)
     ns.db.votes[key] = ns.db.votes[key] or {}
     local v = { s = half, tags = clean, ts = time() }
     ns.db.votes[key][ns.me] = v
-    Broadcast(VoteMessage(key, v))
+    BroadcastAll(VoteMessage(key, v))
     ns.Print(string.format(L.RATED, ns.ShortName(key), ns.FormatStars(stars),
         ns.Plural(stars, L.STAR, L.STARS), ns.ScoreLine(key)))
 end
@@ -543,7 +680,7 @@ function ns.DeleteVote(key, quiet)
     end
     local v = { s = 0, tags = {}, ts = time() }
     ns.db.votes[key][ns.me] = v
-    Broadcast(VoteMessage(key, v))
+    BroadcastAll(VoteMessage(key, v))
     if not quiet then ns.Print(string.format(L.VOTE_DELETED, ns.ShortName(key))) end
 end
 
@@ -553,7 +690,7 @@ end
 
 -- Tell guild and group about our choice (only once we ever made one)
 function ns.BroadcastOptOut()
-    if ns.db.optOutTs then Broadcast(OptMessage()) end
+    if ns.db.optOutTs then BroadcastAll(OptMessage()) end
 end
 
 function ns.SetOptOut(on)
@@ -717,6 +854,7 @@ local function HandleMessage(msg, sender, chatType)
         local now = GetTime()
         if lastReq[sender] and now - lastReq[sender] < 60 then return end
         lastReq[sender] = now
+        if chatType == "WHISPER" then NoteFriendPeer(sender) end
         if ns.db.optOutTs then Enqueue(OptMessage(), "WHISPER", sender) end
         local newest = NewestOwnTs()
         if newest > 0 then Enqueue("HI|" .. newest, "WHISPER", sender) end
@@ -733,6 +871,7 @@ local function HandleMessage(msg, sender, chatType)
     elseif msg:sub(1, 3) == "HI|" then
         -- Only ask for votes if they have something we haven't got yet
         local newest = tonumber(msg:match("^HI|(%d+)$"))
+        if chatType == "WHISPER" and friendAsked[sender] then NoteFriendPeer(sender) end
         local mark = ns.db.sync[sender] or 0
         if newest and newest > mark then Enqueue("GET|" .. mark, "WHISPER", sender) end
     elseif msg:sub(1, 4) == "GET|" then
@@ -829,6 +968,7 @@ local CMD = {
     ich = "me", me = "me", moi = "me", yo = "me",
     optout = "optout", privat = "optout", private = "optout",
     optin = "optin", ["öffentlich"] = "optin", oeffentlich = "optin", public = "optin",
+    freunde = "friends", friends = "friends", amis = "friends", amigos = "friends",
     nutzer = "users", users = "users", utilisateurs = "users", usuarios = "users",
     ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
 }
@@ -870,7 +1010,7 @@ SlashCmdList.NAMESCORE = function(input)
         local t = ns.FindKey(table.concat(raw, " ", 2))
         ns.Print(ns.ShortName(t) .. ": " .. ns.ScoreLine(t))
     elseif cmd == "sync" then
-        ns.RequestSync()
+        ns.RequestSync(true)
         ns.Print(L.SYNC_REQUESTED)
     elseif cmd == "size" then
         local SIZES = {
@@ -907,6 +1047,9 @@ SlashCmdList.NAMESCORE = function(input)
         ns.ToggleSetting("showOwn", L.OPT_OWN)
     elseif cmd == "elvui" then
         ns.ToggleSetting("elvSkin", L.OPT_ELVUI)
+    elseif cmd == "friends" then
+        ns.SetFriendsSync(not ns.Setting("friendsSync"))
+        ns.Print(L.OPT_FRIENDS .. ": " .. (ns.Setting("friendsSync") and "|cff1eff00ON|r" or "|cffff4040OFF|r"))
     elseif cmd == "minimap" then
         ns.SetMinimapShown(not ns.Setting("showMinimap"))
         ns.Print(L.OPT_MINIMAP .. ": " .. (ns.Setting("showMinimap") and "|cff1eff00ON|r" or "|cffff4040OFF|r"))
@@ -924,6 +1067,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_OPTIONS)
         ns.Print(L.HELP_SIZE)
         ns.Print(L.HELP_MINIMAP)
+        ns.Print(L.HELP_FRIENDS)
         ns.Print(L.HELP_SYNC)
     end
 end
@@ -936,6 +1080,7 @@ ev:RegisterEvent("ADDON_LOADED")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:RegisterEvent("CHAT_MSG_ADDON")
 ev:RegisterEvent("GROUP_JOINED")
+ev:RegisterEvent("FRIENDLIST_UPDATE")
 
 ev:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" and ... == ADDON_NAME then
@@ -962,6 +1107,8 @@ ev:SetScript("OnEvent", function(_, event, ...)
         if not ok then geterrorhandler()(err) end
         NormalizeDB(ns.db)
         PruneDB(ns.db)
+        -- Ask the server for the friend list, so it is there for the friends sync
+        pcall(function() if C_FriendList and C_FriendList.ShowFriends then C_FriendList.ShowFriends() end end)
         C_Timer.After(8, function()
             -- Leave the sync channel used by earlier versions
             local id = GetChannelName(OLD_SYNC_CHANNEL)
@@ -971,6 +1118,8 @@ ev:SetScript("OnEvent", function(_, event, ...)
             ns.RequestSync()
         end)
         C_Timer.After(20, function() ns.CountGuildUsers() end)
+    elseif event == "FRIENDLIST_UPDATE" then
+        if ns.me then ns.OnFriendListUpdate() end
     elseif event == "GROUP_JOINED" then
         C_Timer.After(3, function() ns.BroadcastOptOut(); ns.BroadcastVersion(); ns.RequestSync() end)
     elseif event == "CHAT_MSG_ADDON" then

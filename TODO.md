@@ -4,12 +4,13 @@ Ideas and planned features for NameScore.
 
 ## Planned
 
-- [ ] **Share top 3 in guild chat** (`/ns share`, top list only, never the flop list)
-- [ ] **Sync with friends** from other guilds via whisper
 - [ ] **Score in the group finder**, like Raider.io (check how the group finder works in WoW: Forever first)
 
 ## Done
 
+- [x] **Sync with friends** from other guilds via whisper (v1.1.0)
+- [x] **Hall of fame fits its content** (v1.1.0)
+- [x] **Update notice** for newer releases (v1.1.0)
 - [x] **Guild user count** (v0.6.0)
 - [x] **Opt-out "Don't rate me"** (v0.5.0)
 - [x] **Tag Cute** (v0.5.0)

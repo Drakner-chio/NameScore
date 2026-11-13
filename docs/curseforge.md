@@ -37,12 +37,13 @@ Click the **minimap button** (or type `/ns top`) for the best and worst rated na
 
 ## How sharing works
 
-There are no external servers. Votes travel invisibly through your **guild** and **party/raid** chat – throttled and never visible in the chat window.
+There are no external servers. Votes travel invisibly through your **guild** and **party/raid** chat and **whispers to friends** – throttled and never visible in the chat window.
 
 - Each player only sends their **own** votes, and the game itself sets the sender – nobody can fake votes on behalf of others.
 - When you log in or join a group, NameScore asks the others for their votes – and only fetches what it doesn't have yet. You see votes from guild and group members who are (or were) online at the same time as you.
 - Votes older than 6 months are cleaned up automatically.
-- WoW: Forever does not allow addon messages in custom chat channels, so there is no cross-guild sync channel.
+- **Friends from other guilds:** NameScore also asks the online friends on your friend list – by invisible whisper – and shares new votes with those who use it. Nothing about your friends is saved; switch it off with `/ns friends` or in the settings.
+- WoW: Forever does not allow addon messages in custom chat channels, so there is no public sync channel – guild, group and friends are what you get.
 
 **Votes are not anonymous.** Each vote is stored with the voter's name to prevent fake votes. In-game NameScore only shows the average and the number of votes, but anyone with the addon could look up who rated whom in the saved variables.
 
@@ -61,7 +62,8 @@ There are no external servers. Votes travel invisibly through your **guild** and
 | `/ns check Name` | Look up a player's score |
 | `/ns users` | How many online guild members use NameScore |
 | `/ns optout` / `/ns optin` | Don't let others rate you / allow it again |
-| `/ns sync` | Request votes from your guild and group |
+| `/ns friends` | Sync with online friends on/off |
+| `/ns sync` | Request votes from your guild, group and online friends |
 
 ## Settings
 

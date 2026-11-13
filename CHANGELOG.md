@@ -1,6 +1,14 @@
 # NameScore
 
 ## Unreleased
+- **Sync with friends:** NameScore now also exchanges votes with the online friends on
+  your friend list – even across guilds. They are asked invisibly by whisper at login,
+  on `/ns sync` and when they come online; friends who use NameScore also get your new
+  votes right away. Works with friends on 0.4 or newer. Nothing about friends is saved.
+  Switch it off with `/ns friends` (German `/ns freunde`) or in the settings. The
+  minimap tooltip shows how many online friends use NameScore.
+- **Hall of fame fits its content:** the window is only as tall as the entries it shows
+  and keeps its top edge when you switch tabs.
 - **Update notice:** if someone in your guild or group runs a newer full release of
   NameScore, you get a one-time hint in chat and a line in the minimap button tooltip.
   Betas never trigger it.
