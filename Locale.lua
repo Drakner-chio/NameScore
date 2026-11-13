@@ -83,6 +83,8 @@ local L = {
     USERS_NO_GUILD  = "You are not in a guild.",
     USERS_COUNTING  = "Counting NameScore users in your guild…",
     HELP_USERS      = "/ns users – how many online guild members use NameScore (a number only, no names)",
+    UPDATE_AVAILABLE = "A newer version of NameScore is available (%s, you have %s). Update it with the CurseForge or Wago app.",
+    MM_UPDATE       = "Update available: %s",
     BIND_RATE       = "Rate target",
     BIND_HALL       = "Open/close hall of fame",
 
@@ -196,6 +198,8 @@ LOCALES.deDE = {
     USERS_NO_GUILD  = "Du bist in keiner Gilde.",
     USERS_COUNTING  = "Zähle NameScore-Nutzer in deiner Gilde …",
     HELP_USERS      = "/ns nutzer – wie viele Online-Gildenmitglieder NameScore nutzen (nur die Zahl, keine Namen)",
+    UPDATE_AVAILABLE = "Eine neuere Version von NameScore ist verfügbar (%s, du hast %s). Aktualisiere sie über die CurseForge- oder Wago-App.",
+    MM_UPDATE       = "Update verfügbar: %s",
     BIND_RATE       = "Ziel bewerten",
     BIND_HALL       = "Ruhmeshalle öffnen/schließen",
 
@@ -307,6 +311,8 @@ LOCALES.frFR = {
     USERS_NO_GUILD  = "Tu n'es dans aucune guilde.",
     USERS_COUNTING  = "Comptage des utilisateurs de NameScore dans ta guilde…",
     HELP_USERS      = "/ns users – combien de membres de la guilde en ligne utilisent NameScore (un nombre seulement, sans noms)",
+    UPDATE_AVAILABLE = "Une version plus récente de NameScore est disponible (%s, tu as %s). Mets-la à jour avec l'application CurseForge ou Wago.",
+    MM_UPDATE       = "Mise à jour disponible : %s",
     BIND_RATE       = "Noter la cible",
     BIND_HALL       = "Ouvrir/fermer le panthéon",
 
@@ -418,6 +424,8 @@ LOCALES.esES = {
     USERS_NO_GUILD  = "No estás en ninguna hermandad.",
     USERS_COUNTING  = "Contando usuarios de NameScore en tu hermandad…",
     HELP_USERS      = "/ns users – cuántos miembros conectados de la hermandad usan NameScore (solo el número, sin nombres)",
+    UPDATE_AVAILABLE = "Hay una versión más reciente de NameScore (%s, tienes %s). Actualízala con la aplicación de CurseForge o Wago.",
+    MM_UPDATE       = "Actualización disponible: %s",
     BIND_RATE       = "Valorar objetivo",
     BIND_HALL       = "Abrir/cerrar salón de la fama",
 

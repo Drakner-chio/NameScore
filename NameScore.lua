@@ -630,6 +630,49 @@ function ns.GuildCountText(c)
     return text
 end
 
+-- ---------------------------------------------------------------
+-- Update notice: others tell us their version (VER|… at login, PONG|… in the
+-- guild count). If someone runs a newer full release, we say so once per version.
+-- Betas never trigger it, and older clients simply ignore VER messages.
+-- ---------------------------------------------------------------
+
+-- "v1.2.3" / "1.2.3-beta4" -> { 1, 2, 3, pre = 4 }  (pre = nil for a full release)
+local function ParseVersion(v)
+    if type(v) ~= "string" then return nil end
+    local a, b, c, rest = v:match("^v?(%d+)%.(%d+)%.(%d+)(.*)$")
+    if not a then return nil end
+    local pre = rest:match("^%-%a+(%d*)$")
+    if rest ~= "" and not pre then return nil end
+    return { tonumber(a), tonumber(b), tonumber(c), pre = pre and (tonumber(pre) or 0) or nil }
+end
+
+-- true if version x is newer than version y
+local function IsNewer(x, y)
+    for i = 1, 3 do
+        if x[i] ~= y[i] then return x[i] > y[i] end
+    end
+    if x.pre == nil then return y.pre ~= nil end   -- release beats its betas
+    if y.pre == nil then return false end
+    return x.pre > y.pre
+end
+
+function ns.NoteVersion(version)
+    local theirs, mine = ParseVersion(version), ParseVersion(ns.VERSION)
+    if not theirs or not mine or theirs.pre then return end   -- only full releases
+    if not IsNewer(theirs, mine) then return end
+    local best = ns.newerVersion and ParseVersion(ns.newerVersion)
+    if best and not IsNewer(theirs, best) then return end
+    ns.newerVersion = version:gsub("^v", "")
+    if ns.db.updateNoticeFor ~= ns.newerVersion then
+        ns.db.updateNoticeFor = ns.newerVersion
+        ns.Print(string.format(L.UPDATE_AVAILABLE, ns.newerVersion, (ns.VERSION:gsub("^v", ""))))
+    end
+end
+
+function ns.BroadcastVersion()
+    if ParseVersion(ns.VERSION) then Broadcast("VER|" .. ns.VERSION) end
+end
+
 function ns.PrintGuildUsers()
     if not IsInGuild() then ns.Print(L.USERS_NO_GUILD) return end
     ns.Print(L.USERS_COUNTING)
@@ -651,6 +694,9 @@ local function HandleMessage(msg, sender, chatType)
         Enqueue("PONG|" .. ns.VERSION, "WHISPER", sender)
     elseif msg:sub(1, 5) == "PONG|" then
         if counting then pongs[sender] = true end
+        ns.NoteVersion(msg:sub(6))
+    elseif msg:sub(1, 4) == "VER|" then
+        ns.NoteVersion(msg:sub(5))
     elseif msg:sub(1, 2) == "V|" then
         local key, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
         s, ts = tonumber(s), tonumber(ts)
@@ -921,11 +967,12 @@ ev:SetScript("OnEvent", function(_, event, ...)
             local id = GetChannelName(OLD_SYNC_CHANNEL)
             if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
             ns.BroadcastOptOut()
+            ns.BroadcastVersion()
             ns.RequestSync()
         end)
         C_Timer.After(20, function() ns.CountGuildUsers() end)
     elseif event == "GROUP_JOINED" then
-        C_Timer.After(3, function() ns.BroadcastOptOut(); ns.RequestSync() end)
+        C_Timer.After(3, function() ns.BroadcastOptOut(); ns.BroadcastVersion(); ns.RequestSync() end)
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, msg, chatType, sender = ...
         if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender, chatType) end

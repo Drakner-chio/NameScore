@@ -47,6 +47,7 @@ behalf of others.
 | `END\|<time>\|<more>` (whisper) | All own votes since `<since>` were sent (oldest first, max 300); `more` = 1 if another batch follows |
 | `REQ` | Request from clients before 0.4; answered with up to 300 own votes |
 | `PING` (guild) / `PONG\|<version>` (whisper) | Counting NameScore users in the guild; only the number is shown, names are kept in memory for the few seconds of a count |
+| `VER\|<version>` (guild/group, at login) | Own version; a newer full release (no beta) triggers a one-time update notice. Older clients ignore it |
 | `OPT\|<0/1>\|<time>` (guild/group, and whispered on `SYN`) | Sender opts out of (1) or back into (0) being rated; newest choice wins. Covers the sender and their pets, not their guild |
 
 Per sender NameScore remembers up to when it is complete (`NameScoreDB.sync`). Live

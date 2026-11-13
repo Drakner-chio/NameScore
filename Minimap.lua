@@ -20,6 +20,9 @@ local function FillTooltip(tt)
         tt:AddLine(string.format(L.MM_VOTES, ns.CountVotes()), 0.6, 0.6, 0.6)
         local users = ns.GuildCountText()
         if users then tt:AddLine(users, 0.6, 0.6, 0.6, true) end
+        if ns.newerVersion then
+            tt:AddLine(string.format(L.MM_UPDATE, ns.newerVersion), 0.12, 1, 0)
+        end
     end
 end
 

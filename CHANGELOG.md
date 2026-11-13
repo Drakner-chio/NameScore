@@ -1,5 +1,10 @@
 # NameScore
 
+## Unreleased
+- **Update notice:** if someone in your guild or group runs a newer full release of
+  NameScore, you get a one-time hint in chat and a line in the minimap button tooltip.
+  Betas never trigger it.
+
 ## v1.0.0 – first stable release
 
 **NameScore** lets you and your guild rate the names of players, guilds and hunter pets
