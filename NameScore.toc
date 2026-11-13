@@ -12,6 +12,7 @@
 ## OptionalDeps: ElvUI, EllesmereUI
 ## X-License: MIT
 ## X-Curse-Project-ID: 1788050
+## X-Wago-ID: QKyqVaK7
 
 # Libraries, added by the release packager (see .pkgmeta)
 Libs\LibStub\LibStub.lua

@@ -23,8 +23,8 @@ installs nothing; to update them, replace the files (sources are noted in `.pkgm
 
 | Store | In `NameScore.toc` | GitHub secret |
 |---|---|---|
-| CurseForge | `## X-Curse-Project-ID: …` | `CF_API_KEY` ([API tokens](https://authors.curseforge.com/account/api-tokens)) |
-| Wago Addons | `## X-Wago-ID: …` | `WAGO_API_TOKEN` (Wago developer dashboard) |
+| CurseForge | `## X-Curse-Project-ID: 1788050` | `CF_API_KEY` ([API tokens](https://authors.curseforge.com/account/api-tokens)) |
+| Wago Addons | `## X-Wago-ID: QKyqVaK7` | `WAGO_API_TOKEN` (Wago developer dashboard) |
 
 Secrets go into the GitHub repo under *Settings → Secrets and variables → Actions*.
 
