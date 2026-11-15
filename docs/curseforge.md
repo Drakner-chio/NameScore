@@ -1,86 +1,85 @@
 ![NameScore – every name gets a score](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-1.jpg)
 
-## Rate names. See the score.
+## Every name gets a score
 
-Ever met a *Tankenstein*, a guild called *Kein Plan* or a wolf named *Fluffy McFangs* and wished you could tell the world what you think? **NameScore** lets you and your guild rate the names of players, guilds and hunter pets – and shows the community score right in the tooltip, Raider.io style.
+Ever met a *Tankenstein*, a guild called *Kein Plan* or a wolf named *Fluffy McFangs* and wished you could tell the world what you think? **NameScore** lets you and your guild rate the names of **players, guilds and hunter pets** – and shows the community score right in the tooltip, Raider.io style.
 
-- **Score from 1 to 10** with a rank in item quality colors, from *Poor* to *Legendary*
+- **Score from 1 to 10** with a rank in item quality colours, from *Poor* to *Legendary*
 - **Top tags** like *Funny*, *Epic*, *Wordplay*, *Lore*, *Cute* or *Cringe*
 - **Your own vote** in the tooltip, so you know who you already rated
-- **Your own score:** see what others think of your name, guild and pets
-- **Fair:** a score only shows up once a name has at least 2 votes (adjustable)
-- **Respectful:** anyone who doesn't want to be rated can opt out with one click
+- **Fair:** a score only shows once a name has at least 2 votes
+- **Respectful:** anyone who doesn't want to be rated can opt out with one command
+- **No servers:** votes travel invisibly through guild, group and friends
 
-Made for **World of Warcraft: Forever**.
+Made for **World of Warcraft: Forever**. English, German, French and Spanish.
 
-![Half stars and tags](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-2.jpg)
+![Two clicks, half stars](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-2.jpg)
 
-## Rating takes two clicks
+## Two clicks. Half stars.
 
-Right-click any player and choose **NameScore → Rate name** (or target them and type `/ns`). Give ½ to 5 stars – click the left half of a star for a half star – and add as many tags as you like. Changed your mind? Open it again and change or delete your vote.
+Right-click any player and pick **NameScore → Rate name** – or target them and type `/ns`. Give ½ to 5 stars (click the left half of a star for a half star) and add as many tags as you like. Changed your mind? Open it again and change or delete your vote.
 
-![Guilds and hunter pets](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-3.jpg)
+![Guilds and hunter pets too](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-3.jpg)
 
-## Guilds and hunter pets
+## Guilds and hunter pets too
 
-- **Guild names:** right-click a player and choose **Rate guild**. The guild score appears right next to the guild name in every member's tooltip.
-- **Hunter pets:** pets (and warlock demons) get their own score. They are stored together with their owner, so not every "Wolfi" shares one score.
-- You can't rate yourself, your own guild or your own pet. ;)
+- **Guild names:** right-click a player and pick **Rate guild** – the guild score shows right next to the guild name in every member's tooltip
+- **Hunter pets** (and warlock demons) get their own score, stored with their owner – not every "Wolfi" shares one score
+- You can't rate yourself, your own guild or your own pet ;)
 
-![Hall of fame](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-4.jpg)
+![The best names, and the worst](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-4.jpg)
 
-## Hall of Fame
+## The best names. And the worst.
 
-Click the **minimap button** (or type `/ns top`) for the best and worst rated names around you – players, guilds and pets – and a list of everything you rated. Click a name to change your vote. The **Me** tab shows what others think of you – without the names of the voters.
+Click the **minimap button** or type `/ns top`:
 
-![How sync works](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
+- **Top** and **Flop:** the best and worst rated players, guilds and pets around you
+- **Mine:** everything you rated – click a name to change your vote
+- **Me:** what others think of your name, your guild and your pets – score, top tags and how many votes gave how many stars, without the names of the voters
 
-## How sharing works
+![No servers, no fake votes](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
 
-There are no external servers. Votes travel invisibly through your **guild** and **party/raid** chat and **whispers to friends** – throttled and never visible in the chat window.
+## No servers. No fake votes.
 
-- Each player only sends their **own** votes, and the game itself sets the sender – nobody can fake votes on behalf of others.
-- When you log in or join a group, NameScore asks the others for their votes – and only fetches what it doesn't have yet. You see votes from guild and group members who are (or were) online at the same time as you.
-- Votes older than 6 months are cleaned up automatically.
-- **Friends from other guilds:** NameScore also asks the online friends on your friend list – by invisible whisper – and shares new votes with those who use it. Nothing about your friends is saved; switch it off with `/ns friends` or in the settings.
-- WoW: Forever does not allow addon messages in custom chat channels, so there is no public sync channel – guild, group and friends are what you get.
+Votes travel invisibly through your **guild**, your **party/raid** and **whispers to online friends** – throttled and never visible in the chat window.
 
-**Votes are not anonymous.** Each vote is stored with the voter's name to prevent fake votes. In-game NameScore only shows the average and the number of votes, but anyone with the addon could look up who rated whom in the saved variables.
+- **Only your own:** each player only sends their own votes, and the game itself sets the sender – nobody can vote in someone else's name
+- **Only what's new:** when you log in or join a group, NameScore only fetches the votes you don't have yet
+- **Friends from other guilds:** online friends on your friend list who use NameScore swap votes with you too (`/ns friends` to switch it off)
+- **Your UI:** with **EllesmereUI** the windows follow your theme, accent colour and font through its official skinning API; with **ElvUI** they use its borders, fonts and colours
+- **Update hint:** when someone in your guild or group has a newer release, you get one short note
+- Votes older than 6 months are cleaned up by themselves
+
+WoW: Forever doesn't allow addon messages in custom chat channels, so there is no public channel – you see votes from people you share a guild, a group or a friend list with.
+
+## Keep it fun
+
+NameScore rates **names, not people** – a bit of fun among friends. There are deliberately no free-text comments, and the lowest tag is *Cringe* rather than anything nastier. Please don't use scores to mock other players in chat.
+
+**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings: everyone with NameScore 0.5 or newer hides your score and that of your pets and accepts no new ratings. `/ns optin` allows it again – and all earlier votes are back.
+
+**Votes are not anonymous.** Each vote is stored with the voter's name to prevent fake votes. In the game NameScore only shows averages and counts, but anyone with the addon could look up who rated whom in the saved variables.
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `/ns` | Open the rating window for your target (player or pet) |
-| `/ns 3.5 funny creative` | Rate your target with 3.5 stars and tags directly |
+| `/ns` | Rate your target (player or pet) |
+| `/ns 3.5 funny creative` | Rate your target directly with stars and tags |
 | `/ns guild` | Rate your target's guild |
 | `/ns delete` | Delete your vote for your target |
-| `/ns top` | Open the hall of fame |
+| `/ns top` | Hall of fame |
 | `/ns me` | What others think of you |
-| `/ns options` | Open the settings |
-| `/ns minimap` | Show/hide the minimap button |
 | `/ns check Name` | Look up a player's score |
 | `/ns users` | How many online guild members use NameScore |
-| `/ns optout` / `/ns optin` | Don't let others rate you / allow it again |
+| `/ns optout`, `/ns optin` | Don't let others rate you / allow it again |
 | `/ns friends` | Sync with online friends on/off |
-| `/ns sync` | Request votes from your guild, group and online friends |
+| `/ns sync` | Ask guild, group and friends for new votes |
+| `/ns minimap` | Show or hide the minimap button |
+| `/ns options` | Settings: badge on/off and size, own vote, votes needed, UI style, … |
 
-## Settings
+Minimap button: left click opens the hall of fame, right click the settings. Key bindings for *Rate target* and the hall of fame are under **Options → Key Bindings → AddOns**. Commands and tags also work in German (`/ns gilde`, `/ns ich`, `lustig`, `süß`, …).
 
-Key bindings for rating your target and the hall of fame are in **Options → Key Bindings → AddOns**. The settings are in **Options → AddOns → NameScore**: tooltip badge on/off and its size (one text line, normal or large), show your own vote, votes needed for a score, and the UI style.
+## Source
 
-**ElvUI & EllesmereUI:** NameScore windows automatically match your UI. With **EllesmereUI** they follow your theme, accent color and font through its official skinning API (toggle it under *Blizzard Skins+ → Window Skins → Third-Party Addons*). With **ElvUI** they use its borders, fonts and colors.
-
-## Language
-
-English, German, French and Spanish, following your game client's language. More translations are welcome!
-
-## Keep it fun
-
-NameScore rates **names, not people** – it's meant as a bit of fun among friends. There are deliberately no free-text comments, and the lowest rating is called *Cringe* rather than anything nastier.
-
-**Don't want to be rated?** Type `/ns optout` or tick *Don't rate me* in the settings. Everyone with NameScore 0.5 or newer then hides your score and that of your pets and accepts no new ratings. Changed your mind? `/ns optin` allows it again – and all earlier votes are back. Please don't use scores to mock other players in chat.
-
-## Feedback & source
-
-Found a bug or have an idea? Open an issue on [GitHub](https://github.com/Drakner-chio/NameScore).
+[github.com/Drakner-chio/NameScore](https://github.com/Drakner-chio/NameScore) – MIT licence. Bugs, ideas and translations welcome as issues.
