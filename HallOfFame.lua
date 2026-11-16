@@ -58,12 +58,42 @@ local function PinTop()
     hall:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left, top)
 end
 
+-- "Judges" tab: who rated the most names (shared counts + ourselves)
+local function RefreshJudges()
+    local list = ns.JudgeList()
+    for i, row in ipairs(hall.rows) do
+        local j = list[i]
+        row.key = nil
+        row.judge = j
+        if j then
+            local r = ns.JudgeRank(j.n)
+            row.pos:SetText(i)
+            local name = ns.ShortName(j.name)
+            if j.me then name = "|cffffd100" .. name .. "|r" end
+            row.name:SetText(ns.JudgeIcon(r, 14) .. " " .. name)
+            row.score:SetText("|cffaaaaaa" .. j.n .. "|r")
+            row:Show()
+        else
+            row:Hide()
+        end
+    end
+    hall.empty:SetShown(#list == 0)
+    FitHeight(#list)
+end
+
 -- "Me" tab: your own name, guild and pets as plain text lines (not clickable)
 local function RefreshMe()
     local lines = ns.MyStatsLines()
+    -- Own judge rank on top
+    local n, f = ns.MyJudgeCount(), ns.MyFaction()
+    local r = ns.JudgeRank(n)
+    table.insert(lines, 1, { r > 0 and (ns.JudgeIcon(r, 14) .. " |cffffd100" .. ns.JudgeName(r, f) .. "|r") or ("|cffaaaaaa" .. L.JUDGE_NONE .. "|r"),
+        r > 0 and ("|cffaaaaaa" .. n .. "|r") or "" })
+    table.insert(lines, 2, { "   |cffaaaaaa" .. ns.JudgeNextText(n, f) .. "|r", "" })
     for i, row in ipairs(hall.rows) do
         local line = lines[i]
         row.key = nil
+        row.judge = nil
         if line then
             row.pos:SetText("")
             row.name:SetText(line[1])
@@ -78,12 +108,13 @@ local function RefreshMe()
 end
 
 local function Refresh()
-    if currentTab == "me" then
-        RefreshMe()
-    end
-    local list = currentTab == "me" and {} or Collect(currentTab)
+    local special = currentTab == "me" or currentTab == "judges"
+    if currentTab == "me" then RefreshMe() end
+    if currentTab == "judges" then RefreshJudges() end
+    local list = special and {} or Collect(currentTab)
     for i, row in ipairs(hall.rows) do
-        if currentTab == "me" then break end
+        if special then break end
+        row.judge = nil
         local e = list[i]
         if e then
             local kind = ns.ParseKey(e.key)
@@ -106,7 +137,7 @@ local function Refresh()
             row:Hide()
         end
     end
-    if currentTab ~= "me" then
+    if not special then
         hall.empty:SetShown(#list == 0)
         FitHeight(#list)
     end
@@ -128,6 +159,8 @@ local function Refresh()
         hall.footer:SetText(L.HALL_FOOTER_MINE)
     elseif currentTab == "me" then
         hall.footer:SetText(L.ME_FOOTER)
+    elseif currentTab == "judges" then
+        hall.footer:SetText(string.format(L.JUDGE_FOOTER, ns.JudgeNextText(ns.MyJudgeCount(), ns.MyFaction())))
     else
         hall.footer:SetText(string.format(L.HALL_FOOTER, ns.MinVotes(), ns.CountVotes()))
     end
@@ -135,7 +168,7 @@ end
 
 local function Build()
     hall = CreateFrame("Frame", "NameScoreHallFrame", UIParent, "BasicFrameTemplateWithInset")
-    hall:SetSize(320, ROW_TOP + ROWS * ROW_H + BOTTOM)
+    hall:SetSize(340, ROW_TOP + ROWS * ROW_H + BOTTOM)
     -- Anchored at the top: the window grows and shrinks downwards
     hall:SetPoint("TOP", UIParent, "CENTER", 200, (ROW_TOP + ROWS * ROW_H + BOTTOM) / 2)
     hall:SetMovable(true)
@@ -157,11 +190,11 @@ local function Build()
 
     -- Tabs
     hall.tabs = {}
-    local tabs = { { "top", L.TAB_TOP }, { "flop", L.TAB_FLOP }, { "mine", L.TAB_MINE }, { "me", L.TAB_ME } }
+    local tabs = { { "top", L.TAB_TOP }, { "flop", L.TAB_FLOP }, { "mine", L.TAB_MINE }, { "me", L.TAB_ME }, { "judges", L.TAB_JUDGES } }
     for i, t in ipairs(tabs) do
         local b = CreateFrame("Button", nil, hall, "UIPanelButtonTemplate")
-        b:SetSize(70, 22)
-        b:SetPoint("TOPLEFT", 12 + (i - 1) * 74, -30)
+        b:SetSize(60, 22)
+        b:SetPoint("TOPLEFT", 12 + (i - 1) * 63, -30)
         b:SetText(t[2])
         b:SetScript("OnClick", function()
             currentTab = t[1]
@@ -174,7 +207,7 @@ local function Build()
     hall.rows = {}
     for i = 1, ROWS do
         local row = CreateFrame("Button", nil, hall)
-        row:SetSize(292, 20)
+        row:SetSize(312, 20)
         row:SetPoint("TOPLEFT", 14, -60 - (i - 1) * 21)
         row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
 
@@ -196,6 +229,19 @@ local function Build()
         row:SetScript("OnClick", function(self)
             if self.key then ns.OpenRating(self.key) end
         end)
+        -- Judges tab: full rank name and the next rank on hover
+        row:SetScript("OnEnter", function(self)
+            local j = self.judge
+            if not j then return end
+            local r = ns.JudgeRank(j.n)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(ns.ShortName(j.name), 1, 1, 1)
+            GameTooltip:AddLine(ns.JudgeIcon(r, 16) .. " " .. ns.JudgeName(r, j.f), 1, 0.82, 0)
+            GameTooltip:AddLine(string.format(L.JUDGE_COUNT, j.n), 0.7, 0.7, 0.7)
+            GameTooltip:AddLine(ns.JudgeNextText(j.n, j.f), 0.7, 0.7, 0.7)
+            GameTooltip:Show()
+        end)
+        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
         hall.rows[i] = row
     end
 
@@ -205,7 +251,7 @@ local function Build()
 
     hall.footer = hall:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hall.footer:SetPoint("BOTTOM", 0, 12)
-    hall.footer:SetWidth(296)
+    hall.footer:SetWidth(316)
 
     -- Refresh when opened again, so new votes show up
     hall:SetScript("OnShow", Refresh)

@@ -39,6 +39,7 @@ Community addon for **World of Warcraft: Forever**: rate the names of players, g
 | `/ns badge` / `/ns own` / `/ns elvui` | Toggle tooltip badge / own vote / ElvUI & EllesmereUI style |
 | `/ns users` | How many online guild members use NameScore (a number only, no names) |
 | `/ns optout` / `/ns optin` | Don't let others rate you and your pets / allow it again |
+| `/ns judges` | Your judge rank and the top judges |
 | `/ns friends` | Sync with online friends on/off |
 | `/ns sync` | Request votes from your guild, group and online friends |
 

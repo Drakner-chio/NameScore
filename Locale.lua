@@ -89,6 +89,53 @@ local L = {
     OPT_FRIENDS     = "Sync with friends",
     OPT_FRIENDS_TIP = "Also exchanges votes invisibly with online friends from your friend list who use NameScore – even if they are in another guild. Nothing about your friends is saved.",
     MM_FRIENDS      = "%d online friends use NameScore",
+    TAB_JUDGES      = "Judges",
+    JUDGE_RANKUP    = "New judge rank: %s – %d names rated!",
+    JUDGE_YOU       = "Your judge rank: %s – %d names rated",
+    JUDGE_NONE      = "No judge rank yet – rate your first name!",
+    JUDGE_NEXT      = "%d more to %s",
+    JUDGE_MAX       = "Highest rank reached – the names fear you.",
+    JUDGE_TITLE     = "Top judges:",
+    JUDGE_COUNT     = "%d names rated",
+    JUDGE_FOOTER    = "Names rated per player · %s",
+    MM_JUDGE        = "Judge rank: %s",
+    HELP_JUDGES     = "/ns judges – your judge rank and the top judges",
+    OPT_JUDGES      = "Show me in the judges list",
+    OPT_JUDGES_TIP  = "Shares how many names you rated, so you appear in the judges list of others. Switched off, you disappear from their lists.",
+    OPT_JUDGE_TT    = "Judge rank in the tooltip",
+    OPT_JUDGE_TT_TIP = "Shows the judge rank of players in their tooltip.",
+    JUDGE_H = {
+        "Scout of Names", -- 1
+        "Grunt of Grammar", -- 5
+        "Sergeant of Syllables", -- 10
+        "Senior Sergeant of Spelling", -- 20
+        "First Sergeant of Surnames", -- 30
+        "Stone Guard of Nicknames", -- 40
+        "Blood Guard of Puns", -- 50
+        "Legionnaire of Letters", -- 75
+        "Centurion of Consonants", -- 100
+        "Champion of Names", -- 150
+        "Lieutenant General of Lore", -- 200
+        "General of Nomenclature", -- 250
+        "Warlord of Wordplay", -- 500
+        "High Warlord of Names", -- 1000
+    },
+    JUDGE_A = {
+        "Private of Pseudonyms", -- 1
+        "Corporal of the Alphabet", -- 5
+        "Sergeant of Syllables", -- 10
+        "Master Sergeant of Spelling", -- 20
+        "Sergeant Major of Surnames", -- 30
+        "Knight of Nicknames", -- 40
+        "Knight-Lieutenant of Puns", -- 50
+        "Knight-Captain of Letters", -- 75
+        "Knight-Champion of Consonants", -- 100
+        "Lieutenant Commander of Names", -- 150
+        "Commander of Lore", -- 200
+        "Marshal of Nomenclature", -- 250
+        "Field Marshal of Wordplay", -- 500
+        "Grand Marshal of Names", -- 1000
+    },
     BIND_RATE       = "Rate target",
     BIND_HALL       = "Open/close hall of fame",
 
@@ -208,6 +255,53 @@ LOCALES.deDE = {
     OPT_FRIENDS     = "Mit Freunden synchronisieren",
     OPT_FRIENDS_TIP = "Tauscht Stimmen zusätzlich unsichtbar mit online Freunden aus deiner Freundesliste aus, die NameScore nutzen – auch wenn sie in einer anderen Gilde sind. Über deine Freunde wird nichts gespeichert.",
     MM_FRIENDS      = "%d online Freunde nutzen NameScore",
+    TAB_JUDGES      = "Richter",
+    JUDGE_RANKUP    = "Neuer Richterrang: %s – %d Namen bewertet!",
+    JUDGE_YOU       = "Dein Richterrang: %s – %d Namen bewertet",
+    JUDGE_NONE      = "Noch kein Richterrang – bewerte deinen ersten Namen!",
+    JUDGE_NEXT      = "Noch %d bis %s",
+    JUDGE_MAX       = "Höchster Rang erreicht – die Namen fürchten dich.",
+    JUDGE_TITLE     = "Die fleißigsten Richter:",
+    JUDGE_COUNT     = "%d Namen bewertet",
+    JUDGE_FOOTER    = "Bewertete Namen pro Spieler · %s",
+    MM_JUDGE        = "Richterrang: %s",
+    HELP_JUDGES     = "/ns richter – dein Richterrang und die fleißigsten Richter",
+    OPT_JUDGES      = "In der Richterliste erscheinen",
+    OPT_JUDGES_TIP  = "Teilt, wie viele Namen du bewertet hast, damit du in der Richterliste der anderen auftauchst. Ausgeschaltet verschwindest du aus ihren Listen.",
+    OPT_JUDGE_TT    = "Richterrang im Tooltip",
+    OPT_JUDGE_TT_TIP = "Zeigt den Richterrang von Spielern in ihrem Tooltip.",
+    JUDGE_H = {
+        "Namensspäher", -- 1
+        "Grunzer der Grammatik", -- 5
+        "Waffenträger der Silben", -- 10
+        "Schlachtrufer der Rechtschreibung", -- 20
+        "Rottenmeister der Nachnamen", -- 30
+        "Steinwache der Spitznamen", -- 40
+        "Blutwache der Wortspiele", -- 50
+        "Zornbringer der Lettern", -- 75
+        "Klingenmeister der Konsonanten", -- 100
+        "Feldherr der Namen", -- 150
+        "Sturmreiter der Lore", -- 200
+        "Kriegsherr der Nomenklatur", -- 250
+        "Kriegsfürst des Wortwitzes", -- 500
+        "Oberster Kriegsfürst der Namen", -- 1000
+    },
+    JUDGE_A = {
+        "Namensgefreiter", -- 1
+        "Fußknecht der Buchstaben", -- 5
+        "Landsknecht der Silben", -- 10
+        "Feldwebel der Rechtschreibung", -- 20
+        "Fähnrich der Nachnamen", -- 30
+        "Leutnant der Spitznamen", -- 40
+        "Hauptmann der Wortspiele", -- 50
+        "Kürassier der Lettern", -- 75
+        "Ritter der Konsonanten", -- 100
+        "Feldkommandant der Namen", -- 150
+        "Rittmeister der Lore", -- 200
+        "Marschall der Nomenklatur", -- 250
+        "Feldmarschall des Wortwitzes", -- 500
+        "Großmarschall der Namen", -- 1000
+    },
     BIND_RATE       = "Ziel bewerten",
     BIND_HALL       = "Ruhmeshalle öffnen/schließen",
 
@@ -325,6 +419,53 @@ LOCALES.frFR = {
     OPT_FRIENDS     = "Synchroniser avec les amis",
     OPT_FRIENDS_TIP = "Échange aussi les votes de façon invisible avec les amis en ligne de ta liste d'amis qui utilisent NameScore – même s'ils sont dans une autre guilde. Rien n'est enregistré sur tes amis.",
     MM_FRIENDS      = "%d amis en ligne utilisent NameScore",
+    TAB_JUDGES      = "Juges",
+    JUDGE_RANKUP    = "Nouveau rang de juge : %s – %d noms notés !",
+    JUDGE_YOU       = "Ton rang de juge : %s – %d noms notés",
+    JUDGE_NONE      = "Pas encore de rang de juge – note ton premier nom !",
+    JUDGE_NEXT      = "Encore %d avant %s",
+    JUDGE_MAX       = "Rang le plus élevé atteint – les noms te craignent.",
+    JUDGE_TITLE     = "Les meilleurs juges :",
+    JUDGE_COUNT     = "%d noms notés",
+    JUDGE_FOOTER    = "Noms notés par joueur · %s",
+    MM_JUDGE        = "Rang de juge : %s",
+    HELP_JUDGES     = "/ns juges – ton rang de juge et les meilleurs juges",
+    OPT_JUDGES      = "Apparaître dans la liste des juges",
+    OPT_JUDGES_TIP  = "Partage le nombre de noms que tu as notés, pour apparaître dans la liste des juges des autres. Désactivé, tu disparais de leurs listes.",
+    OPT_JUDGE_TT    = "Rang de juge dans l'infobulle",
+    OPT_JUDGE_TT_TIP = "Affiche le rang de juge des joueurs dans leur infobulle.",
+    JUDGE_H = {
+        "Éclaireur des noms", -- 1
+        "Grunt de la grammaire", -- 5
+        "Sergent des syllabes", -- 10
+        "Sergent-chef de l'orthographe", -- 20
+        "Adjudant des noms de famille", -- 30
+        "Garde de pierre des surnoms", -- 40
+        "Garde de sang des calembours", -- 50
+        "Légionnaire des lettres", -- 75
+        "Centurion des consonnes", -- 100
+        "Champion des noms", -- 150
+        "Lieutenant général du lore", -- 200
+        "Général de la nomenclature", -- 250
+        "Seigneur de guerre des jeux de mots", -- 500
+        "Grand seigneur de guerre des noms", -- 1000
+    },
+    JUDGE_A = {
+        "Soldat des pseudonymes", -- 1
+        "Caporal de l'alphabet", -- 5
+        "Sergent des syllabes", -- 10
+        "Sergent-chef de l'orthographe", -- 20
+        "Sergent-major des noms de famille", -- 30
+        "Chevalier des surnoms", -- 40
+        "Chevalier-lieutenant des calembours", -- 50
+        "Chevalier-capitaine des lettres", -- 75
+        "Chevalier-champion des consonnes", -- 100
+        "Lieutenant-commandant des noms", -- 150
+        "Commandant du lore", -- 200
+        "Maréchal de la nomenclature", -- 250
+        "Grand maréchal des jeux de mots", -- 500
+        "Connétable des noms", -- 1000
+    },
     BIND_RATE       = "Noter la cible",
     BIND_HALL       = "Ouvrir/fermer le panthéon",
 
@@ -442,6 +583,53 @@ LOCALES.esES = {
     OPT_FRIENDS     = "Sincronizar con amigos",
     OPT_FRIENDS_TIP = "También intercambia votos de forma invisible con los amigos conectados de tu lista de amigos que usan NameScore, aunque estén en otra hermandad. No se guarda nada sobre tus amigos.",
     MM_FRIENDS      = "%d amigos conectados usan NameScore",
+    TAB_JUDGES      = "Jueces",
+    JUDGE_RANKUP    = "Nuevo rango de juez: %s – ¡%d nombres valorados!",
+    JUDGE_YOU       = "Tu rango de juez: %s – %d nombres valorados",
+    JUDGE_NONE      = "Aún sin rango de juez – ¡valora tu primer nombre!",
+    JUDGE_NEXT      = "%d más para %s",
+    JUDGE_MAX       = "Rango máximo alcanzado – los nombres te temen.",
+    JUDGE_TITLE     = "Los mejores jueces:",
+    JUDGE_COUNT     = "%d nombres valorados",
+    JUDGE_FOOTER    = "Nombres valorados por jugador · %s",
+    MM_JUDGE        = "Rango de juez: %s",
+    HELP_JUDGES     = "/ns jueces – tu rango de juez y los mejores jueces",
+    OPT_JUDGES      = "Aparecer en la lista de jueces",
+    OPT_JUDGES_TIP  = "Comparte cuántos nombres has valorado, para aparecer en la lista de jueces de los demás. Desactivado, desapareces de sus listas.",
+    OPT_JUDGE_TT    = "Rango de juez en el tooltip",
+    OPT_JUDGE_TT_TIP = "Muestra el rango de juez de los jugadores en su tooltip.",
+    JUDGE_H = {
+        "Explorador de nombres", -- 1
+        "Bruto de la gramática", -- 5
+        "Sargento de sílabas", -- 10
+        "Sargento mayor de la ortografía", -- 20
+        "Brigada de los apellidos", -- 30
+        "Guardia de piedra de los apodos", -- 40
+        "Guardia de sangre de los juegos de palabras", -- 50
+        "Legionario de las letras", -- 75
+        "Centurión de las consonantes", -- 100
+        "Campeón de los nombres", -- 150
+        "Teniente general del lore", -- 200
+        "General de la nomenclatura", -- 250
+        "Señor de la guerra del ingenio", -- 500
+        "Gran señor de la guerra de los nombres", -- 1000
+    },
+    JUDGE_A = {
+        "Soldado de los seudónimos", -- 1
+        "Cabo del alfabeto", -- 5
+        "Sargento de sílabas", -- 10
+        "Sargento maestro de la ortografía", -- 20
+        "Sargento mayor de los apellidos", -- 30
+        "Caballero de los apodos", -- 40
+        "Caballero teniente de los juegos de palabras", -- 50
+        "Caballero capitán de las letras", -- 75
+        "Caballero campeón de las consonantes", -- 100
+        "Teniente coronel de los nombres", -- 150
+        "Comandante del lore", -- 200
+        "Mariscal de la nomenclatura", -- 250
+        "Mariscal de campo del ingenio", -- 500
+        "Gran mariscal de los nombres", -- 1000
+    },
     BIND_RATE       = "Valorar objetivo",
     BIND_HALL       = "Abrir/cerrar salón de la fama",
 

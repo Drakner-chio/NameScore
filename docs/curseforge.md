@@ -39,6 +39,15 @@ Click the **minimap button** or type `/ns top`:
 
 ![No servers, no fake votes](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
 
+## Become a High Warlord – of names
+
+Every name you rate makes you a better judge: **14 judge ranks** from 1 to 1000 rated names, modelled on the old PvP ranks of your faction – with a twist. Start as *Scout of Names* or *Private of Pseudonyms*, climb through *Sergeant of Syllables*, *Knight of Nicknames* and *Warlord of Wordplay*, and end as **High Warlord of Names** or **Grand Marshal of Names**.
+
+- **Judges tab** in the hall of fame: who in your guild, group and friends rated the most names
+- Your rank shows in your tooltip, on the *Me* tab and on the minimap button
+- Every name counts once – deleting or old votes never lower your rank
+- Only the number is shared; switch off *Show me in the judges list* if you'd rather not appear
+
 ## No servers. No fake votes.
 
 Votes travel invisibly through your **guild**, your **party/raid** and **whispers to online friends** – throttled and never visible in the chat window.
@@ -73,6 +82,7 @@ NameScore rates **names, not people** – a bit of fun among friends. There are 
 | `/ns check Name` | Look up a player's score |
 | `/ns users` | How many online guild members use NameScore |
 | `/ns optout`, `/ns optin` | Don't let others rate you / allow it again |
+| `/ns judges` | Your judge rank and the top judges |
 | `/ns friends` | Sync with online friends on/off |
 | `/ns sync` | Ask guild, group and friends for new votes |
 | `/ns minimap` | Show or hide the minimap button |

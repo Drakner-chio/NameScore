@@ -1,6 +1,19 @@
 # NameScore
 
 ## Unreleased
+- **Judge ranks:** every name you rate makes you a better judge. 14 ranks at 1, 5, 10,
+  20, 30, 40, 50, 75, 100, 150, 200, 250, 500 and 1000 rated names – modelled on the old
+  PvP ranks of your faction, with a twist: from *Scout of Names* and *Private of
+  Pseudonyms* up to *High Warlord of Names* and *Grand Marshal of Names*, with the PvP
+  rank badges. Every name you ever rated counts once per character; deleted or old votes
+  don't lower your rank. A rank-up gets a line in chat.
+- **Judges list:** a new *Judges* tab in the hall of fame shows who in your guild, group
+  and friends rated the most names. Only the number is shared. Don't want to be listed?
+  Switch off *Show me in the judges list* in the settings.
+- Judge ranks also appear in player tooltips (can be switched off), on the *Me* tab, in
+  the minimap tooltip and with `/ns judges` (German `/ns richter`).
+
+## v1.1.0
 - **Sync with friends:** NameScore now also exchanges votes with the online friends on
   your friend list – even across guilds. They are asked invisibly by whisper at login,
   on `/ns sync` and when they come online; friends who use NameScore also get your new

@@ -18,6 +18,8 @@ ns.DEFAULTS = {
     badgeSize = 2,      -- tooltip badge: 1 small (one line), 2 normal, 3 large
     optOut    = false,  -- "don't rate me": others stop showing and accepting ratings of us
     friendsSync = true, -- also sync with online friends from the friend list (whispers)
+    showInJudges = true, -- share how many names we rated (judges list of others)
+    showJudgeTT = true,  -- show the judge rank of players in their tooltip
 }
 
 -- Internal tag ids. They are part of the sync protocol and saved data,
@@ -649,6 +651,8 @@ function ns.FormatStars(stars)
     return (string.format("%.1f", stars):gsub("%.", L.DECIMAL))
 end
 
+local NoteRated  -- judge ranks, defined further below
+
 function ns.Rate(key, stars, tags)
     if not key then ns.Print(L.NO_TARGET) return end
     local reason = ns.OwnReason(key)
@@ -667,6 +671,7 @@ function ns.Rate(key, stars, tags)
     local v = { s = half, tags = clean, ts = time() }
     ns.db.votes[key][ns.me] = v
     BroadcastAll(VoteMessage(key, v))
+    NoteRated(key)
     ns.Print(string.format(L.RATED, ns.ShortName(key), ns.FormatStars(stars),
         ns.Plural(stars, L.STAR, L.STARS), ns.ScoreLine(key)))
 end
@@ -698,6 +703,141 @@ function ns.SetOptOut(on)
     ns.db.optOutTs = time()
     ns.BroadcastOptOut()
     ns.Print(on and L.OPTOUT_ON or L.OPTOUT_OFF)
+end
+
+-- ---------------------------------------------------------------
+-- Judge ranks (since 1.2): every name you ever rated counts once, per
+-- character. The 14 ranks follow the old PvP ranks of your faction.
+-- The count is shared with guild, group and friend peers:
+--   J|<count>|<H/A>     (J|-1|… = "don't list me")
+-- ---------------------------------------------------------------
+local JUDGE_STEPS = { 1, 5, 10, 20, 30, 40, 50, 75, 100, 150, 200, 250, 500, 1000 }
+ns.JUDGE_STEPS = JUDGE_STEPS
+local JUDGE_ICON = "Interface\\PvPRankBadges\\PvPRank%02d"
+local JUDGE_SEND_DELAY = 30     -- seconds: new ratings are shared bundled, not one by one
+local judgeCount = 0
+local judgeSendPending = false
+
+-- 0 = no rank yet, 1..14
+function ns.JudgeRank(n)
+    local r = 0
+    for i, step in ipairs(JUDGE_STEPS) do
+        if n >= step then r = i end
+    end
+    return r
+end
+
+function ns.JudgeIcon(r, size)
+    if not r or r < 1 then return "" end
+    return "|T" .. string.format(JUDGE_ICON, r) .. ":" .. (size or 0) .. "|t"
+end
+
+function ns.JudgeName(r, faction)
+    if not r or r < 1 then return nil end
+    return ((faction == "A") and L.JUDGE_A or L.JUDGE_H)[r]
+end
+
+function ns.MyFaction()
+    local ok, f = pcall(UnitFactionGroup, "player")
+    return (ok and f == "Alliance") and "A" or "H"
+end
+
+function ns.MyJudgeCount() return judgeCount end
+
+-- { n = count, f = "H"/"A" } of a player, or nil if unknown/hidden
+function ns.JudgeInfo(name)
+    if not name or not ns.db then return nil end
+    if ns.me and name:lower() == ns.me:lower() then
+        return { n = judgeCount, f = ns.MyFaction(), me = true }
+    end
+    return ns.db.judges[name]
+end
+
+-- All known judges incl. ourselves, most names first
+function ns.JudgeList()
+    local list = {}
+    for name, j in pairs(ns.db.judges) do
+        if j.n > 0 then list[#list + 1] = { name = name, n = j.n, f = j.f } end
+    end
+    if judgeCount > 0 then list[#list + 1] = { name = ns.me, n = judgeCount, f = ns.MyFaction(), me = true } end
+    table.sort(list, function(a, b)
+        if a.n ~= b.n then return a.n > b.n end
+        return a.name < b.name
+    end)
+    return list
+end
+
+-- "13 more to <rank>" / "highest rank"
+function ns.JudgeNextText(n, faction)
+    local r = ns.JudgeRank(n)
+    local step = JUDGE_STEPS[r + 1]
+    if not step then return L.JUDGE_MAX end
+    return string.format(L.JUDGE_NEXT, step - n, ns.JudgeName(r + 1, faction))
+end
+
+local function JudgeMessage()
+    if not ns.Setting("showInJudges") then return "J|-1|" .. ns.MyFaction() end
+    return "J|" .. judgeCount .. "|" .. ns.MyFaction()
+end
+
+function ns.BroadcastJudge()
+    judgeSendPending = false
+    if judgeCount > 0 or not ns.Setting("showInJudges") then BroadcastAll(JudgeMessage()) end
+end
+
+-- Count all names this character ever rated (also from before 1.2)
+local function CountJudge()
+    ns.db.rated[ns.me] = ns.db.rated[ns.me] or {}
+    local mine = ns.db.rated[ns.me]
+    for key, votes in pairs(ns.db.votes) do
+        local v = votes[ns.me]
+        if v and v.s > 0 then mine[key] = true end
+    end
+    judgeCount = 0
+    for _ in pairs(mine) do judgeCount = judgeCount + 1 end
+end
+
+NoteRated = function(key)
+    local mine = ns.db.rated[ns.me]
+    if not mine or mine[key] then return end
+    mine[key] = true
+    local before = ns.JudgeRank(judgeCount)
+    judgeCount = judgeCount + 1
+    local after = ns.JudgeRank(judgeCount)
+    if after > before then
+        ns.Print(string.format(L.JUDGE_RANKUP, ns.JudgeIcon(after, 16) .. " |cffffd100" ..
+            ns.JudgeName(after, ns.MyFaction()) .. "|r", judgeCount))
+        pcall(PlaySound, 888)  -- level up sound
+    end
+    if not judgeSendPending and ns.Setting("showInJudges") then
+        judgeSendPending = true
+        C_Timer.After(JUDGE_SEND_DELAY, ns.BroadcastJudge)
+    end
+end
+
+function ns.SetShowInJudges(on)
+    ns.db.settings.showInJudges = on and true or false
+    BroadcastAll(JudgeMessage())
+end
+
+function ns.PrintJudges()
+    local n, f = judgeCount, ns.MyFaction()
+    local r = ns.JudgeRank(n)
+    if r > 0 then
+        ns.Print(string.format(L.JUDGE_YOU, ns.JudgeIcon(r, 16) .. " |cffffd100" .. ns.JudgeName(r, f) .. "|r", n))
+    else
+        ns.Print(L.JUDGE_NONE)
+    end
+    DEFAULT_CHAT_FRAME:AddMessage("   |cffaaaaaa" .. ns.JudgeNextText(n, f) .. "|r")
+    local list = ns.JudgeList()
+    if #list > 1 then
+        DEFAULT_CHAT_FRAME:AddMessage("   " .. L.JUDGE_TITLE)
+        for i = 1, math.min(5, #list) do
+            local j = list[i]
+            DEFAULT_CHAT_FRAME:AddMessage(string.format("   %d. %s %s |cffaaaaaa(%d)|r", i,
+                ns.JudgeIcon(ns.JudgeRank(j.n), 14), ns.ShortName(j.name), j.n))
+        end
+    end
 end
 
 -- ---------------------------------------------------------------
@@ -834,6 +974,16 @@ local function HandleMessage(msg, sender, chatType)
         ns.NoteVersion(msg:sub(6))
     elseif msg:sub(1, 4) == "VER|" then
         ns.NoteVersion(msg:sub(5))
+    elseif msg:sub(1, 2) == "J|" then
+        -- How many names the sender rated (judges list); -1 = don't list me
+        local n, f = msg:match("^J|(%-?%d+)|([HA])$")
+        n = tonumber(n)
+        if not n then return end
+        if n < 0 then
+            ns.db.judges[sender] = nil
+        elseif n <= 100000 then
+            ns.db.judges[sender] = { n = n, f = f, ts = time() }
+        end
     elseif msg:sub(1, 2) == "V|" then
         local key, s, tagStr, ts = msg:match("^V|([^|]+)|(%d+)|([%a,]*)|(%d+)$")
         s, ts = tonumber(s), tonumber(ts)
@@ -856,6 +1006,7 @@ local function HandleMessage(msg, sender, chatType)
         lastReq[sender] = now
         if chatType == "WHISPER" then NoteFriendPeer(sender) end
         if ns.db.optOutTs then Enqueue(OptMessage(), "WHISPER", sender) end
+        if judgeCount > 0 and ns.Setting("showInJudges") then Enqueue(JudgeMessage(), "WHISPER", sender) end
         local newest = NewestOwnTs()
         if newest > 0 then Enqueue("HI|" .. newest, "WHISPER", sender) end
     elseif msg:sub(1, 4) == "OPT|" then
@@ -952,6 +1103,10 @@ local function PruneDB(db)
         end
         if next(votes) == nil then db.votes[key] = nil end
     end
+    -- Judges not heard of for as long are dropped from the list
+    for name, j in pairs(db.judges or {}) do
+        if (j.ts or 0) < limit then db.judges[name] = nil end
+    end
 end
 
 -- ---------------------------------------------------------------
@@ -968,6 +1123,7 @@ local CMD = {
     ich = "me", me = "me", moi = "me", yo = "me",
     optout = "optout", privat = "optout", private = "optout",
     optin = "optin", ["öffentlich"] = "optin", oeffentlich = "optin", public = "optin",
+    richter = "judges", judges = "judges", juges = "judges", jueces = "judges", rang = "judges", rank = "judges",
     freunde = "friends", friends = "friends", amis = "friends", amigos = "friends",
     nutzer = "users", users = "users", utilisateurs = "users", usuarios = "users",
     ["größe"] = "size", groesse = "size", size = "size", taille = "size", ["tamaño"] = "size", tamano = "size",
@@ -1047,6 +1203,8 @@ SlashCmdList.NAMESCORE = function(input)
         ns.ToggleSetting("showOwn", L.OPT_OWN)
     elseif cmd == "elvui" then
         ns.ToggleSetting("elvSkin", L.OPT_ELVUI)
+    elseif cmd == "judges" then
+        ns.PrintJudges()
     elseif cmd == "friends" then
         ns.SetFriendsSync(not ns.Setting("friendsSync"))
         ns.Print(L.OPT_FRIENDS .. ": " .. (ns.Setting("friendsSync") and "|cff1eff00ON|r" or "|cffff4040OFF|r"))
@@ -1067,6 +1225,7 @@ SlashCmdList.NAMESCORE = function(input)
         ns.Print(L.HELP_OPTIONS)
         ns.Print(L.HELP_SIZE)
         ns.Print(L.HELP_MINIMAP)
+        ns.Print(L.HELP_JUDGES)
         ns.Print(L.HELP_FRIENDS)
         ns.Print(L.HELP_SYNC)
     end
@@ -1090,6 +1249,8 @@ ev:SetScript("OnEvent", function(_, event, ...)
         ns.db.settings = ns.db.settings or {}
         ns.db.sync = ns.db.sync or {}       -- per sender: complete up to this time
         ns.db.optout = ns.db.optout or {}   -- per player: { on = bool, ts = time }
+        ns.db.rated = ns.db.rated or {}     -- per own character: { [key] = true }, never pruned
+        ns.db.judges = ns.db.judges or {}   -- per player: { n = names rated, f = "H"/"A", ts = time }
         for k, v in pairs(ns.DEFAULTS) do
             if ns.db.settings[k] == nil then ns.db.settings[k] = v end
         end
@@ -1107,6 +1268,7 @@ ev:SetScript("OnEvent", function(_, event, ...)
         if not ok then geterrorhandler()(err) end
         NormalizeDB(ns.db)
         PruneDB(ns.db)
+        CountJudge()
         -- Ask the server for the friend list, so it is there for the friends sync
         pcall(function() if C_FriendList and C_FriendList.ShowFriends then C_FriendList.ShowFriends() end end)
         C_Timer.After(8, function()
@@ -1115,13 +1277,14 @@ ev:SetScript("OnEvent", function(_, event, ...)
             if id and id > 0 then LeaveChannelByName(OLD_SYNC_CHANNEL) end
             ns.BroadcastOptOut()
             ns.BroadcastVersion()
+            ns.BroadcastJudge()
             ns.RequestSync()
         end)
         C_Timer.After(20, function() ns.CountGuildUsers() end)
     elseif event == "FRIENDLIST_UPDATE" then
         if ns.me then ns.OnFriendListUpdate() end
     elseif event == "GROUP_JOINED" then
-        C_Timer.After(3, function() ns.BroadcastOptOut(); ns.BroadcastVersion(); ns.RequestSync() end)
+        C_Timer.After(3, function() ns.BroadcastOptOut(); ns.BroadcastVersion(); ns.BroadcastJudge(); ns.RequestSync() end)
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, msg, chatType, sender = ...
         if prefix == PREFIX and ns.db and ns.me then HandleMessage(msg, sender, chatType) end

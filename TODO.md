@@ -8,6 +8,7 @@ Ideas and planned features for NameScore.
 
 ## Done
 
+- [x] **Judge ranks** with 14 PvP-style ranks and a synced judges list (v1.2.0)
 - [x] **Sync with friends** from other guilds via whisper (v1.1.0)
 - [x] **Hall of fame fits its content** (v1.1.0)
 - [x] **Update notice** for newer releases (v1.1.0)

@@ -48,6 +48,7 @@ behalf of others.
 | `REQ` | Request from clients before 0.4; answered with up to 300 own votes |
 | `PING` (guild) / `PONG\|<version>` (whisper) | Counting NameScore users in the guild; only the number is shown, names are kept in memory for the few seconds of a count |
 | `VER\|<version>` (guild/group, at login) | Own version; a newer full release (no beta) triggers a one-time update notice. Older clients ignore it |
+| `J\|<count>\|<H/A>` (guild/group/friend peers, at login, ~30 s after new ratings, whispered on `SYN`) | How many names the sender rated, and their faction for the rank names. `J\|-1\|…` = "don't list me" (since 1.2) |
 | `OPT\|<0/1>\|<time>` (guild/group, and whispered on `SYN`) | Sender opts out of (1) or back into (0) being rated; newest choice wins. Covers the sender and their pets, not their guild |
 
 **Friends sync (1.1):** at login, on `/ns sync` and when a friend comes online, `SYN`
@@ -75,6 +76,9 @@ guild, party/raid and whispers.
 | Pet | `P:<owner key>:<pet name>` |
 
 `NameScoreDB.optout[player] = { on = bool, ts = time }` – opt-out choices of others. Votes for an opted-out player and their pets are kept but hidden everywhere, so an opt-in restores them.
+
+`NameScoreDB.rated[character][key] = true` – every name this character ever rated (judge rank); never pruned.
+`NameScoreDB.judges[player] = { n = count, f = "H"/"A", ts = time }` – judge counts of others; dropped after 6 months without news.
 
 Tag ids are `lustig episch kreativ wortspiel lore klassiker cute cringe`; older versions
 ignore ids they don't know. Votes older than 6 months are removed on login.

@@ -197,7 +197,17 @@ local function AddToTooltip(tt)
     local key = ns.UnitKey(unit, TooltipLines(tt))
     if not key then return end
 
-    if UnitIsPlayer(unit) then AnnotateGuild(tt, unit) end
+    if UnitIsPlayer(unit) then
+        AnnotateGuild(tt, unit)
+        -- Judge rank: how many names this player rated
+        if ns.Setting("showJudgeTT") then
+            local j = ns.JudgeInfo(key)
+            local r = j and ns.JudgeRank(j.n) or 0
+            if r > 0 then
+                tt:AddLine(ns.JudgeIcon(r) .. " |cffc8b48c" .. ns.JudgeName(r, j.f) .. "|r |cff777777(" .. j.n .. ")|r")
+            end
+        end
+    end
 
     if ns.IsOptedOut(key) then
         tt:AddLine("|cffff8000NameScore|r |cff777777– " .. L.OPTED_OUT_TT .. "|r")

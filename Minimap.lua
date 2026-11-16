@@ -20,6 +20,11 @@ local function FillTooltip(tt)
         tt:AddLine(string.format(L.MM_VOTES, ns.CountVotes()), 0.6, 0.6, 0.6)
         local users = ns.GuildCountText()
         if users then tt:AddLine(users, 0.6, 0.6, 0.6, true) end
+        local jr = ns.JudgeRank(ns.MyJudgeCount())
+        if jr > 0 then
+            tt:AddLine(string.format(L.MM_JUDGE, ns.JudgeIcon(jr) .. " " .. ns.JudgeName(jr, ns.MyFaction()) ..
+                " (" .. ns.MyJudgeCount() .. ")"), 1, 0.82, 0)
+        end
         local friends = ns.CountFriendPeers and ns.CountFriendPeers() or 0
         if friends > 0 then tt:AddLine(string.format(L.MM_FRIENDS, friends), 0.6, 0.6, 0.6) end
         if ns.newerVersion then

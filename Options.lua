@@ -35,6 +35,17 @@ function ns.BuildOptions()
         fr:SetValueChangedCallback(function(_, value) ns.SetFriendsSync(value) end)
     end
 
+    local jl = Settings.RegisterAddOnSetting(cat, "NameScore_showInJudges", "showInJudges", s,
+        Settings.VarType.Boolean, L.OPT_JUDGES, ns.DEFAULTS.showInJudges)
+    Settings.CreateCheckbox(cat, jl, L.OPT_JUDGES_TIP)
+    if jl and jl.SetValueChangedCallback then
+        jl:SetValueChangedCallback(function(_, value) ns.SetShowInJudges(value) end)
+    end
+
+    local jt = Settings.RegisterAddOnSetting(cat, "NameScore_showJudgeTT", "showJudgeTT", s,
+        Settings.VarType.Boolean, L.OPT_JUDGE_TT, ns.DEFAULTS.showJudgeTT)
+    Settings.CreateCheckbox(cat, jt, L.OPT_JUDGE_TT_TIP)
+
     local sizeSetting = Settings.RegisterAddOnSetting(cat, "NameScore_badgeSize", "badgeSize", s,
         Settings.VarType.Number, L.OPT_SIZE, ns.DEFAULTS.badgeSize)
     local function SizeOptions()
@@ -79,6 +90,8 @@ function ns.OpenOptions()
     ns.Print(L.OPT_BADGE .. ": " .. OnOff(ns.Setting("showBadge")) .. "  (/ns badge)")
     ns.Print(L.OPT_OWN .. ": " .. OnOff(ns.Setting("showOwn")) .. "  (/ns own)")
     ns.Print(L.OPT_OPTOUT .. ": " .. OnOff(ns.Setting("optOut")) .. "  (/ns optout, /ns optin)")
+    ns.Print(L.OPT_JUDGES .. ": " .. OnOff(ns.Setting("showInJudges")))
+    ns.Print(L.OPT_JUDGE_TT .. ": " .. OnOff(ns.Setting("showJudgeTT")))
     ns.Print(L.OPT_FRIENDS .. ": " .. OnOff(ns.Setting("friendsSync")) .. "  (/ns friends)")
     ns.Print(L.OPT_SIZE .. ": " .. ns.SizeLabel(ns.Setting("badgeSize")) .. "  (/ns size 1-3)")
     ns.Print(L.OPT_MIN .. ": " .. ns.Setting("minVotes") .. "  (/ns min 1-5)")
