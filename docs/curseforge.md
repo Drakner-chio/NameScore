@@ -37,7 +37,7 @@ Click the **minimap button** or type `/ns top`:
 - **Mine:** everything you rated – click a name to change your vote
 - **Me:** what others think of your name, your guild and your pets – score, top tags and how many votes gave how many stars, without the names of the voters
 
-![No servers, no fake votes](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
+![Become a High Warlord – of names](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-6.jpg)
 
 ## Become a High Warlord – of names
 
@@ -47,6 +47,8 @@ Every name you rate makes you a better judge: **14 judge ranks** from 1 to 1000 
 - Your rank shows in your tooltip, on the *Me* tab and on the minimap button
 - Every name counts once – deleting or old votes never lower your rank
 - Only the number is shared; switch off *Show me in the judges list* if you'd rather not appear
+
+![No servers, no fake votes](https://raw.githubusercontent.com/Drakner-chio/NameScore/main/docs/images/namescore-5.jpg)
 
 ## No servers. No fake votes.
 
@@ -77,7 +79,7 @@ NameScore rates **names, not people** – a bit of fun among friends. There are 
 | `/ns 3.5 funny creative` | Rate your target directly with stars and tags |
 | `/ns guild` | Rate your target's guild |
 | `/ns delete` | Delete your vote for your target |
-| `/ns top` | Hall of fame |
+| `/ns top` | Hall of fame (Top, Flop, Mine, Me, Judges) |
 | `/ns me` | What others think of you |
 | `/ns check Name` | Look up a player's score |
 | `/ns users` | How many online guild members use NameScore |

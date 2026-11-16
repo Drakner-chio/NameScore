@@ -89,6 +89,17 @@ h2 em { font-style: normal; color: var(--acc); }
 .feat .f2 span { color: var(--muted); font-size: 13px; line-height: 1.45; }
 .feat .f2 i { font-style: normal; color: var(--acc); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 8px; }
 .note { position: absolute; font-size: 13px; color: var(--acc); }
+
+.ladder { width: 100%; border-collapse: collapse; font-size: 13px; background: rgba(20,23,27,.9); border: 1px solid var(--line); }
+.ladder th { text-align: left; font-family: Grotesk; font-weight: 600; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--acc); padding: 9px 10px 7px; border-bottom: 1px solid var(--line); }
+.ladder td { padding: 0 10px; height: 26px; color: var(--text); white-space: nowrap; }
+.ladder td.n { color: var(--faint); font-family: Grotesk; font-weight: 600; text-align: right; width: 44px; }
+.ladder td.h { color: #ffb3a1; } .ladder td.a { color: #9cc4ff; }
+.ladder .rb { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #120c04; background: rgba(var(--acc-rgb),.55); }
+.ladder tr.you { background: linear-gradient(90deg, rgba(var(--acc-rgb),.14), transparent 80%); }
+.ladder tr.you .rb { background: var(--acc); }
+.ladder tr.top td.h, .ladder tr.top td.a { font-weight: 700; }
+.ladder tr.top .rb { background: var(--legendary); }
 </style>
 </head>
 <body>
@@ -221,15 +232,15 @@ h2 em { font-style: normal; color: var(--acc); }
   <div class="left">
     <div class="pill">Hall of fame</div>
     <h2>The best names.<br><em>And the worst.</em></h2>
-    <p class="lead">The best and worst rated players, guilds and pets around you, everything you rated – and on <b>Me</b>, what others think of you.</p>
+    <p class="lead">The best and worst rated players, guilds and pets around you, everything you rated, what others think of you – and who rated the most.</p>
     <p class="foot">/ns top or the minimap button · click a name to change your vote</p>
   </div>
   <div class="right">
     <div class="win" style="width:430px">
       <div class="head"><img src="../../media/icon-400.png"><b>NameScore</b><i>Hall of fame</i><span class="x">×</span></div>
       <div class="body">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-          <div class="btn on">Top</div><div class="btn">Flop</div><div class="btn">Mine</div><div class="btn">Me</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+          <div class="btn on">Top</div><div class="btn">Flop</div><div class="btn">Mine</div><div class="btn">Me</div><div class="btn">Judges</div>
         </div>
         <div class="rows">
           <div class="r first"><span class="p">1</span><span>Tankenstein Eisenfaust</span><span class="n">14</span><span class="v" style="color:var(--legendary)">9.6</span></div>
@@ -263,6 +274,36 @@ h2 em { font-style: normal; color: var(--acc); }
       <div class="f2"><i>Your UI</i><b>ElvUI &amp; EllesmereUI</b><span>Windows follow your theme, accent colour and font.</span></div>
       <div class="f2"><i>Minimap</i><b>One click away</b><span>Hall of fame, settings and how many friends use it.</span></div>
     </div>
+  </div>
+</div></section>
+
+<!-- 6: judge ranks -->
+<section class="banner" id="b6"><div class="card" style="grid-template-columns: 400px 1fr">
+  <div class="brand"><img src="../../media/icon-400.png"><span>NameScore</span></div>
+  <div class="left">
+    <div class="pill">Judge ranks</div>
+    <h2>Become a High Warlord.<br><em>Of names.</em></h2>
+    <p class="lead">Every name you rate makes you a better judge – <b>14 ranks</b> in the style of the old PvP ranks of your faction. The <b>Judges</b> tab shows who rated the most.</p>
+    <p class="foot">Every name counts once · only the number is shared · /ns judges</p>
+  </div>
+  <div class="right" style="padding-top:40px">
+    <table class="ladder">
+      <tr><th style="text-align:right">Names</th><th></th><th>Horde</th><th>Alliance</th></tr>
+<tr><td class="n">1</td><td><span class="rb">1</span></td><td class="h">Scout of Names</td><td class="a">Private of Pseudonyms</td></tr>
+<tr><td class="n">5</td><td><span class="rb">2</span></td><td class="h">Grunt of Grammar</td><td class="a">Corporal of the Alphabet</td></tr>
+<tr><td class="n">10</td><td><span class="rb">3</span></td><td class="h">Sergeant of Syllables</td><td class="a">Sergeant of Syllables</td></tr>
+<tr><td class="n">20</td><td><span class="rb">4</span></td><td class="h">Senior Sergeant of Spelling</td><td class="a">Master Sergeant of Spelling</td></tr>
+<tr><td class="n">30</td><td><span class="rb">5</span></td><td class="h">First Sergeant of Surnames</td><td class="a">Sergeant Major of Surnames</td></tr>
+<tr><td class="n">40</td><td><span class="rb">6</span></td><td class="h">Stone Guard of Nicknames</td><td class="a">Knight of Nicknames</td></tr>
+<tr class="you"><td class="n">50</td><td><span class="rb">7</span></td><td class="h">Blood Guard of Puns</td><td class="a">Knight-Lieutenant of Puns</td></tr>
+<tr><td class="n">75</td><td><span class="rb">8</span></td><td class="h">Legionnaire of Letters</td><td class="a">Knight-Captain of Letters</td></tr>
+<tr><td class="n">100</td><td><span class="rb">9</span></td><td class="h">Centurion of Consonants</td><td class="a">Knight-Champion of Consonants</td></tr>
+<tr><td class="n">150</td><td><span class="rb">10</span></td><td class="h">Champion of Names</td><td class="a">Lieutenant Commander of Names</td></tr>
+<tr><td class="n">200</td><td><span class="rb">11</span></td><td class="h">Lieutenant General of Lore</td><td class="a">Commander of Lore</td></tr>
+<tr><td class="n">250</td><td><span class="rb">12</span></td><td class="h">General of Nomenclature</td><td class="a">Marshal of Nomenclature</td></tr>
+<tr><td class="n">500</td><td><span class="rb">13</span></td><td class="h">Warlord of Wordplay</td><td class="a">Field Marshal of Wordplay</td></tr>
+<tr class="top"><td class="n">1000</td><td><span class="rb">14</span></td><td class="h">High Warlord of Names</td><td class="a">Grand Marshal of Names</td></tr>
+    </table>
   </div>
 </div></section>
 

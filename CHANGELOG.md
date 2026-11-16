@@ -1,6 +1,6 @@
 # NameScore
 
-## Unreleased
+## v1.1.1
 - **Judge ranks:** every name you rate makes you a better judge. 14 ranks at 1, 5, 10,
   20, 30, 40, 50, 75, 100, 150, 200, 250, 500 and 1000 rated names – modelled on the old
   PvP ranks of your faction, with a twist: from *Scout of Names* and *Private of
